@@ -41,7 +41,7 @@ import Base from "../layouts/Base.astro";
 <style>
   /* ── Header ── */
   .site-header {
-    background: linear-gradient(135deg, #0d0d1a 0%, #111827 60%, #0f1f3d 100%);
+    background: var(--header-bg);
     padding: 10px 24px;
     display: flex;
     align-items: center;
@@ -63,8 +63,8 @@ import Base from "../layouts/Base.astro";
     flex-shrink: 0;
   }
   #searchInput {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid #252f45;
+    background: var(--search-bg);
+    border: 1px solid var(--search-border);
     border-radius: 20px;
     color: var(--text);
     font-size: 13px;
@@ -74,7 +74,7 @@ import Base from "../layouts/Base.astro";
     outline: none;
     transition: border-color 0.2s, width 0.3s, background 0.2s;
   }
-  #searchInput:focus { border-color: var(--accent); background: rgba(255,255,255,0.09); width: 280px; }
+  #searchInput:focus { border-color: var(--accent); background: var(--search-bg); width: 280px; }
   #searchInput::placeholder { color: var(--text3); }
   .search-icon {
     position: absolute; left: 10px; top: 50%;
@@ -83,8 +83,8 @@ import Base from "../layouts/Base.astro";
   }
 
   .theme-toggle {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid #252f45;
+    background: var(--search-bg);
+    border: 1px solid var(--search-border);
     border-radius: 8px;
     padding: 5px 9px;
     font-size: 15px;
@@ -93,7 +93,7 @@ import Base from "../layouts/Base.astro";
     transition: background 0.15s;
     line-height: 1;
   }
-  .theme-toggle:hover { background: rgba(255,255,255,0.13); }
+  .theme-toggle:hover { background: var(--bg3); }
 
   /* ── Layout ── */
   .layout {
@@ -166,34 +166,47 @@ import Base from "../layouts/Base.astro";
     提醒: "tag-alert", 知识库: "tag-knowledge",
   };
 
-  // 板块分组：highlight 单独全宽，其余2列
   const WIDE_SECTIONS = new Set(["highlight"]);
 
   let dates: string[] = [];
   let cache: Record<string, Digest> = {};
 
   interface SearchDoc {
-    date: string; sectionTitle: string;
+    date: string; secId: string; secTitle: string;
     title: string; body: string; tag: string; url: string;
   }
-  let searchDocs: SearchDoc[] = [];
   let fuse: Fuse<SearchDoc> | null = null;
 
-  function buildSearchIndex() {
-    searchDocs = [];
+  async function loadSearchIndex() {
+    try {
+      const r = await fetch(`${BASE}search-index.json?t=${Date.now()}`);
+      if (!r.ok) return;
+      const docs: SearchDoc[] = await r.json();
+      fuse = new Fuse(docs, {
+        keys: [{ name: "title", weight: 2 }, { name: "body", weight: 1 }, { name: "secTitle", weight: 0.5 }],
+        threshold: 0.4, includeMatches: true, minMatchCharLength: 2,
+      });
+    } catch { /* 降级：搜索只能搜已加载的 */ }
+  }
+
+  // 降级：从已加载数据建索引
+  function buildFallbackIndex() {
+    const docs: SearchDoc[] = [];
     for (const [date, d] of Object.entries(cache)) {
       for (const sec of d.sections ?? []) {
         for (const item of sec.items ?? []) {
-          searchDocs.push({ date, sectionTitle: sec.title,
-            title: item.title, body: item.body,
+          docs.push({ date, secId: sec.id, secTitle: sec.title,
+            title: item.title, body: (item.body ?? "").slice(0, 100),
             tag: item.tag ?? "", url: item.url ?? "" });
         }
       }
     }
-    fuse = new Fuse(searchDocs, {
-      keys: [{ name: "title", weight: 2 }, { name: "body", weight: 1 }, { name: "sectionTitle", weight: 0.5 }],
-      threshold: 0.4, includeMatches: true, minMatchCharLength: 2,
-    });
+    if (!fuse && docs.length) {
+      fuse = new Fuse(docs, {
+        keys: [{ name: "title", weight: 2 }, { name: "body", weight: 1 }, { name: "secTitle", weight: 0.5 }],
+        threshold: 0.4, includeMatches: true, minMatchCharLength: 2,
+      });
+    }
   }
 
   function highlight(text: string, matches: readonly Fuse.FuseResultMatch[] | undefined, key: string): string {
@@ -222,14 +235,14 @@ import Base from "../layouts/Base.astro";
       return;
     }
     const html = results.map(r => {
-      const { title, body, sectionTitle, date, tag, url } = r.item;
+      const { title, body, secTitle, date, tag, url } = r.item;
       const titleHl = highlight(title, r.matches, "title");
       const bodyHl  = highlight(body,  r.matches, "body");
       const titleEl = url
         ? `<a href="${url}" target="_blank" rel="noopener">${titleHl}</a>`
         : `<span>${titleHl}</span>`;
       return `<article class="card">
-        <div class="card-meta">${date} · ${sectionTitle}</div>
+        <div class="card-meta">${date} · ${secTitle}</div>
         <div class="card-title">${titleEl}${tagHtml(tag)}</div>
         <p class="card-body">${bodyHl}</p>
       </article>`;
@@ -251,7 +264,7 @@ import Base from "../layouts/Base.astro";
     if (!r.ok) throw new Error(`${r.status}`);
     const d: Digest = await r.json();
     cache[date] = d;
-    buildSearchIndex();
+    buildFallbackIndex();
     return d;
   }
 
@@ -396,7 +409,11 @@ import Base from "../layouts/Base.astro";
         return;
       }
       const hash = location.hash.replace("#", "");
-      await showDate(hash && dates.includes(hash) ? hash : dates[0]);
+      // 并行加载搜索索引和首屏数据
+      await Promise.all([
+        loadSearchIndex(),
+        showDate(hash && dates.includes(hash) ? hash : dates[0]),
+      ]);
     } catch {
       document.getElementById("main")!.innerHTML =
         '<div class="state-msg"><div class="icon">⚠️</div><p>无法加载日报列表</p></div>';
@@ -506,8 +523,8 @@ import Base from "../layouts/Base.astro";
   /* ── Summary Hero ── */
   .digest-summary {
     position: relative;
-    background: linear-gradient(135deg, #111827 0%, #0f1f3d 100%);
-    border: 1px solid #1e2d4a; border-radius: 14px;
+    background: var(--summary-bg);
+    border: 1px solid var(--summary-border); border-radius: 14px;
     padding: 20px 22px 20px 26px; overflow: hidden;
     margin-bottom: 12px;
   }
@@ -519,9 +536,9 @@ import Base from "../layouts/Base.astro";
   .digest-summary::after {
     content: '今日速览'; position: absolute; top: 12px; right: 16px;
     font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
-    color: #2a4070; text-transform: uppercase;
+    color: var(--text3); text-transform: uppercase;
   }
-  .digest-summary-text { font-size: 15px; font-weight: 500; color: #b8cce8; line-height: 1.85; }
+  .digest-summary-text { font-size: 15px; font-weight: 500; color: var(--summary-text); line-height: 1.85; }
 
   /* ── Stats bar ── */
   .digest-stats {
@@ -589,10 +606,10 @@ import Base from "../layouts/Base.astro";
   }
   .card:hover { border-color: #3a3a3a; background: var(--bg3); }
   .card--job { border-left: 3px solid #f39c12; }
-  .card--breaking { border-left: 3px solid #e74c3c; background: #1a0f0f; }
-  .card--breaking:hover { background: #201313; }
-  .card--major { border-left: 3px solid #e67e22; background: #1a1208; }
-  .card--major:hover { background: #201608; }
+  .card--breaking { border-left: 3px solid #e74c3c; background: var(--breaking-bg); }
+  .card--breaking:hover { background: var(--breaking-hover); }
+  .card--major { border-left: 3px solid #e67e22; background: var(--major-bg); }
+  .card--major:hover { background: var(--major-hover); }
   .card-title {
     font-size: 14px; font-weight: 600; color: var(--heading);
     margin-bottom: 7px; display: flex; align-items: flex-start;
@@ -645,6 +662,16 @@ import Base from "../layouts/Base.astro";
   .tag-alert       { background: #713f12; color: #fde68a; }
   .tag-knowledge   { background: #1f2937; color: #9ca3af; }
   .tag-default     { background: #2a2a2a; color: #aaa; }
+  /* light override */
+  [data-theme="light"] .tag-breaking    { background: #fee2e2; color: #991b1b; }
+  [data-theme="light"] .tag-major       { background: #ffedd5; color: #9a3412; }
+  [data-theme="light"] .tag-analysis    { background: #dbeafe; color: #1e40af; }
+  [data-theme="light"] .tag-trend       { background: #dcfce7; color: #166534; }
+  [data-theme="light"] .tag-watch       { background: #ede9fe; color: #4c1d95; }
+  [data-theme="light"] .tag-opportunity { background: #d1fae5; color: #065f46; }
+  [data-theme="light"] .tag-alert       { background: #fef3c7; color: #92400e; }
+  [data-theme="light"] .tag-knowledge   { background: #f3f4f6; color: #374151; }
+  [data-theme="light"] .tag-default     { background: #e5e7eb; color: #6b7280; }
 
   /* ── Skeleton ── */
   @keyframes shimmer {
@@ -653,7 +680,7 @@ import Base from "../layouts/Base.astro";
   }
   .skeleton {
     border-radius: 8px;
-    background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+    background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
     background-size: 1200px 100%;
     animation: shimmer 1.6s infinite linear;
   }
