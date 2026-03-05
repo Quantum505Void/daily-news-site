@@ -23,6 +23,8 @@ import Base from "../layouts/Base.astro";
       GitHub
     </a>
   </footer>
+
+  <button class="back-top" id="backTop" aria-label="回到顶部" title="回到顶部">↑</button>
 </Base>
 
 <style>
@@ -192,7 +194,11 @@ import Base from "../layouts/Base.astro";
             const titleEl = item.url
               ? `<a href="${item.url}" target="_blank" rel="noopener">${item.title}</a>`
               : `<span>${item.title}</span>`;
-            return `<article class="card${isJob ? " card--job" : ""}">
+            const extraClass = isJob ? " card--job"
+              : item.tag === "突发" ? " card--breaking"
+              : item.tag === "重磅" ? " card--major"
+              : "";
+            return `<article class="card${extraClass}">
               <div class="card-title">${titleEl}${tagHtml(item.tag)}</div>
               <p class="card-body">${item.body}</p>
             </article>`;
@@ -217,7 +223,7 @@ import Base from "../layouts/Base.astro";
           <span class="digest-badge">${d.title ?? d.date}</span>
           ${genTime ? `<span class="digest-time">生成于 ${genTime}</span>` : ""}
         </div>
-        ${d.summary ? `<div class="digest-summary">${d.summary}</div>` : ""}
+        ${d.summary ? `<div class="digest-summary"><p class="digest-summary-text">${d.summary}</p></div>` : ""}
       </div>
       <nav class="sec-nav">${navHtml}</nav>
       ${sectionsHtml}
@@ -262,6 +268,15 @@ import Base from "../layouts/Base.astro";
     if (d && dates.includes(d)) showDate(d);
   });
 
+  // ── Back to top ──
+  const backTop = document.getElementById("backTop")!;
+  window.addEventListener("scroll", () => {
+    backTop.classList.toggle("visible", window.scrollY > 300);
+  }, { passive: true });
+  backTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
   init();
 </script>
 
@@ -289,16 +304,14 @@ import Base from "../layouts/Base.astro";
 
   /* ── Digest header ── */
   .digest-header {
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
   }
   .digest-top {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
   .digest-title { font-size: 18px; font-weight: 800; color: var(--accent); }
   .digest-title b { color: #fff; font-weight: 800; }
@@ -311,14 +324,39 @@ import Base from "../layouts/Base.astro";
     font-weight: 600;
   }
   .digest-time { font-size: 12px; color: var(--text3); margin-left: auto; }
+
+  /* ── Summary Hero ── */
   .digest-summary {
-    font-size: 15px;
-    color: var(--text);
-    background: var(--bg2);
-    border-left: 3px solid var(--accent);
-    padding: 12px 16px;
-    border-radius: 0 var(--radius) var(--radius) 0;
-    line-height: 1.8;
+    position: relative;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+    border: 1px solid #2a3a5e;
+    border-radius: 14px;
+    padding: 22px 24px 22px 28px;
+    overflow: hidden;
+  }
+  .digest-summary::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #e74c3c, #c0392b);
+    border-radius: 14px 0 0 14px;
+  }
+  .digest-summary::after {
+    content: '今日速览';
+    position: absolute;
+    top: 14px; right: 18px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #3a5080;
+    text-transform: uppercase;
+  }
+  .digest-summary-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #c8d8f0;
+    line-height: 1.85;
   }
 
   /* ── Section nav ── */
@@ -371,6 +409,18 @@ import Base from "../layouts/Base.astro";
   }
   .card:hover { border-color: #3a3a3a; background: var(--bg3); }
   .card--job { border-left: 3px solid #f39c12; }
+  /* 突发：红色左边框 + 深红背景 */
+  .card--breaking {
+    border-left: 3px solid #e74c3c;
+    background: #1a0f0f;
+  }
+  .card--breaking:hover { background: #201313; }
+  /* 重磅：橙色左边框 + 深橙背景 */
+  .card--major {
+    border-left: 3px solid #e67e22;
+    background: #1a1208;
+  }
+  .card--major:hover { background: #201608; }
   .card-title {
     font-size: 15px;
     font-weight: 600;
@@ -405,5 +455,32 @@ import Base from "../layouts/Base.astro";
   .tag-alert       { background: #713f12; color: #fde68a; }
   .tag-knowledge   { background: #1f2937; color: #9ca3af; }
   .tag-default     { background: #2a2a2a; color: #aaa; }
+
+  /* ── Back to top ── */
+  .back-top {
+    position: fixed;
+    bottom: 28px;
+    right: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4);
+    line-height: 1;
+  }
+  .back-top.visible { opacity: 1; transform: translateY(0); }
+  .back-top:hover { background: #c0392b; }
 
 </style>
