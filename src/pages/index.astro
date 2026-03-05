@@ -31,9 +31,7 @@ import Base from "../layouts/Base.astro";
 
   <footer class="page-footer">
     由小新 🔧 自动生成 ·
-    <a href="https://github.com/Quantum505Void/daily-news-site" target="_blank" rel="noopener">
-      GitHub
-    </a>
+    <a href="https://github.com/Quantum505Void/daily-news-site" target="_blank" rel="noopener">GitHub</a>
   </footer>
 
   <button class="back-top" id="backTop" aria-label="回到顶部" title="回到顶部">↑</button>
@@ -42,7 +40,7 @@ import Base from "../layouts/Base.astro";
 <style>
   /* ── Header ── */
   .site-header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    background: linear-gradient(135deg, #0d0d1a 0%, #111827 60%, #0f1f3d 100%);
     padding: 10px 24px;
     display: flex;
     align-items: center;
@@ -56,7 +54,7 @@ import Base from "../layouts/Base.astro";
   .logo { font-size: 22px; font-weight: 900; color: var(--accent); line-height: 1.1; letter-spacing: -0.5px; }
   .logo span { color: #fff; }
   .logo-block { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
-  .tagline { font-size: 11px; color: var(--text2); letter-spacing: 0.5px; opacity: 0.8; }
+  .tagline { font-size: 11px; color: var(--text2); letter-spacing: 0.5px; opacity: 0.7; }
 
   .search-wrap {
     position: relative;
@@ -64,8 +62,8 @@ import Base from "../layouts/Base.astro";
     flex-shrink: 0;
   }
   #searchInput {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid #2a3a5e;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid #252f45;
     border-radius: 20px;
     color: var(--text);
     font-size: 13px;
@@ -75,39 +73,25 @@ import Base from "../layouts/Base.astro";
     outline: none;
     transition: border-color 0.2s, width 0.3s, background 0.2s;
   }
-  #searchInput:focus {
-    border-color: #4a6ea8;
-    background: rgba(255,255,255,0.1);
-    width: 280px;
-  }
+  #searchInput:focus { border-color: var(--accent); background: rgba(255,255,255,0.09); width: 280px; }
   #searchInput::placeholder { color: var(--text3); }
   .search-icon {
-    position: absolute;
-    left: 10px; top: 50%;
+    position: absolute; left: 10px; top: 50%;
     transform: translateY(-50%);
-    color: var(--text3);
-    font-size: 16px;
-    pointer-events: none;
-  }
-
-  @media (max-width: 680px) {
-    .search-wrap { margin-left: 0; width: 100%; }
-    #searchInput { width: 100%; }
-    #searchInput:focus { width: 100%; }
-    .tagline { display: block; font-size: 10px; }
+    color: var(--text3); font-size: 16px; pointer-events: none;
   }
 
   /* ── Layout ── */
   .layout {
     display: flex;
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
     min-height: calc(100vh - 53px - 52px);
   }
 
   /* ── Sidebar ── */
   .sidebar {
-    width: 140px;
+    width: 130px;
     flex-shrink: 0;
     padding: 16px 8px;
     border-right: 1px solid var(--border);
@@ -120,50 +104,40 @@ import Base from "../layouts/Base.astro";
     gap: 2px;
   }
   .sidebar-label {
-    font-size: 10px;
-    color: var(--text3);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: 10px; color: var(--text3);
+    letter-spacing: 0.1em; text-transform: uppercase;
     padding: 0 8px 8px;
   }
 
   /* ── Main ── */
-  .main { flex: 1; min-width: 0; padding: 28px 32px 60px; }
+  .main { flex: 1; min-width: 0; padding: 24px 28px 60px; }
 
   /* ── State msgs ── */
-  :global(.state-msg) {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text2);
-  }
+  :global(.state-msg) { text-align: center; padding: 80px 20px; color: var(--text2); }
   :global(.state-msg .icon) { font-size: 40px; margin-bottom: 12px; }
 
   /* ── Footer ── */
   .page-footer {
-    text-align: center;
-    padding: 18px;
-    color: var(--text3);
-    font-size: 12px;
+    text-align: center; padding: 18px;
+    color: var(--text3); font-size: 12px;
     border-top: 1px solid var(--border);
   }
 
   /* ── Mobile ── */
   @media (max-width: 680px) {
+    .search-wrap { margin-left: 0; width: 100%; }
+    #searchInput { width: 100%; }
+    #searchInput:focus { width: 100%; }
+    .tagline { font-size: 10px; }
     .sidebar {
-      width: 100%;
-      height: auto;
-      position: static;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      padding: 8px 12px;
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-      gap: 4px;
+      width: 100%; height: auto; position: static;
+      flex-direction: row; flex-wrap: nowrap;
+      overflow-x: auto; padding: 8px 12px;
+      border-right: none; border-bottom: 1px solid var(--border); gap: 4px;
     }
     .sidebar-label { display: none; }
     .layout { flex-direction: column; }
-    .main { padding: 16px 14px 40px; }
+    .main { padding: 14px 12px 40px; }
   }
 </style>
 
@@ -171,7 +145,6 @@ import Base from "../layouts/Base.astro";
   import type { Digest, Manifest } from "../types";
   import Fuse from "fuse.js";
 
-  // ── 常量 ──
   const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/?$/, "/");
   const TAG_COLORS: Record<string, string> = {
     突发: "tag-breaking", 重磅: "tag-major", 分析: "tag-analysis",
@@ -179,17 +152,15 @@ import Base from "../layouts/Base.astro";
     提醒: "tag-alert", 知识库: "tag-knowledge",
   };
 
+  // 板块分组：highlight 单独全宽，其余2列
+  const WIDE_SECTIONS = new Set(["highlight"]);
+
   let dates: string[] = [];
   let cache: Record<string, Digest> = {};
 
-  // ── Search index ──
   interface SearchDoc {
-    date: string;
-    sectionTitle: string;
-    title: string;
-    body: string;
-    tag: string;
-    url: string;
+    date: string; sectionTitle: string;
+    title: string; body: string; tag: string; url: string;
   }
   let searchDocs: SearchDoc[] = [];
   let fuse: Fuse<SearchDoc> | null = null;
@@ -199,26 +170,15 @@ import Base from "../layouts/Base.astro";
     for (const [date, d] of Object.entries(cache)) {
       for (const sec of d.sections ?? []) {
         for (const item of sec.items ?? []) {
-          searchDocs.push({
-            date,
-            sectionTitle: sec.title,
-            title: item.title,
-            body: item.body,
-            tag: item.tag ?? "",
-            url: item.url ?? "",
-          });
+          searchDocs.push({ date, sectionTitle: sec.title,
+            title: item.title, body: item.body,
+            tag: item.tag ?? "", url: item.url ?? "" });
         }
       }
     }
     fuse = new Fuse(searchDocs, {
-      keys: [
-        { name: "title", weight: 2 },
-        { name: "body", weight: 1 },
-        { name: "sectionTitle", weight: 0.5 },
-      ],
-      threshold: 0.4,
-      includeMatches: true,
-      minMatchCharLength: 2,
+      keys: [{ name: "title", weight: 2 }, { name: "body", weight: 1 }, { name: "sectionTitle", weight: 0.5 }],
+      threshold: 0.4, includeMatches: true, minMatchCharLength: 2,
     });
   }
 
@@ -226,50 +186,45 @@ import Base from "../layouts/Base.astro";
     if (!matches) return text;
     const m = matches.find(m => m.key === key);
     if (!m?.indices?.length) return text;
-    let result = "";
-    let last = 0;
-    for (const [start, end] of m.indices) {
-      result += text.slice(last, start);
-      result += `<mark>${text.slice(start, end + 1)}</mark>`;
-      last = end + 1;
+    let result = "", last = 0;
+    for (const [s, e] of m.indices) {
+      result += text.slice(last, s) + `<mark>${text.slice(s, e + 1)}</mark>`;
+      last = e + 1;
     }
-    result += text.slice(last);
-    return result;
+    return result + text.slice(last);
+  }
+
+  function tagHtml(tag: string): string {
+    if (!tag) return "";
+    return `<span class="tag ${TAG_COLORS[tag] ?? "tag-default"}">${tag}</span>`;
   }
 
   function renderSearchResults(query: string) {
     if (!fuse || !query.trim()) return;
     const results = fuse.search(query, { limit: 20 });
     const main = document.getElementById("main")!;
-
     if (!results.length) {
       main.innerHTML = `<div class="state-msg"><div class="icon">🔍</div><p>没有找到 "${query}" 的相关内容</p></div>`;
       return;
     }
-
     const html = results.map(r => {
       const { title, body, sectionTitle, date, tag, url } = r.item;
       const titleHl = highlight(title, r.matches, "title");
       const bodyHl  = highlight(body,  r.matches, "body");
-      const tagHl   = tag ? `<span class="tag ${TAG_COLORS[tag] ?? "tag-default"}">${tag}</span>` : "";
       const titleEl = url
         ? `<a href="${url}" target="_blank" rel="noopener">${titleHl}</a>`
         : `<span>${titleHl}</span>`;
       return `<article class="card">
         <div class="card-meta">${date} · ${sectionTitle}</div>
-        <div class="card-title">${titleEl}${tagHl}</div>
+        <div class="card-title">${titleEl}${tagHtml(tag)}</div>
         <p class="card-body">${bodyHl}</p>
       </article>`;
     }).join("");
-
     main.innerHTML = `
-      <div class="search-result-header">
-        🔍 找到 <b>${results.length}</b> 条与 "<b>${query}</b>" 相关的内容
-      </div>
+      <div class="search-result-header">🔍 找到 <b>${results.length}</b> 条与 "<b>${query}</b>" 相关的内容</div>
       <div class="cards">${html}</div>`;
   }
 
-  // ── 数据加载 ──
   async function fetchManifest(): Promise<string[]> {
     const r = await fetch(`${BASE}manifest.json?t=${Date.now()}`);
     const m: Manifest = await r.json();
@@ -286,95 +241,69 @@ import Base from "../layouts/Base.astro";
     return d;
   }
 
-  // ── 渲染 ──
-  function renderSidebar(selected: string) {
-    const nav = document.getElementById("sidebar")!;
-    nav.innerHTML =
-      '<span class="sidebar-label">历史</span>' +
-      dates
-        .slice(0, 30)
-        .map((d, i) => {
-          const active = d === selected ? "active" : "";
-          const label = i === 0 ? "今天" : d.slice(5);
-          return `<button class="date-btn ${active}" data-date="${d}">${label}</button>`;
-        })
-        .join("");
-
-    nav.querySelectorAll(".date-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const date = (btn as HTMLElement).dataset.date!;
-        showDate(date);
-      });
-    });
+  function fmtDate(d: string): string {
+    const [, m, day] = d.split("-");
+    return `${parseInt(m)}月${parseInt(day)}日`;
   }
 
-  function tagHtml(tag: string): string {
-    if (!tag) return "";
-    const cls = TAG_COLORS[tag] ?? "tag-default";
-    return `<span class="tag ${cls}">${tag}</span>`;
+  function renderSidebar(selected: string) {
+    const nav = document.getElementById("sidebar")!;
+    nav.innerHTML = '<span class="sidebar-label">历史</span>' +
+      dates.slice(0, 30).map((d, i) => {
+        const active = d === selected ? "active" : "";
+        const label = i === 0 ? `今天` : fmtDate(d);
+        const sub   = i === 0 ? `<span class="date-sub">${fmtDate(d)}</span>` : "";
+        return `<button class="date-btn ${active}" data-date="${d}">${label}${sub}</button>`;
+      }).join("");
+    nav.querySelectorAll(".date-btn").forEach(btn =>
+      btn.addEventListener("click", () => showDate((btn as HTMLElement).dataset.date!))
+    );
+  }
+
+  function cardHtml(item: any, isJob: boolean): string {
+    const domain = (() => {
+      try { return item.url ? new URL(item.url).hostname.replace(/^www\./, "") : ""; }
+      catch { return ""; }
+    })();
+    const sourceHtml = domain
+      ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">${domain} ↗</a>`
+      : item.url ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>` : "";
+    const extraClass = isJob ? " card--job"
+      : item.tag === "突发" ? " card--breaking"
+      : item.tag === "重磅" ? " card--major" : "";
+    return `<article class="card${extraClass}">
+      <div class="card-title"><span>${item.title}</span>${tagHtml(item.tag)}</div>
+      <p class="card-body card-body--collapsed">${item.body}</p>
+      <div class="card-footer">${sourceHtml}<button class="card-expand">展开 ▾</button></div>
+    </article>`;
   }
 
   function renderV2(d: Digest): string {
     const genTime = d.generated_at
-      ? new Date(d.generated_at).toLocaleTimeString("zh-CN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: "Asia/Shanghai",
-        })
+      ? new Date(d.generated_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Shanghai" })
       : "";
-
     const sections = d.sections ?? [];
-    const navHtml = sections
-      .map((s) => `<a class="sec-nav-btn" href="#sec-${s.id}">${s.icon} ${s.title}</a>`)
-      .join("");
-
-    const sectionsHtml = sections
-      .map((s) => {
-        const isJob = s.id === "jobs_hot";
-        const cards = (s.items ?? [])
-          .map((item) => {
-            const domain = (() => {
-              try { return item.url ? new URL(item.url).hostname.replace(/^www\./, "") : ""; }
-              catch { return ""; }
-            })();
-            const sourceHtml = domain
-              ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">${domain} ↗</a>`
-              : item.url
-                ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>`
-                : "";
-            const titleEl = `<span>${item.title}</span>`;
-            const extraClass = isJob ? " card--job"
-              : item.tag === "突发" ? " card--breaking"
-              : item.tag === "重磅" ? " card--major"
-              : "";
-            return `<article class="card${extraClass}">
-              <div class="card-title">${titleEl}${tagHtml(item.tag)}</div>
-              <p class="card-body card-body--collapsed">${item.body}</p>
-              <div class="card-footer">
-                ${sourceHtml}
-                <button class="card-expand" aria-label="展开">展开 ▾</button>
-              </div>
-            </article>`;
-          })
-          .join("");
-
-        return `<section class="section" id="sec-${s.id}">
-          <div class="section-heading">
-            <span class="section-icon">${s.icon}</span>
-            <h2 class="section-title">${s.title}</h2>
-            <div class="section-bar" style="background:${s.color}"></div>
-          </div>
-          <div class="cards">${cards}</div>
-        </section>`;
-      })
-      .join("");
-
     const totalItems = sections.reduce((n, s) => n + (s.items?.length ?? 0), 0);
-    const statsHtml = `<div class="digest-stats">
-      <span>📋 ${sections.length} 板块</span>
-      <span>📰 ${totalItems} 条资讯</span>
-      ${genTime ? `<span>🕐 更新于 ${genTime}</span>` : ""}
-    </div>`;
+
+    const navHtml = sections
+      .map(s => `<a class="sec-nav-btn" data-sec="${s.id}" href="#sec-${s.id}">${s.icon} ${s.title}</a>`)
+      .join("");
+
+    const sectionsHtml = sections.map(s => {
+      const isJob  = s.id === "jobs_hot";
+      const isWide = WIDE_SECTIONS.has(s.id);
+      const cards  = (s.items ?? []).map(item => cardHtml(item, isJob)).join("");
+      const gridClass = isWide ? "cards cards--wide" : "cards cards--grid";
+      return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}">
+        <div class="section-heading">
+          <span class="section-icon">${s.icon}</span>
+          <h2 class="section-title">${s.title}</h2>
+          <div class="section-bar" style="background:${s.color}"></div>
+          <button class="section-toggle" aria-label="折叠板块">▴</button>
+        </div>
+        <div class="${gridClass}">${cards}</div>
+      </section>`;
+    }).join("");
 
     return `
       <div class="digest-header">
@@ -383,38 +312,48 @@ import Base from "../layouts/Base.astro";
           <span class="digest-badge">${d.title ?? d.date}</span>
         </div>
         ${d.summary ? `<div class="digest-summary"><p class="digest-summary-text">${d.summary}</p></div>` : ""}
-        ${statsHtml}
+        <div class="digest-stats">
+          <span>📋 ${sections.length} 板块</span>
+          <span>📰 ${totalItems} 条资讯</span>
+          ${genTime ? `<span>🕐 更新于 ${genTime}</span>` : ""}
+        </div>
       </div>
-      <nav class="sec-nav">${navHtml}</nav>
-      ${sectionsHtml}
-    `;
+      <nav class="sec-nav" id="secNav">${navHtml}</nav>
+      ${sectionsHtml}`;
   }
 
   async function showDate(date: string) {
     renderSidebar(date);
     location.hash = date;
     const main = document.getElementById("main")!;
-    main.innerHTML = `
-      <div class="skeleton-wrap">
-        <div class="skeleton skeleton-hero"></div>
-        <div class="skeleton-nav">
-          ${Array(6).fill('<div class="skeleton skeleton-pill"></div>').join("")}
-        </div>
-        ${Array(3).fill(`
-          <div class="skeleton-section">
-            <div class="skeleton skeleton-heading"></div>
-            ${Array(3).fill('<div class="skeleton skeleton-card"></div>').join("")}
-          </div>
-        `).join("")}
-      </div>`;
-
+    main.innerHTML = `<div class="skeleton-wrap">
+      <div class="skeleton skeleton-hero"></div>
+      <div class="skeleton-nav">${Array(7).fill('<div class="skeleton skeleton-pill"></div>').join("")}</div>
+      ${Array(3).fill(`<div class="skeleton-section">
+        <div class="skeleton skeleton-heading"></div>
+        ${Array(3).fill('<div class="skeleton skeleton-card"></div>').join("")}
+      </div>`).join("")}
+    </div>`;
     try {
       const d = await fetchDigest(date);
       main.innerHTML = renderV2(d);
       window.scrollTo({ top: 0, behavior: "instant" });
+      initSectionObserver();
     } catch {
       main.innerHTML = '<div class="state-msg"><div class="icon">⚠️</div><p>加载失败，请稍后重试</p></div>';
     }
+  }
+
+  // ── sec-nav 滚动高亮 ──
+  function initSectionObserver() {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const id = e.target.id.replace("sec-", "");
+        const btn = document.querySelector<HTMLElement>(`.sec-nav-btn[data-sec="${id}"]`);
+        if (btn) btn.classList.toggle("active", e.isIntersecting);
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    document.querySelectorAll(".section").forEach(s => obs.observe(s));
   }
 
   async function init() {
@@ -427,8 +366,7 @@ import Base from "../layouts/Base.astro";
         return;
       }
       const hash = location.hash.replace("#", "");
-      const selected = hash && dates.includes(hash) ? hash : dates[0];
-      await showDate(selected);
+      await showDate(hash && dates.includes(hash) ? hash : dates[0]);
     } catch {
       document.getElementById("main")!.innerHTML =
         '<div class="state-msg"><div class="icon">⚠️</div><p>无法加载日报列表</p></div>';
@@ -440,43 +378,50 @@ import Base from "../layouts/Base.astro";
     if (d && dates.includes(d)) showDate(d);
   });
 
-  // ── Back to top ──
+  // ── 回到顶部 ──
   const backTop = document.getElementById("backTop")!;
   window.addEventListener("scroll", () => {
     backTop.classList.toggle("visible", window.scrollY > 300);
   }, { passive: true });
-  backTop.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-  // ── 展开/折叠卡片 ──
+  // ── 事件委托：展开/折叠卡片 + 折叠板块 ──
   document.getElementById("main")!.addEventListener("click", (e) => {
-    const btn = (e.target as HTMLElement).closest(".card-expand") as HTMLElement | null;
-    if (!btn) return;
-    const card = btn.closest(".card")!;
-    const body = card.querySelector(".card-body") as HTMLElement;
-    const expanded = body.classList.toggle("card-body--collapsed");
-    btn.textContent = expanded ? "展开 ▾" : "收起 ▴";
-    // 第一次展开后不再折叠到2行（用 expanded 反转逻辑）
-    if (!expanded) btn.textContent = "收起 ▴";
-    else btn.textContent = "展开 ▾";
+    const t = e.target as HTMLElement;
+
+    // 展开卡片
+    const expandBtn = t.closest(".card-expand") as HTMLElement | null;
+    if (expandBtn) {
+      const body = expandBtn.closest(".card")!.querySelector(".card-body") as HTMLElement;
+      const collapsed = body.classList.toggle("card-body--collapsed");
+      expandBtn.textContent = collapsed ? "展开 ▾" : "收起 ▴";
+      return;
+    }
+
+    // 折叠板块
+    const toggleBtn = t.closest(".section-toggle") as HTMLElement | null;
+    if (toggleBtn) {
+      const section = toggleBtn.closest(".section")!;
+      const cards = section.querySelector(".cards") as HTMLElement;
+      const collapsed = cards.classList.toggle("cards--hidden");
+      toggleBtn.textContent = collapsed ? "▾" : "▴";
+    }
   });
 
-  // ── Search ──
+  // ── 搜索 ──
   const searchInput = document.getElementById("searchInput") as HTMLInputElement;
   let searchTimer: ReturnType<typeof setTimeout>;
   searchInput.addEventListener("input", () => {
     clearTimeout(searchTimer);
     const q = searchInput.value.trim();
     if (!q) {
-      // 还原当前日期视图
       const current = location.hash.replace("#", "") || dates[0];
       if (current) showDate(current);
       return;
     }
     searchTimer = setTimeout(() => renderSearchResults(q), 300);
   });
-  searchInput.addEventListener("keydown", (e) => {
+  searchInput.addEventListener("keydown", e => {
     if (e.key === "Escape") {
       searchInput.value = "";
       searchInput.dispatchEvent(new Event("input"));
@@ -487,216 +432,159 @@ import Base from "../layouts/Base.astro";
 </script>
 
 <style is:global>
-  /* ── Sidebar buttons (injected by JS) ── */
+  /* ── Sidebar buttons ── */
   .date-btn {
-    display: block;
-    width: 100%;
-    padding: 8px 10px;
-    border-radius: 8px;
-    background: none;
-    border: none;
-    color: var(--text2);
-    font-size: 13px;
-    text-align: left;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    display: flex; flex-direction: column;
+    width: 100%; padding: 8px 10px;
+    border-radius: 8px; background: none; border: none;
+    color: var(--text2); font-size: 13px;
+    text-align: left; cursor: pointer;
+    transition: background 0.15s, color 0.15s; gap: 1px;
   }
   .date-btn:hover { background: var(--bg3); color: var(--text); }
-  .date-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
-
+  .date-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
+  .date-sub { font-size: 10px; opacity: 0.75; font-weight: 400; }
   @media (max-width: 680px) {
-    .date-btn { width: auto; white-space: nowrap; padding: 6px 12px; }
+    .date-btn { flex-direction: row; align-items: center; width: auto; white-space: nowrap; padding: 6px 12px; gap: 4px; }
+    .date-sub { display: none; }
   }
 
   /* ── Digest header ── */
-  .digest-header {
-    margin-bottom: 28px;
-  }
-  .digest-top {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
+  .digest-header { margin-bottom: 24px; }
+  .digest-top { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
   .digest-title { font-size: 18px; font-weight: 800; color: var(--accent); }
   .digest-title b { color: #fff; font-weight: 800; }
   .digest-badge {
-    background: var(--accent);
-    color: #fff;
-    padding: 3px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
+    background: var(--accent); color: #fff;
+    padding: 3px 12px; border-radius: 20px;
+    font-size: 13px; font-weight: 600;
   }
-  .digest-time { font-size: 12px; color: var(--text3); margin-left: auto; }
 
   /* ── Summary Hero ── */
   .digest-summary {
     position: relative;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-    border: 1px solid #2a3a5e;
-    border-radius: 14px;
-    padding: 22px 24px 22px 28px;
-    overflow: hidden;
+    background: linear-gradient(135deg, #111827 0%, #0f1f3d 100%);
+    border: 1px solid #1e2d4a; border-radius: 14px;
+    padding: 20px 22px 20px 26px; overflow: hidden;
+    margin-bottom: 12px;
   }
   .digest-summary::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
-    background: linear-gradient(to bottom, #e74c3c, #c0392b);
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: linear-gradient(to bottom, #e74c3c, #c0392b);
     border-radius: 14px 0 0 14px;
   }
   .digest-summary::after {
-    content: '今日速览';
-    position: absolute;
-    top: 14px; right: 18px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: #3a5080;
-    text-transform: uppercase;
+    content: '今日速览'; position: absolute; top: 12px; right: 16px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    color: #2a4070; text-transform: uppercase;
   }
-  .digest-summary-text {
-    font-size: 16px;
-    font-weight: 500;
-    color: #c8d8f0;
-    line-height: 1.85;
+  .digest-summary-text { font-size: 15px; font-weight: 500; color: #b8cce8; line-height: 1.85; }
+
+  /* ── Stats bar ── */
+  .digest-stats {
+    display: flex; gap: 16px; margin-top: 8px;
+    font-size: 12px; color: var(--text3);
   }
 
   /* ── Section nav ── */
   .sec-nav {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 28px;
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 24px; position: sticky;
+    top: 53px; z-index: 100;
+    background: var(--bg); padding: 8px 0;
+    border-bottom: 1px solid var(--border);
   }
   .sec-nav-btn {
-    padding: 4px 12px;
-    border-radius: 20px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    font-size: 12px;
-    text-decoration: none;
-    transition: all 0.15s;
-    white-space: nowrap;
+    padding: 4px 12px; border-radius: 20px;
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text2); font-size: 12px;
+    text-decoration: none; transition: all 0.15s; white-space: nowrap;
   }
-  .sec-nav-btn:hover {
-    background: var(--bg4);
-    color: var(--text);
-    border-color: #444;
-    text-decoration: none;
+  .sec-nav-btn:hover, .sec-nav-btn.active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent); text-decoration: none;
   }
 
   /* ── Section ── */
-  .section { margin-bottom: 36px; scroll-margin-top: 70px; }
+  .section { margin-bottom: 32px; scroll-margin-top: 100px; }
   .section-heading {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-    padding-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
   }
-  .section-icon { font-size: 18px; line-height: 1; }
-  .section-title { font-size: 17px; font-weight: 700; color: var(--heading); }
-  .section-bar { height: 3px; width: 32px; border-radius: 2px; margin-left: auto; flex-shrink: 0; }
-  .cards { display: flex; flex-direction: column; gap: 10px; }
+  .section-icon { font-size: 17px; line-height: 1; }
+  .section-title { font-size: 16px; font-weight: 700; color: var(--heading); }
+  .section-bar { height: 3px; width: 28px; border-radius: 2px; margin-left: auto; flex-shrink: 0; }
+  .section-toggle {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 12px; padding: 2px 6px;
+    border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0;
+  }
+  .section-toggle:hover { background: var(--bg3); color: var(--text); }
+
+  /* ── 今日看点 全宽 ── */
+  .section--wide .cards--wide { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── 双列卡片网格 ── */
+  .cards--grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .cards--hidden { display: none !important; }
+
+  @media (max-width: 900px) {
+    .cards--grid { grid-template-columns: 1fr; }
+  }
 
   /* ── Cards ── */
   .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
     transition: border-color 0.18s, background 0.18s;
+    display: flex; flex-direction: column;
   }
   .card:hover { border-color: #3a3a3a; background: var(--bg3); }
   .card--job { border-left: 3px solid #f39c12; }
-  /* 突发：红色左边框 + 深红背景 */
-  .card--breaking {
-    border-left: 3px solid #e74c3c;
-    background: #1a0f0f;
-  }
+  .card--breaking { border-left: 3px solid #e74c3c; background: #1a0f0f; }
   .card--breaking:hover { background: #201313; }
-  /* 重磅：橙色左边框 + 深橙背景 */
-  .card--major {
-    border-left: 3px solid #e67e22;
-    background: #1a1208;
-  }
+  .card--major { border-left: 3px solid #e67e22; background: #1a1208; }
   .card--major:hover { background: #201608; }
   .card-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--heading);
-    margin-bottom: 7px;
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 8px;
+    font-size: 14px; font-weight: 600; color: var(--heading);
+    margin-bottom: 7px; display: flex; align-items: flex-start;
+    flex-wrap: wrap; gap: 6px;
   }
   .card-title a { color: var(--heading); text-decoration: none; }
   .card-title a:hover { color: var(--link); }
-  .card-body { font-size: 14px; color: var(--text); line-height: 1.75; }
+  .card-body { font-size: 13px; color: var(--text); line-height: 1.75; flex: 1; }
   .card-body--collapsed {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
   }
   .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-    gap: 8px;
+    display: flex; align-items: center;
+    justify-content: space-between; margin-top: 8px; gap: 8px;
   }
   .card-source {
-    font-size: 11px;
-    color: var(--text2);
-    text-decoration: none;
-    opacity: 0.7;
-    transition: opacity 0.15s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
+    font-size: 11px; color: var(--text3); text-decoration: none;
+    opacity: 0.65; transition: opacity 0.15s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
   }
   .card-source:hover { opacity: 1; color: var(--link); }
   .card-expand {
-    font-size: 11px;
-    color: var(--text2);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    white-space: nowrap;
-    flex-shrink: 0;
-    opacity: 0.6;
-    transition: opacity 0.15s;
+    font-size: 11px; color: var(--text3);
+    background: none; border: none; cursor: pointer;
+    padding: 0; white-space: nowrap; flex-shrink: 0;
+    opacity: 0.55; transition: opacity 0.15s;
   }
   .card-expand:hover { opacity: 1; color: var(--accent); }
-  .digest-stats {
-    display: flex;
-    gap: 16px;
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--text2);
-    opacity: 0.75;
-  }
 
   /* ── Tags ── */
   .tag {
-    display: inline-block;
-    padding: 1px 7px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 2px;
+    display: inline-block; padding: 1px 7px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+    flex-shrink: 0; margin-top: 2px;
   }
   .tag-breaking    { background: #7f1d1d; color: #fca5a5; }
   .tag-major       { background: #7c2d12; color: #fdba74; }
@@ -708,7 +596,7 @@ import Base from "../layouts/Base.astro";
   .tag-knowledge   { background: #1f2937; color: #9ca3af; }
   .tag-default     { background: #2a2a2a; color: #aaa; }
 
-  /* ── Skeleton screen ── */
+  /* ── Skeleton ── */
   @keyframes shimmer {
     0%   { background-position: -600px 0; }
     100% { background-position:  600px 0; }
@@ -720,61 +608,34 @@ import Base from "../layouts/Base.astro";
     animation: shimmer 1.6s infinite linear;
   }
   .skeleton-wrap { padding: 0; }
-  .skeleton-hero { height: 100px; margin-bottom: 20px; border-radius: 14px; }
-  .skeleton-nav {
-    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 28px;
-  }
+  .skeleton-hero { height: 96px; margin-bottom: 20px; border-radius: 14px; }
+  .skeleton-nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
   .skeleton-pill { height: 28px; width: 80px; border-radius: 20px; }
-  .skeleton-section { margin-bottom: 36px; }
-  .skeleton-heading { height: 20px; width: 140px; margin-bottom: 14px; }
-  .skeleton-card { height: 80px; margin-bottom: 10px; border-radius: var(--radius); }
+  .skeleton-section { margin-bottom: 32px; }
+  .skeleton-heading { height: 20px; width: 140px; margin-bottom: 12px; }
+  .skeleton-card { height: 90px; margin-bottom: 10px; border-radius: var(--radius); }
 
   /* ── Back to top ── */
   .back-top {
-    position: fixed;
-    bottom: 28px;
-    right: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(12px);
+    position: fixed; bottom: 28px; right: 24px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 18px; font-weight: 700; border: none; cursor: pointer;
+    opacity: 0; transform: translateY(12px);
     transition: opacity 0.25s, transform 0.25s;
-    z-index: 300;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4);
-    line-height: 1;
+    z-index: 300; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(231,76,60,0.4); line-height: 1;
   }
   .back-top.visible { opacity: 1; transform: translateY(0); }
   .back-top:hover { background: #c0392b; }
 
-  /* ── Search results ── */
+  /* ── Search ── */
   .search-result-header {
-    font-size: 14px;
-    color: var(--text2);
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    font-size: 14px; color: var(--text2);
+    margin-bottom: 16px; padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
   }
   .search-result-header b { color: var(--heading); }
-  .card-meta {
-    font-size: 11px;
-    color: var(--text3);
-    margin-bottom: 6px;
-  }
-  mark {
-    background: rgba(231, 76, 60, 0.25);
-    color: #fca5a5;
-    border-radius: 2px;
-    padding: 0 2px;
-  }
-
+  .card-meta { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+  mark { background: rgba(231,76,60,0.25); color: #fca5a5; border-radius: 2px; padding: 0 2px; }
 </style>
