@@ -1,0 +1,102 @@
+---
+import type { DigestItem } from "../types";
+
+interface Props {
+  item: DigestItem;
+  isJob?: boolean;
+}
+
+const { item, isJob = false } = Astro.props;
+
+const TAG_COLORS: Record<string, string> = {
+  突发: "tag-breaking",
+  重磅: "tag-major",
+  分析: "tag-analysis",
+  趋势: "tag-trend",
+  观察: "tag-watch",
+  机会: "tag-opportunity",
+  提醒: "tag-alert",
+  知识库: "tag-knowledge",
+};
+
+const tagClass = item.tag ? TAG_COLORS[item.tag] ?? "tag-default" : "";
+---
+
+<article class:list={["card", { "card--job": isJob }]}>
+  <div class="card-title">
+    {
+      item.url ? (
+        <a href={item.url} target="_blank" rel="noopener noreferrer">
+          {item.title}
+        </a>
+      ) : (
+        <span>{item.title}</span>
+      )
+    }
+    {item.tag && <span class:list={["tag", tagClass]}>{item.tag}</span>}
+  </div>
+  <p class="card-body">{item.body}</p>
+</article>
+
+<style>
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    transition: border-color 0.18s, background 0.18s;
+  }
+  .card:hover {
+    border-color: #3a3a3a;
+    background: var(--bg3);
+  }
+  .card--job {
+    border-left: 3px solid #f39c12;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--heading);
+    margin-bottom: 7px;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .card-title a {
+    color: var(--heading);
+    text-decoration: none;
+  }
+  .card-title a:hover {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .card-body {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tag-breaking   { background: #7f1d1d; color: #fca5a5; }
+  .tag-major      { background: #7c2d12; color: #fdba74; }
+  .tag-analysis   { background: #1e3a5f; color: #93c5fd; }
+  .tag-trend      { background: #14532d; color: #86efac; }
+  .tag-watch      { background: #312e81; color: #c4b5fd; }
+  .tag-opportunity{ background: #064e3b; color: #6ee7b7; }
+  .tag-alert      { background: #713f12; color: #fde68a; }
+  .tag-knowledge  { background: #1f2937; color: #9ca3af; }
+  .tag-default    { background: #2a2a2a; color: #aaa; }
+</style>

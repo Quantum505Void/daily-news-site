@@ -1,0 +1,443 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="小新日报">
+  <header class="site-header">
+    <div class="logo">🗞️ 小新<span>日报</span></div>
+    <div class="tagline">每日新闻 · 科技 · 军事 · 娱乐 · 工作机会</div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <span class="sidebar-label">历史</span>
+    </nav>
+    <main class="main" id="main">
+      <div class="state-msg"><div class="icon">⏳</div><p>加载中...</p></div>
+    </main>
+  </div>
+
+  <footer class="page-footer">
+    由小新 🔧 自动生成 ·
+    <a href="https://github.com/Quantum505Void/daily-news-site" target="_blank" rel="noopener">
+      GitHub
+    </a>
+  </footer>
+</Base>
+
+<style>
+  /* ── Header ── */
+  .site-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+  .logo { font-size: 20px; font-weight: 800; color: var(--accent); }
+  .logo span { color: #fff; }
+  .tagline { font-size: 12px; color: var(--text2); }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: calc(100vh - 53px - 52px);
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 140px;
+    flex-shrink: 0;
+    padding: 16px 8px;
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 53px;
+    height: calc(100vh - 53px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0 8px 8px;
+  }
+
+  /* ── Main ── */
+  .main { flex: 1; min-width: 0; padding: 28px 32px 60px; }
+
+  /* ── State msgs ── */
+  :global(.state-msg) {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text2);
+  }
+  :global(.state-msg .icon) { font-size: 40px; margin-bottom: 12px; }
+
+  /* ── Footer ── */
+  .page-footer {
+    text-align: center;
+    padding: 18px;
+    color: var(--text3);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 680px) {
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: static;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding: 8px 12px;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      gap: 4px;
+    }
+    .sidebar-label { display: none; }
+    .layout { flex-direction: column; }
+    .main { padding: 16px 14px 40px; }
+  }
+</style>
+
+<script>
+  import type { Digest, Manifest } from "../types";
+
+  // ── 常量 ──
+  const BASE = import.meta.env.BASE_URL;
+  const TAG_COLORS: Record<string, string> = {
+    突发: "tag-breaking", 重磅: "tag-major", 分析: "tag-analysis",
+    趋势: "tag-trend", 观察: "tag-watch", 机会: "tag-opportunity",
+    提醒: "tag-alert", 知识库: "tag-knowledge",
+  };
+
+  let dates: string[] = [];
+  let cache: Record<string, Digest> = {};
+
+  // ── 数据加载 ──
+  async function fetchManifest(): Promise<string[]> {
+    const r = await fetch(`${BASE}manifest.json?t=${Date.now()}`);
+    const m: Manifest = await r.json();
+    return m.dates ?? [];
+  }
+
+  async function fetchDigest(date: string): Promise<Digest> {
+    if (cache[date]) return cache[date];
+    const r = await fetch(`${BASE}data/小新日报-${date}.json?t=${Date.now()}`);
+    if (!r.ok) throw new Error(`${r.status}`);
+    const d: Digest = await r.json();
+    cache[date] = d;
+    return d;
+  }
+
+  // ── 渲染 ──
+  function renderSidebar(selected: string) {
+    const nav = document.getElementById("sidebar")!;
+    nav.innerHTML =
+      '<span class="sidebar-label">历史</span>' +
+      dates
+        .slice(0, 30)
+        .map((d, i) => {
+          const active = d === selected ? "active" : "";
+          const label = i === 0 ? "今天" : d.slice(5);
+          return `<button class="date-btn ${active}" data-date="${d}">${label}</button>`;
+        })
+        .join("");
+
+    nav.querySelectorAll(".date-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const date = (btn as HTMLElement).dataset.date!;
+        showDate(date);
+      });
+    });
+  }
+
+  function tagHtml(tag: string): string {
+    if (!tag) return "";
+    const cls = TAG_COLORS[tag] ?? "tag-default";
+    return `<span class="tag ${cls}">${tag}</span>`;
+  }
+
+  function renderV2(d: Digest): string {
+    const genTime = d.generated_at
+      ? new Date(d.generated_at).toLocaleTimeString("zh-CN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Asia/Shanghai",
+        })
+      : "";
+
+    const sections = d.sections ?? [];
+    const navHtml = sections
+      .map((s) => `<a class="sec-nav-btn" href="#sec-${s.id}">${s.icon} ${s.title}</a>`)
+      .join("");
+
+    const sectionsHtml = sections
+      .map((s) => {
+        const isJob = s.id === "jobs_cpp" || s.id === "jobs_ai";
+        const cards = (s.items ?? [])
+          .map((item) => {
+            const titleEl = item.url
+              ? `<a href="${item.url}" target="_blank" rel="noopener">${item.title}</a>`
+              : `<span>${item.title}</span>`;
+            return `<article class="card${isJob ? " card--job" : ""}">
+              <div class="card-title">${titleEl}${tagHtml(item.tag)}</div>
+              <p class="card-body">${item.body}</p>
+            </article>`;
+          })
+          .join("");
+
+        return `<section class="section" id="sec-${s.id}">
+          <div class="section-heading">
+            <span class="section-icon">${s.icon}</span>
+            <h2 class="section-title">${s.title}</h2>
+            <div class="section-bar" style="background:${s.color}"></div>
+          </div>
+          <div class="cards">${cards}</div>
+        </section>`;
+      })
+      .join("");
+
+    return `
+      <div class="digest-header">
+        <div class="digest-top">
+          <span class="digest-title">🗞️ 小新<b>日报</b></span>
+          <span class="digest-badge">${d.title ?? d.date}</span>
+          ${genTime ? `<span class="digest-time">生成于 ${genTime}</span>` : ""}
+        </div>
+        ${d.summary ? `<div class="digest-summary">${d.summary}</div>` : ""}
+      </div>
+      <nav class="sec-nav">${navHtml}</nav>
+      ${sectionsHtml}
+    `;
+  }
+
+  function renderV1(d: Digest): string {
+    return `
+      <div class="digest-header">
+        <div class="digest-top">
+          <span class="digest-title">🗞️ 小新<b>日报</b></span>
+          <span class="digest-badge">${d.title ?? d.date}</span>
+        </div>
+      </div>
+      <div class="legacy-body">${d.html ?? "<p>内容为空</p>"}</div>
+    `;
+  }
+
+  async function showDate(date: string) {
+    renderSidebar(date);
+    location.hash = date;
+    const main = document.getElementById("main")!;
+    main.innerHTML = '<div class="state-msg"><div class="icon">⏳</div><p>加载中...</p></div>';
+
+    try {
+      const d = await fetchDigest(date);
+      const html = d.version === 2 && d.sections ? renderV2(d) : renderV1(d);
+      main.innerHTML = html;
+      window.scrollTo({ top: 0, behavior: "instant" });
+    } catch {
+      main.innerHTML = '<div class="state-msg"><div class="icon">⚠️</div><p>加载失败，请稍后重试</p></div>';
+    }
+  }
+
+  async function init() {
+    try {
+      dates = await fetchManifest();
+      if (!dates.length) {
+        document.getElementById("sidebar")!.innerHTML = "";
+        document.getElementById("main")!.innerHTML =
+          '<div class="state-msg"><div class="icon">📭</div><p>还没有日报</p></div>';
+        return;
+      }
+      const hash = location.hash.replace("#", "");
+      const selected = hash && dates.includes(hash) ? hash : dates[0];
+      await showDate(selected);
+    } catch {
+      document.getElementById("main")!.innerHTML =
+        '<div class="state-msg"><div class="icon">⚠️</div><p>无法加载日报列表</p></div>';
+    }
+  }
+
+  window.addEventListener("hashchange", () => {
+    const d = location.hash.replace("#", "");
+    if (d && dates.includes(d)) showDate(d);
+  });
+
+  init();
+</script>
+
+<style is:global>
+  /* ── Sidebar buttons (injected by JS) ── */
+  .date-btn {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .date-btn:hover { background: var(--bg3); color: var(--text); }
+  .date-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
+
+  @media (max-width: 680px) {
+    .date-btn { width: auto; white-space: nowrap; padding: 6px 12px; }
+  }
+
+  /* ── Digest header ── */
+  .digest-header {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .digest-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .digest-title { font-size: 18px; font-weight: 800; color: var(--accent); }
+  .digest-title b { color: #fff; font-weight: 800; }
+  .digest-badge {
+    background: var(--accent);
+    color: #fff;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .digest-time { font-size: 12px; color: var(--text3); margin-left: auto; }
+  .digest-summary {
+    font-size: 15px;
+    color: var(--text);
+    background: var(--bg2);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    line-height: 1.8;
+  }
+
+  /* ── Section nav ── */
+  .sec-nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .sec-nav-btn {
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 12px;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .sec-nav-btn:hover {
+    background: var(--bg4);
+    color: var(--text);
+    border-color: #444;
+    text-decoration: none;
+  }
+
+  /* ── Section ── */
+  .section { margin-bottom: 36px; scroll-margin-top: 70px; }
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon { font-size: 18px; line-height: 1; }
+  .section-title { font-size: 17px; font-weight: 700; color: var(--heading); }
+  .section-bar { height: 3px; width: 32px; border-radius: 2px; margin-left: auto; flex-shrink: 0; }
+  .cards { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    transition: border-color 0.18s, background 0.18s;
+  }
+  .card:hover { border-color: #3a3a3a; background: var(--bg3); }
+  .card--job { border-left: 3px solid #f39c12; }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--heading);
+    margin-bottom: 7px;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .card-title a { color: var(--heading); text-decoration: none; }
+  .card-title a:hover { color: var(--link); }
+  .card-body { font-size: 14px; color: var(--text); line-height: 1.75; }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tag-breaking    { background: #7f1d1d; color: #fca5a5; }
+  .tag-major       { background: #7c2d12; color: #fdba74; }
+  .tag-analysis    { background: #1e3a5f; color: #93c5fd; }
+  .tag-trend       { background: #14532d; color: #86efac; }
+  .tag-watch       { background: #312e81; color: #c4b5fd; }
+  .tag-opportunity { background: #064e3b; color: #6ee7b7; }
+  .tag-alert       { background: #713f12; color: #fde68a; }
+  .tag-knowledge   { background: #1f2937; color: #9ca3af; }
+  .tag-default     { background: #2a2a2a; color: #aaa; }
+
+  /* ── Legacy v1 ── */
+  .legacy-body h2 {
+    font-size: 16px; font-weight: 700; color: var(--heading);
+    margin-top: 28px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .legacy-body h2::before {
+    content: ""; display: inline-block;
+    width: 3px; height: 16px;
+    background: var(--accent); border-radius: 2px; flex-shrink: 0;
+  }
+  .legacy-body ul { padding-left: 0; list-style: none; }
+  .legacy-body li {
+    padding: 10px 14px; background: var(--bg2);
+    border-radius: 8px; margin-bottom: 8px;
+    border-left: 3px solid var(--border);
+  }
+  .legacy-body li:hover { border-left-color: var(--accent); }
+  .legacy-body strong { color: #fff; }
+  .legacy-body small { color: var(--text2); font-size: 12px; }
+  .legacy-body h1, .legacy-body .footer { display: none; }
+</style>

@@ -1,0 +1,63 @@
+---
+import type { DigestSection } from "../types";
+import DigestCard from "./DigestCard.astro";
+
+interface Props {
+  section: DigestSection;
+}
+
+const { section } = Astro.props;
+const isJob = section.id === "jobs_cpp" || section.id === "jobs_ai";
+---
+
+<section class="section" id={`sec-${section.id}`}>
+  <div class="section-heading">
+    <span class="section-icon">{section.icon}</span>
+    <h2 class="section-title">{section.title}</h2>
+    <div class="section-bar" style={`background: ${section.color}`}></div>
+  </div>
+  <div class="cards">
+    {section.items.map((item) => <DigestCard item={item} isJob={isJob} />)}
+  </div>
+</section>
+
+<style>
+  .section {
+    margin-bottom: 36px;
+    scroll-margin-top: 70px;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--heading);
+  }
+
+  .section-bar {
+    height: 3px;
+    width: 32px;
+    border-radius: 2px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+</style>
