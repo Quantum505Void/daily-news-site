@@ -11,7 +11,7 @@ import Base from "../layouts/Base.astro";
     <div class="search-wrap">
       <input
         id="searchInput"
-        type="search"
+        type="text"
         placeholder="搜索日报内容..."
         autocomplete="off"
         spellcheck="false"
@@ -292,7 +292,10 @@ import Base from "../layouts/Base.astro";
 
   function renderSidebar(selected: string) {
     const nav = document.getElementById("sidebar")!;
-    nav.innerHTML = '<span class="sidebar-label">历史</span>' +
+    const backToday = selected !== dates[0]
+      ? `<button class="back-today-btn" data-date="${dates[0]}">⬆ 今日</button>`
+      : "";
+    nav.innerHTML = '<span class="sidebar-label">历史</span>' + backToday +
       dates.slice(0, 30).map((d, i) => {
         const active = d === selected ? "active" : "";
         const label = i === 0 ? `今天` : `${d.slice(5).replace("-","月")}日`;
@@ -301,8 +304,12 @@ import Base from "../layouts/Base.astro";
         const sub = `<span class="date-sub">周${dow}</span>`;
         return `<button class="date-btn ${active}" data-date="${d}">${label}${sub}</button>`;
       }).join("");
-    nav.querySelectorAll(".date-btn").forEach(btn =>
-      btn.addEventListener("click", () => showDate((btn as HTMLElement).dataset.date!))
+    nav.querySelectorAll(".date-btn,.back-today-btn").forEach(btn =>
+      btn.addEventListener("click", () => {
+        nav.querySelectorAll(".date-btn").forEach(b => b.classList.remove("loading"));
+        (btn as HTMLElement).classList.add("loading");
+        showDate((btn as HTMLElement).dataset.date!);
+      })
     );
   }
 
@@ -342,7 +349,6 @@ import Base from "../layouts/Base.astro";
     const sectionsHtml = sections.map(s => {
       const isJob  = s.id === "jobs_hot";
       const isWide = WIDE_SECTIONS.has(s.id);
-      // 今日看点默认展开，其他默认折叠
       const defCollapsed = isWide ? "" : "card-body--collapsed";
       const cards  = (s.items ?? []).map((item, idx) => cardHtml(item, isJob, idx, defCollapsed)).join("");
       const gridClass = isWide ? "cards cards--wide" : "cards cards--grid";
@@ -389,6 +395,8 @@ import Base from "../layouts/Base.astro";
     try {
       const d = await fetchDigest(date);
       main.innerHTML = renderV2(d);
+      // 清掉 loading 状态
+      document.querySelectorAll(".date-btn.loading").forEach(b => b.classList.remove("loading"));
       // fade-in
       requestAnimationFrame(() => { main.classList.add("main--fadein"); });
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -457,11 +465,14 @@ import Base from "../layouts/Base.astro";
   // ── 主题切换 ──
   const themeBtn = document.getElementById("themeToggle")!;
   function applyTheme(light: boolean) {
-    document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+    const html = document.documentElement;
+    // 过渡动画
+    html.style.transition = "background 0.3s, color 0.3s";
+    html.setAttribute("data-theme", light ? "light" : "dark");
     themeBtn.textContent = light ? "☀️" : "🌙";
     localStorage.setItem("theme", light ? "light" : "dark");
+    setTimeout(() => { html.style.transition = ""; }, 350);
   }
-  // 初始化按钮状态
   applyTheme(document.documentElement.getAttribute("data-theme") === "light");
   themeBtn.addEventListener("click", () => {
     applyTheme(document.documentElement.getAttribute("data-theme") !== "light");
@@ -536,7 +547,15 @@ import Base from "../layouts/Base.astro";
 </script>
 
 <style is:global>
-  /* ── Sidebar buttons ── */
+  /* ── Theme transition ── */
+  *, *::before, *::after {
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  }
+  /* 但动画和变换不受影响 */
+  .back-top, .main--fadein, .skeleton, .search-clear,
+  .card-expand, .section-toggle, .sec-nav-btn, .date-btn {
+    transition-property: background, border-color, color, opacity, transform, box-shadow;
+  }
   .date-btn {
     display: flex; flex-direction: column;
     width: 100%; padding: 8px 10px 8px 12px;
@@ -553,7 +572,31 @@ import Base from "../layouts/Base.astro";
     border-left: 3px solid var(--accent);
     padding-left: 9px;
   }
+  .date-btn.loading {
+    opacity: 0.6;
+    background: var(--bg3);
+  }
+  .date-btn.loading::after {
+    content: '';
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+    margin-left: auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .date-sub { font-size: 10px; opacity: 0.6; font-weight: 400; }
+
+  /* 返回今日 */
+  .back-today-btn {
+    display: block; width: calc(100% - 16px); margin: 0 8px 6px;
+    padding: 6px 10px; border-radius: 8px;
+    background: rgba(231,76,60,0.08); border: 1px dashed var(--accent);
+    color: var(--accent); font-size: 12px; font-weight: 600;
+    cursor: pointer; text-align: center;
+  }
+  .back-today-btn:hover { background: rgba(231,76,60,0.18); }
   @media (max-width: 680px) {
     .date-btn { flex-direction: row; align-items: center; width: auto; white-space: nowrap; padding: 6px 12px; gap: 4px; border-left: none !important; }
     .date-btn.active { background: var(--accent); color: #fff; padding-left: 12px; }
@@ -640,11 +683,13 @@ import Base from "../layouts/Base.astro";
     border-radius: 8px;
     background: var(--bg2);
     border: 1px solid var(--border);
-    border-left: 4px solid var(--sec-color, #888);  /* 板块颜色左边框 */
+    border-left: 4px solid var(--sec-color, #888);
+    cursor: default;
+    transition: background 0.15s, border-color 0.15s;
   }
+  .section-heading:hover { background: var(--bg3); }
   .section-icon { font-size: 17px; line-height: 1; }
   .section-title { font-size: 15px; font-weight: 700; color: var(--heading); }
-  .section-bar { display: none; }  /* 原右侧色条不再需要 */
   .section-toggle {
     margin-left: auto;
     background: none; border: none; cursor: pointer;
