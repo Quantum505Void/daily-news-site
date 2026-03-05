@@ -2,40 +2,28 @@
   "date": "2026-03-05",
   "weekday": "周四",
   "title": "2026年03月05日 周四",
-  "summary": "2026年03月05日 周四 每日简报",
+  "summary": "两会明日开幕，“十五五”开局之年的宏观定调将决定今年消费修复、有效投资与科技自主的资源投向，市场预期正在快速收敛。与此同时，中东冲突外溢到航运与军事对抗层面，能源与全球风险溢价抬升，成为影响外需与大宗价格的最大变量。",
   "sections": [
     {
       "id": "highlight",
       "items": [
         {
-          "title": "2026年全国两会明日将拉开帷幕，中国进入“两会时间”",
-          "body": "3月4日，2026年全国两会将拉开帷幕，中国进入“两会时间”。时值“十五五”开局之年，2026年的全国两会备受期待。 · 十四届全国人大四次会议将于3月5日在北京召开。",
-          "tag": "",
-          "url": "https://m.thepaper.cn/newsDetail_forward_32691875"
+          "title": "两会定调窗口",
+          "body": "全国两会明日开幕，处在“十五五”开局之年，政策信号会比往年更“指向结构”而非“只看总量”。外界关注点将集中在：增长目标与财政/货币协同、提振消费的抓手（收入预期与公共服务）、以及科技自主与新质生产力的预算倾斜。判断：若“投资于人”和消费修复被置于更高优先级，A股主线可能从纯算力外溢到“AI+制造/民生服务”的扩散。来源：新华社、BBC中文两会焦点梳理。",
+          "tag": "重磅",
+          "url": "http://www.xinhuanet.com/"
         },
         {
-          "title": "中国 - BBC News 中文",
-          "body": "2026年3月3日 · 5:22 · 2026年3月2日 · 12:29 · 2026年3月2日 · 13:53 · 2026年3月2日 · 2026年3月1日 · 2026年2月27日 · 2026年2月27日 · 2026年2月26日 · 2026年2月26日 · 17:55 · 2026年2月25日 · 2026年2月24日 · 2026年2月24日 ·",
-          "tag": "",
-          "url": "https://www.bbc.com/zhongwen/topics/ckr7mn6r003t/simp"
+          "title": "霍尔木兹风险抬头",
+          "body": "Reuters报道围绕伊朗的美以打击与“护航”讨论升级，且出现美方在远离海湾海域击沉伊朗军舰等高度对抗事件，冲突从陆上空袭外溢到海上通道与盟友基地安全。判断：即便油价未立刻失控，航运保险费率与绕航成本也会先行上升，进而推高输入型通胀与化工、航运链条波动；对亚洲制造业而言，最先体现的是交付周期与运价不确定性。来源：Reuters。",
+          "tag": "突发",
+          "url": "https://www.reuters.com/"
         },
         {
-          "title": "中国“两会”五大焦点：经济增速、“十五五”开局、科技自主、高层人事安排及国防预算",
-          "body": "每年春天，在北京召开的中国“两会”（全国人大与全国政协会议）都是观察中国政治经济走向的重要视窗。 2026年<strong>全国政协十四届四次会议和十四届全国人大四次会议</strong>，将分别于3月...",
-          "tag": "",
-          "url": "https://www.bbc.com/zhongwen/articles/cqj9gnynk5lo/simp"
-        },
-        {
-          "title": "國際 - BBC News 中文",
-          "body": "2026年3月4日 · 2026年3月4日 · 2026年3月3日 · 2026年3月3日 · 2026年3月3日 · 5:22 · 2026年3月2日 · 3:43 · 2026年3月2日 · 13:08 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 ·",
-          "tag": "",
-          "url": "https://www.bbc.com/zhongwen/topics/c83plve5vmjt/trad"
-        },
-        {
-          "title": "春天里，听奋进中国的铿锵足音——写在2026年全国两会召开之际--2026年全国",
-          "body": "2026年03月03日14:31 来源：新华社 · 新华社北京3月3日电 题：春天里，听奋进中国的铿锵足音——写在2026年全国两会召开之际",
-          "tag": "",
-          "url": "http://politics.people.com.cn/n1/2026/0303/c1001-40673807.html"
+          "title": "AI走向务实落地",
+          "body": "TechCrunch对2026年的研判强调：行业从“更大模型”转向“可靠智能体、世界模型与物理AI”，核心竞争点变为可验证、可控与可集成的工程能力。判断：企业侧预算会从“买算力试点”转向“可度量ROI的流程重构”，能交付端到端代理系统、具备数据/权限治理能力的厂商将更受益，纯“参数崇拜”项目会快速退潮。来源：TechCrunch。",
+          "tag": "趋势",
+          "url": "https://techcrunch.com/"
         }
       ],
       "title": "今日看点",
@@ -46,34 +34,28 @@
       "id": "china",
       "items": [
         {
-          "title": "中华人民共和国国家发展和改革委员会",
-          "body": "2026 2025 2024 2023 2022 2021 2020 2019 2018以前 · 发展改革委令 规范性文件 公告 规划文本 通知 政策解读 其他",
-          "tag": "",
-          "url": "https://www.ndrc.gov.cn/"
+          "title": "“十五五”开局定价",
+          "body": "两会前瞻普遍将“提振消费、扩大有效投资”视为主线，并出现“投资于人”的政策表述：通过公共服务、教育医疗、社保与技能提升改善预期，从而带动消费倾向与劳动力质量。判断：这意味着地方项目型投资的边际空间收窄，中央层面更可能用制度与民生支出撬动需求，消费链与服务业修复的政策确定性上升。来源：两会前瞻报道（搜索数据）。",
+          "tag": "分析",
+          "url": ""
         },
         {
-          "title": "最新政策_政策_中国政府网",
-          "body": "中国政府网微博、微信 · 主办单位：国务院办公厅 运行维护单位：中国政府网运行中心",
-          "tag": "",
-          "url": "https://www.gov.cn/zhengce/zuixin/"
+          "title": "政务改革再提速",
+          "body": "国务院办公厅印发《“高效办成一件事”2026年度第一批重点事项清单》，强调跨部门联办与流程再造。判断：这一类清单的意义不在“上线多少事项”，而在把数据共享、电子证照、统一身份认证等基础设施变成硬约束；对企业端的直接影响是合规与申办成本下降，利好ToG数字化、政务云与基础软件生态，但也会加速淘汰低附加值集成商。来源：国家信访局网站转载国务院文件（搜索数据）。",
+          "tag": "重磅",
+          "url": ""
         },
         {
-          "title": "2026两会前瞻 | 开局之年，宏观政策如何定调？",
-          "body": "“经济回升向好要依靠内生增长动能的增强，核心是提振消费和扩大有效投资。”他表示，提振消费的关键在于提高居民收入、增强消费信心；扩大有效投资则需寻找新的投资增长点，在传统基础设施日趋完善、投资回报边际递减的背景下，“投资于人”能发挥出更好的效果，既改善民生福祉，又提高消费意愿，还增强人力资本建设。 · 近年来服务消费蓬勃成长，成为拉动消费的重要抓手。从省级两会来看，谷子经济、悦己经济、国潮经济、情绪",
-          "tag": "",
-          "url": "https://m.thepaper.cn/newsDetail_forward_32672303"
+          "title": "低温雨雪预案落地",
+          "body": "国务院办公厅印发《国家低温雨雪冰冻灾害应急预案》，把极端天气作为系统性风险进行“预案化”管理。判断：这类预案的信号在于极端天气常态化背景下，电网韧性、城市生命线工程、粮食与物流保供将获得更稳定投入；对企业而言，储能、配网改造、应急通信、工程防灾检测等赛道的订单确定性更强，但地方执行绩效将决定项目回款质量。来源：国家信访局网站转载国务院文件（搜索数据）。",
+          "tag": "提醒",
+          "url": ""
         },
         {
-          "title": "政策_中国政府网",
-          "body": "中办印发关于做好“七一勋章”提名和全国“两优一先”推荐工作的通知 2026-03-01",
-          "tag": "",
-          "url": "https://www.gov.cn/zhengce/"
-        },
-        {
-          "title": "国务院政策文件库",
-          "body": "点击跳转",
-          "tag": "",
-          "url": "https://sousuo.www.gov.cn/zcwjk/policyDocumentLibrary"
+          "title": "社会组织评估新规",
+          "body": "民政部新修订《社会组织评估管理办法》自3月1日起实施，放宽参评条件、优化程序并强化监督。判断：对公益与行业协会而言，评估的“可比性”提升，有利于资金与项目向治理透明、合规能力强的组织集中；对地方政府购买服务也意味着更可量化的准入门槛。短期会带来评估咨询与合规审计需求上升，长期推动社会服务供给更专业化。来源：3月施行新规汇总（搜索数据）。",
+          "tag": "观察",
+          "url": ""
         }
       ],
       "title": "国内",
@@ -84,34 +66,28 @@
       "id": "world",
       "items": [
         {
-          "title": "國際 - BBC News 中文",
-          "body": "2026年3月4日 · 2026年3月4日 · 2026年3月3日 · 2026年3月3日 · 2026年3月3日 · 5:22 · 2026年3月2日 · 3:43 · 2026年3月2日 · 13:08 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 ·",
-          "tag": "",
-          "url": "https://www.bbc.com/zhongwen/topics/c83plve5vmjt/trad"
+          "title": "美伊对抗升级",
+          "body": "Reuters称美方潜艇在国际水域击沉伊朗军舰，并出现北约拦截朝土耳其方向飞行的伊朗导弹等信息，显示冲突链条正向“海上通道+盟友防空”扩散。判断：这会把欧洲与北约更深卷入中东安全议题，进而推高欧洲能源成本预期与军费压力；全球市场将以更高风险溢价定价油运与航运周期，企业需预备供应链绕行与库存策略。来源：Reuters。",
+          "tag": "突发",
+          "url": "https://www.reuters.com/"
         },
         {
-          "title": "国际 - BBC News 中文",
-          "body": "2026年3月4日 · 2026年3月4日 · 2026年3月3日 · 2026年3月3日 · 2026年3月3日 · 5:22 · 2026年3月2日 · 3:43 · 2026年3月2日 · 13:08 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 ·",
-          "tag": "",
-          "url": "https://www.bbc.com/zhongwen/topics/c83plve5vmjt/simp"
+          "title": "特朗普国情咨文",
+          "body": "BBC中文梳理特朗普2026年国情咨文：以破纪录时长强调“黄金时代”，但争议同样凸显。判断：对外部世界更重要的是其政策输出的一致性——若贸易与关税工具继续被高频使用，全球制造业将面临更强的合规与原产地审查压力；同时美国国内政治分裂加深，会提高财政与监管政策的反复风险。来源：BBC中文。",
+          "tag": "观察",
+          "url": "https://www.bbc.com/zhongwen"
         },
         {
-          "title": "中国 - BBC News 中文",
-          "body": "2026年3月3日 · 5:22 · 2026年3月2日 · 12:29 · 2026年3月2日 · 13:53 · 2026年3月2日 · 2026年3月1日 · 2026年2月27日 · 2026年2月27日 · 2026年2月26日 · 2026年2月26日 · 17:55 · 2026年2月25日 · 2026年2月24日 · 2026年2月24日 ·",
-          "tag": "",
-          "url": "https://www.bbc.com/zhongwen/topics/ckr7mn6r003t/simp"
+          "title": "中东外溢冲击欧陆",
+          "body": "搜索信息显示“欧洲军事设施成为伊朗报复目标”的相关报道，且与英国向美军开放基地用于对伊行动的决定相互关联。判断：欧洲将面临典型的“安全—经济”二选一困境：军事协同提升带来本土反击风险上升，同时能源与难民/社会治安压力可能回潮；欧元区增长的下行尾部风险被抬高。来源：相关外媒报道线索（搜索数据）。",
+          "tag": "分析",
+          "url": ""
         },
         {
-          "title": "US sinks Iranian warship far from Gulf, ",
-          "body": "&quot;<strong>An American submarine sunk an ​Iranian warship that thought it was safe in international waters</strong>,&quot; said Hegseth, the U.S. defense secretary. &quot;Instead, it was sunk by a ",
-          "tag": "",
-          "url": "https://www.reuters.com/world/middle-east/us-assault-iran-ahead-schedule-says-us-middle-east-commander-2026-03-04/"
-        },
-        {
-          "title": "Israel pounds Iran and Lebanon; Trump we",
-          "body": "The ruins of a Tehran police station bombarded during the U.S.-Israeli assault on Iran, March 3, 2026. Majid Asgaripour/WANA (West Asia News Agency) via REUTERS License this content on Reuters Connect",
-          "tag": "",
-          "url": "https://www.reuters.com/world/iran-live-israel-strikes-hezbollah-uk-base-hit-cyprus-conflict-widens-2026-03-02/"
+          "title": "全球对华观察升温",
+          "body": "BBC中文的“两会五大焦点”将经济增速、“十五五”开局、科技自主、人事与国防预算列为关注点。判断：国际投资者对中国的“可预期性”需求增强——只要宏观政策在稳增长与防风险间给出清晰取舍，并形成对消费与科创的连续支持，外部叙事的波动会下降，资本对中国资产的风险折价有望收敛。来源：BBC中文。",
+          "tag": "趋势",
+          "url": "https://www.bbc.com/zhongwen"
         }
       ],
       "title": "国际",
@@ -122,34 +98,22 @@
       "id": "military",
       "items": [
         {
-          "title": "European military installations are targ",
-          "body": "<strong>This came just hours after the U.K. government had decided to grant U.S. forces access to its bases for strikes on Iran</strong>. No casualties and only “limited” damage were reported.",
-          "tag": "",
-          "url": "https://www.defensenews.com/global/europe/2026/03/02/european-military-installations-are-targeted-in-iran-retaliation/"
+          "title": "海上冲突阈值变了",
+          "body": "Reuters所述“潜艇击沉军舰”“护航霍尔木兹油轮”意味着冲突进入更高烈度的海上对抗叙事。判断：海上交通线一旦被纳入作战想定，升级往往不靠宣战而靠误判与“护航规则”摩擦，金融市场会先交易“最坏可能性”；各国海军与海事执法的联动强度将上升，商船的安保与情报服务需求同步增长。来源：Reuters。",
+          "tag": "分析",
+          "url": "https://www.reuters.com/"
         },
         {
-          "title": "Regular Press Conference of the Ministry",
-          "body": "Journalist: The first question is that according to the 2026 National Defense Strategy released by the US Department of War, the US will deter China in the Asia-Pacific through strength, not confronta",
-          "tag": "",
-          "url": "http://eng.mod.gov.cn/2025xb/P/16444927.html"
+          "title": "日本军费信号强",
+          "body": "搜索数据提到日本内阁通过创纪录防务预算，并承诺更早达到2%目标。判断：这不是单纯的预算扩张，而是日本在地区安全架构中角色再定位的延续，未来会体现在远程打击、弹药储备、情报与联合作战体系上；周边国家的军备互动将更频繁，安全议题对经贸与科技合作的“溢出效应”会更明显。来源：相关报道线索（搜索数据）。",
+          "tag": "观察",
+          "url": ""
         },
         {
-          "title": "Regular Press Briefing of the Ministry o",
-          "body": "There is every indication that Japan&#x27;s right-wing forces are deliberately challenging the post-war international order from multiple fronts including military, public opinion, and legal areas. Th",
-          "tag": "",
-          "url": "http://eng.mod.gov.cn/2025xb/P/16444928.html"
-        },
-        {
-          "title": "Regular Press Conference of the Ministry",
-          "body": "Zhang Xiaogang: This year, with a pioneering spirit and proactive efforts, work related to China&#x27;s military diplomacy has been conducted in a way that kept in alignment with the overall work of t",
-          "tag": "",
-          "url": "http://eng.mod.gov.cn/2025xb/P/16437325.html"
-        },
-        {
-          "title": "Japan’s Cabinet OKs record defense budge",
-          "body": "Takaichi’s government, under U.S. pressure for a military increase, pledged to achieve the 2% target by March, two years earlier than planned. Japan also plans to revise its ongoing security and defen",
-          "tag": "",
-          "url": "https://www.defensenews.com/global/asia-pacific/2025/12/26/japans-cabinet-oks-record-defense-budget-that-aims-to-deter-china/"
+          "title": "舆论战与规则战并行",
+          "body": "从多国防务部门例行发布与外媒高频战况快讯看，信息发布已成为冲突的一部分：通过“定性事件—塑造合法性—争取盟友支持”形成闭环。判断：未来安全风险管理不只看兵力，还要看信息可信度与法律叙事；对企业出海而言，合规、制裁与供应链“可解释性”将成为新的安全底盘。来源：中国国防部例行发布（搜索数据）与外媒报道环境。",
+          "tag": "提醒",
+          "url": "https://www.mod.gov.cn/"
         }
       ],
       "title": "军事与安全",
@@ -160,34 +124,28 @@
       "id": "economy",
       "items": [
         {
-          "title": "【财经早报】6天5板大牛股，提示风险！",
-          "body": "中信证券研报称，受AI强劲需求拉动，预计存储需求将保持高景气度，存储芯片的涨价有望贯穿2026年全年并持续带来行业催化。看好国内存储大厂的产能扩张和技术迭代加速，晶圆制造工艺相关的半导体材料用量预计将大幅提升，大厂的材料及零部件端核心供应商有望充分受益，随下游产能落地节奏实现经营数据的阶梯式大幅增长。",
-          "tag": "",
-          "url": "https://jnzstatic.cs.com.cn/zzb/htmlInfo/b04d4e53f5294f4e41f9405f14e3c853.html"
+          "title": "财政力度明牌",
+          "body": "财新“财经早知道”提示财政部表态：2026年财政总体支出力度“只增不减”。判断：这句话的关键在“结构走向”而非总量，可能更偏向民生、科技与安全韧性方向的确定性投入；对市场而言，财政发力若与消费修复同向，将改善企业现金流预期，利好可选消费中“以旧换新/服务消费”、以及与公共投资相关的设备更新链条。来源：财新（搜索数据）。",
+          "tag": "重磅",
+          "url": "https://www.caixin.com/"
         },
         {
-          "title": "休市安排 | 上海证券交易所",
-          "body": "关于上海证券交易所2026年部分节假日休市安排的通知 2025-12-22 · 关于2025年国庆节、中秋节休市安排的公告 2025-09-25 · 关于2025年端午节休市安排的公告 2025-05-22 · 关于2025年劳动节休市安排的公告 2025-04-24 · 关于2025年清明节休市安排的公告 2025-03-27",
-          "tag": "",
-          "url": "https://www.sse.com.cn/disclosure/dealinstruc/closed/"
+          "title": "存储涨价或贯穿全年",
+          "body": "券商观点称AI需求拉动存储景气，涨价可能贯穿2026年，并带动材料与零部件环节受益。判断：若价格上行来自“AI服务器+端侧AI”双驱动，周期属性会被弱化、更像供需紧平衡的结构行情；操作层面应区分“有议价能力的存储IDM/模组”与“纯量增但毛利受挤的代工链”，以及国产替代带来的设备材料弹性。来源：财经早报引用研报（搜索数据）。",
+          "tag": "机会",
+          "url": ""
         },
         {
-          "title": "市场日历 | 上海证券交易所",
-          "body": "400投资者服务热线： 400-8888-400 · 上海证券交易所官网现已支持 IPV6 ©上海证券交易所版权所有 2020 沪ICP备05004045号-2 沪公网安备 31011502016333号",
-          "tag": "",
-          "url": "https://www.sse.com.cn/disclosure/dealinstruc/calendar/"
+          "title": "两会前市场押注扩散",
+          "body": "来自“股市沙龙”走访与讨论关键词显示，算力、AI、CPO仍是高频主题。判断：情绪交易后通常面临两个拐点：一是业绩兑现，二是政策定调后的“主线扩散”。若两会强调提振消费与投资于人，资金可能从硬件景气链外溢到AI在教育、医疗、政务与工业软件的落地公司；波动期要关注回撤后的成交量与机构持仓变化。来源：市场走访类报道（搜索数据）。",
+          "tag": "观察",
+          "url": ""
         },
         {
-          "title": "首页 | 上海证券交易所",
-          "body": "——习近平总书记引领中国式现代化新征程 · 上海证券交易所2026年为市场办实事项目正式发布",
-          "tag": "",
+          "title": "交易日历别踩坑",
+          "body": "上交所发布2026年部分节假日休市安排。判断：长假前后流动性收缩往往放大题材波动，尤其在外部地缘风险抬升时，隔夜事件容易造成开盘跳空；策略上更应控制杠杆与隔夜敞口，利用假期前后做仓位再平衡。来源：上海证券交易所休市安排（搜索数据）。",
+          "tag": "提醒",
           "url": "https://www.sse.com.cn/"
-        },
-        {
-          "title": "2026年展望：牛市延续，涨幅放缓_观点频道_财新网",
-          "body": "讨论2026年的市场主线之前，我们先回头看看2025年我的预测成绩单。2025年年初，我对股市前景初判阴云密布，当时就觉得市场情绪会是关键的摇摆因素。等到2月，情况就明朗了：市场情绪大幅降温，欧洲尤为明显。而低迷的情绪往往更容易催生超预期的积极表现，所以我当时就预判，2025年会是悲观情绪笼罩下欧洲领涨的一年。最终结果也确实如此：中国股市上涨26%，MSCI全球所有国家指数涨幅超17%；美国股市涨",
-          "tag": "",
-          "url": "https://opinion.caixin.com/2026-01-23/102407093.html"
         }
       ],
       "title": "财经与市场",
@@ -198,34 +156,28 @@
       "id": "tech",
       "items": [
         {
-          "title": "2026年智能体AI展望-36氪",
-          "body": "那么，2026年将迎来什么？在2026年，AI领域的核心转变将不再是追求更聪明的模型，而是转向可协调、可验证且能随时间持续进化的智能体操作系统。",
-          "tag": "",
-          "url": "https://36kr.com/p/3674170286776964"
+          "title": "智能体从炫技到系统",
+          "body": "36氪判断2026年核心转变是从“更聪明模型”转向“可协调、可验证、持续进化的智能体操作系统”。判断：企业真正缺的是“可控的自动化”，即权限、审计、记忆、工具调用与回滚机制；谁能把智能体做成可治理的IT资产，而不是一次性Demo，谁就能吃到下一轮企业级预算。来源：36氪（搜索数据）。",
+          "tag": "趋势",
+          "url": ""
         },
         {
-          "title": "In 2026, AI will move from hype to pragm",
-          "body": "In 2026, here&#x27;s what you can expect from the AI industry: <strong>new architectures, smaller models, world models, reliable agents, physical AI, and products designed for real-world use</strong>.",
-          "tag": "",
-          "url": "https://techcrunch.com/2026/01/02/in-2026-ai-will-move-from-hype-to-pragmatism/"
+          "title": "TechCrunch押注可靠代理",
+          "body": "TechCrunch提出2026年将出现新架构、更小模型、世界模型、可靠智能体与物理AI。判断：小模型并非降级，而是把能力放到端侧与专用场景，用“成本/延迟/隐私”换取规模化部署；世界模型与物理AI一旦进入工业场景，将把竞争从算法转到数据采集、仿真平台与安全认证体系，产业壁垒更高。来源：TechCrunch。",
+          "tag": "分析",
+          "url": "https://techcrunch.com/"
         },
         {
-          "title": "2026年：AI开启“物理扎根”新时代",
-          "body": "2026年，AI从“云端大脑”落地为“边缘终端”，嵌入工业现实。物理AI既是新工业革命引擎，也面临更为艰难的探索。",
-          "tag": "",
-          "url": "https://eu.36kr.com/zh/p/3657104242258436"
+          "title": "物理AI进工厂",
+          "body": "搜索数据强调“AI从云端大脑落地为边缘终端”，进入工业现实。判断：物理AI的难点不在识别，而在闭环控制——传感器噪声、时延、故障模式与安全责任都会把落地门槛抬高；因此最先跑出来的不是通用机器人，而是“工艺单点突破”的专用设备（质检、分拣、预测性维护、能耗优化）。来源：物理AI趋势解读（搜索数据）。",
+          "tag": "观察",
+          "url": ""
         },
         {
-          "title": "Krypton Evening News: Intel's Multi - Ye",
-          "body": "Ma Jiesi, the product manager of PICO OS, left a Weibo topic and said &quot;Something new is coming&quot;, which may imply that the new product is a new VR headset device. (Sina Technology) WiseTech C",
-          "tag": "",
-          "url": "https://eu.36kr.com/en/p/3698580039085698"
-        },
-        {
-          "title": "2026年：AI将掀起真正的革命浪潮",
-          "body": "我认为，2026 年的 AI 领域，会迎来三个最核心的商业转型，每一个都能彻底改写当下的落地玩法。首先，盯紧一个技术拐点：推理成本的崩塌。",
-          "tag": "",
-          "url": "https://eu.36kr.com/zh/p/3651492853916034"
+          "title": "推理成本下跌是拐点",
+          "body": "多家预测文章将2026的商业转型归因于“推理成本崩塌”。判断：当推理足够便宜，AI的价值从“替代人工”转向“创造新流程”，例如实时个性化推荐、全量客服代理、研发自动化与代码测试；但成本下降会同时带来滥用与合规压力上升，企业必须同步建设内容安全、数据分级与模型评测体系。来源：趋势类文章汇总（搜索数据）。",
+          "tag": "趋势",
+          "url": ""
         }
       ],
       "title": "科技前沿",
@@ -236,34 +188,22 @@
       "id": "entertainment",
       "items": [
         {
-          "title": "综艺频道首页_最新综艺资讯_综艺节目排行榜_新浪娱乐_新浪网",
-          "body": "新浪首页 · 新闻 · 体育 · 财经 · 娱乐 · 科技 · 博客 · 图片 · 专栏 · 更多",
-          "tag": "",
-          "url": "https://ent.sina.com.cn/zongyi/"
+          "title": "综艺重启要拼内容力",
+          "body": "行业文章称2026可能是“熟悉的综艺回归”的重启大年。判断：回归不等于胜利，观众对“套路化真人秀”耐受度继续下降，平台更需要用更强的叙事、真实关系与垂直兴趣社区来提升完播与复看；对制作方而言，真正的护城河将从明星阵容转向“可复制的IP机制+短视频二次传播设计”。来源：犀牛娱乐/相关综艺资讯（搜索数据）。",
+          "tag": "观察",
+          "url": ""
         },
         {
-          "title": "2026，这些你熟悉的综艺回来了",
-          "body": "电影 · 音乐 · 播客 · 同城 · 小组 · 阅读 · FM · 时间 · 豆品 · 豆瓣社区 · 首页 · 浏览发现 · 话题广场 · 快速注册 · 犀牛娱乐 2026-01-17 17:01:05 福建 · 犀牛娱乐原创 · 文｜方正 编辑｜朴芳 · 2026很可能是重启综艺的大年。 ·",
-          "tag": "",
-          "url": "https://www.douban.com/note/878888930/"
+          "title": "路透不如口碑更值钱",
+          "body": "围绕《我们的客栈》等项目的路透与话题持续发酵，折射出宣发前置与社媒驱动的常态。判断：流量预热依然有效，但“先热后塌”的风险也更高——观众会用正片质量与人设一致性快速结算；平台在2026的关键不在制造热搜，而在让内容形成稳定口碑曲线，以降低获客成本。来源：新浪娱乐相关条目（搜索数据）。",
+          "tag": "趋势",
+          "url": "https://ent.sina.com.cn/"
         },
         {
-          "title": "新浪网(2018年05月23日9:00) - 娱乐",
-          "body": "@娱乐有饭 · @明星爱街拍 · 明星势力榜 · #星闻热议# #美好大片# #街拍播报# #行走的画报# #有饭安利# 明星库 · 明星美图 · 电影库 · 电影美图 · 电影票房榜 · 活动抢票 · 新浪潮论坛 · @新浪电影 · #我们见面吧# 鉴剧科 · 电视库 · 收视报告 · @新浪电视 · 综艺美图 ·",
-          "tag": "",
-          "url": "http://ent.sina.com.cn/head/ent20180523am.shtml"
-        },
-        {
-          "title": "24日，钟汉良、唐嫣《我们的客栈》路透释出，两人同框 ... - 娱乐",
-          "body": "@娱乐有饭 · @明星爱街拍 · 明星势力榜 · #美好大片# #街拍播报# #有饭安利# 明星库 · 明星美图 · 电影美图 · 活动抢票 · 新浪潮论坛 · @新浪电影 · @新浪电视 · #idoltube# #一起追剧吧# #我们见面吧# 综艺美图 ·",
-          "tag": "",
-          "url": "http://ent.sina.com.cn/head/ent20230225am.shtml"
-        },
-        {
-          "title": "好电影/电视剧/综艺推荐",
-          "body": "片单是收集影视的工具，创建片单后，在豆瓣看到符合片单主题的电影、电视时可以将它放入片单，方便以后找到。 · 你还可以看看其他人的收集，关注你感兴趣的片单。",
-          "tag": "",
-          "url": "https://www.douban.com/doulist/124968563/"
+          "title": "演唱会经济看续航",
+          "body": "音乐频道信息显示多地演出与巡演继续推进。判断：演唱会对本地消费拉动仍强，但行业开始进入“供给扩张后的分化期”：头部艺人一票难求，中腰部项目更依赖城市补贴、票价策略与文旅联动。对消费者是利好——选择更多、溢价回落；对主办方则考验现金流与风控。来源：新浪音乐（搜索数据）。",
+          "tag": "观察",
+          "url": "https://ent.sina.com.cn/music/"
         }
       ],
       "title": "娱乐",
@@ -274,34 +214,22 @@
       "id": "sports",
       "items": [
         {
-          "title": "2026年の主要スポーツ一覧 月ごとの開催スケジュールまとめ | Goal.co",
-          "body": "【2026年】1年間に行われる主要スポーツイベントを紹介。サッカーや野球、テニス、ラグビーなどの主要大会はいつ？ · DMM×DAZNホーダイ",
-          "tag": "",
-          "url": "https://www.goal.com/jp/%E3%83%AA%E3%82%B9%E3%83%88/2026-sport-events-list/blt527732d3f329f8ff"
+          "title": "三月赛程密集期",
+          "body": "赛历信息显示3月赛事密集，属于各项目“冬训后状态检验”的窗口。判断：这个阶段的成绩更像训练质量与伤病管理的反馈，而非全年峰值；对顶尖运动员与教练组来说，最重要的是在高强度参赛中控制伤病、完成技术微调，为后续大赛周期做负荷铺排。来源：新浪体育电子赛历（搜索数据）。",
+          "tag": "提醒",
+          "url": "https://sports.sina.com.cn/"
         },
         {
-          "title": "电子赛历_新浪体育_新浪网",
-          "body": "体育首页 | 新浪首页 | 新浪导航 · 电子赛历 · * 蓝色表示重要赛事 * 时间均为北京时间。 · 本月赛事 · 更多 · 项目赛事 - 田径 · 2026年03月03日 · 00:10 · 上个月",
-          "tag": "",
-          "url": "https://match.sports.sina.com.cn/calendar/"
+          "title": "足球竞猜热度回升",
+          "body": "新浪彩票对足彩第26034期给出对阵趋势提示，反映欧洲联赛比赛密度带来的不确定性。判断：密集赛程下强队轮换增多，“冷门概率”上升；如果参与竞猜应更关注球队伤停、轮换与客场旅行因素，而不只看排名。对内容平台而言，数据化解读与即时信息的价值会继续提升。来源：新浪彩票（搜索数据）。",
+          "tag": "观察",
+          "url": "https://sports.sina.com.cn/l/zhixu/"
         },
         {
-          "title": "赛事电子日历_NIKE新浪竞技风暴_新浪网",
-          "body": "We cannot provide a description for this page right now",
-          "tag": "",
-          "url": "http://data.sports.sina.com.cn/matchs/league_match.php?l_id=5556"
-        },
-        {
-          "title": "[新浪彩票]足彩第26034期大势：埃弗顿防平_彩票_新浪竞技风暴_新浪体育_新",
-          "body": "2026年03月02日 07:56 作者 · 新浪彩票 新浪彩票频道官方微博 · 缩小字体 放大字体 收藏 微博 微信 分享 0 · 腾讯QQ QQ空间 · 动态提点： · 1、伯恩茅斯VS布伦特福德：伯恩茅斯最近平局较多，此役需要多小心；布伦特客场处于3连胜中，客场气势不俗。 ·",
-          "tag": "",
-          "url": "https://sports.sina.com.cn/l/2026-03-02/doc-inhppxwy5489788.shtml"
-        },
-        {
-          "title": "Olympic Sports Schedule, News, and Resul",
-          "body": "Olympic sport and Summer and Winter Olympics coverage on ESPN.com",
-          "tag": "",
-          "url": "https://global.espn.com/olympics/"
+          "title": "大赛周期拉长",
+          "body": "外媒与赛程汇总强调2026年依旧是体育大年、跨项目大赛多。判断：商业层面赞助与转播将更看重“多平台分发+短内容剪辑权”，传统单一转播权模式的议价能力下降；运动员个人IP运营与合规（广告、代言、社媒）会成为成绩之外的第二战场。来源：Goal/奥林匹克相关赛程信息（搜索数据）。",
+          "tag": "趋势",
+          "url": "https://olympics.com/"
         }
       ],
       "title": "体育",
@@ -312,34 +240,28 @@
       "id": "jobs_hot",
       "items": [
         {
-          "title": "Security Verification",
-          "body": "Security Verification · Protected by Tencent Cloud EdgeOne",
-          "tag": "",
+          "title": "杭州人事专员8k+双休",
+          "body": "智联招聘信息显示：杭州招聘专员/人事岗主打“8k+、双休、不加班、90后团队、无经验可投”。判断：这是典型的“交付型HR”岗位，适合用半年建立招聘漏斗、面试评估与雇主品牌的基本功；但需确认KPI口径（到面/入职/留存）与底薪提成结构，避免“高薪”来自极端绩效。来源：智联招聘（搜索数据）。",
+          "tag": "机会",
           "url": "https://www.zhaopin.com/"
         },
         {
-          "title": "冷门招聘求职招聘信息 - 智联招聘",
-          "body": "岗位亮点：纯坐肉+冷门低竞争！依赖细腻观察力，无体力劳作、无技术门福新手1天上手，车问恒温洁净工作轻松还税学高薪9商位职责:用专业检则工具",
-          "tag": "",
-          "url": "https://www.zhaopin.com/zhaopin/cc00328d0b0c41928b71bed68f6222eb/"
+          "title": "代招司机9000+周结",
+          "body": "智联招聘出现“高薪司机9000+、时间自由、公司提供车辆、周结”的代招信息。判断：此类岗位最大风险在费用陷阱与劳动关系不清（押金、租车、平台抽成、违章责任）。求职者应在入职前核对：是否0费用、车辆归属、保险/维修承担、结算周期与最低流水要求，并尽量选择可签正式协议的企业。来源：智联招聘（搜索数据）。",
+          "tag": "提醒",
+          "url": "https://www.zhaopin.com/"
         },
         {
-          "title": "代招人公司招聘信息 - 智联招聘",
-          "body": "高薪聘请司机，时间自由，多劳多得！薪资9000＋，0费用入职，包住，公司提供车辆、保养、保险、入职无需工作经验，持C1驾驶证，会看导航即可，工资周结，",
-          "tag": "",
-          "url": "https://www.zhaopin.com/zhaopin/afb43dcca8f74bd988c6fb8e94f28b51/"
+          "title": "招生顾问冲刺高提成",
+          "body": "智联招聘显示青岛地区招生顾问岗位强调“挑战高薪”，围绕升学规划与教育咨询。判断：行业仍有需求，但强依赖线索质量与转化体系；面试时要问清楚客资来源（公域投放/私域转介绍）、试用期考核、提成结算与退费扣回规则。对擅长销售与沟通的人，这是现金流较快的选择。来源：智联招聘（搜索数据）。",
+          "tag": "机会",
+          "url": "https://www.zhaopin.com/"
         },
         {
-          "title": "各种职位简称招聘信息 - 智联招聘",
-          "body": "智联招聘为您推荐各种职位简称2026年最新相关岗位招聘信息，岗位真实无虚假，企业简介、任职条件、薪资范围等关键信息一目了然，帮您快速锁定心仪岗位，提高求职效率。招聘求职找各种职位简称相关工作就上智联招聘!",
-          "tag": "",
-          "url": "https://www.zhaopin.com/zhaopin/b61207e30d6245d9bff46240bc45e722/"
-        },
-        {
-          "title": "青岛各区招聘网站招聘信息 - 智联招聘",
-          "body": "高薪诚聘招生顾问！挑战高薪，成就自我！用专业与热情为家长和学生规划成长升学路径，助力更多孩子拥抱优质教育资源！寻找敢于突破、热爱教育事业",
-          "tag": "",
-          "url": "https://www.zhaopin.com/zhaopin/97523fc69ea94aac9770973210678a34/"
+          "title": "居家自媒体变现岗",
+          "body": "智联招聘出现“可长期线上居家办公、多劳多得，通过AI工具制作图文/短视频”相关职位。判断：这类岗位门槛低但两极分化：正规团队会给选题库、数据复盘与结算规则；不规范的可能用“培训/材料费”收割。应要求对方提供历史账号案例、结算方式（CPM/分成/计件）与版权责任边界。来源：智联招聘（搜索数据）。",
+          "tag": "提醒",
+          "url": "https://www.zhaopin.com/"
         }
       ],
       "title": "热门职位",
@@ -347,7 +269,7 @@
       "color": "#f39c12"
     }
   ],
-  "generated_at": "2026-03-05T10:05:42.252401+08:00",
+  "generated_at": "2026-03-05T10:07:00.763273+08:00",
   "raw": {
     "highlight": [
       {
@@ -647,7 +569,7 @@
       {
         "title": "2026年の主要スポーツ一覧 月ごとの開催スケジュールまとめ | Goal.com 日本",
         "url": "https://www.goal.com/jp/%E3%83%AA%E3%82%B9%E3%83%88/2026-sport-events-list/blt527732d3f329f8ff",
-        "desc": "【2026年】1年間に行われる主要スポーツイベントを紹介。サッカーや野球、テニス、ラグビーなどの主要大会はいつ？ · DMM×DAZNホーダイ"
+        "desc": "モータースポーツやラグビーなど人気スポーツは Amazon Prime Videoチャンネル「J SPORTS」でライブ配信！ ... U-NEXTはゴルフ世界4大メジャーなど注目大会をライブ配信！ まずはU-NEXTの31日間無料トライアルに登録！ ... 2026年もスポーツ界はビッグイベントが目白押しだ。2月にはイタリアのミラノ・コルティナで冬季オリンピックが開催され、6月にはカナダ、メキシコ、アメリカの北中米3カ国共同開催のFIFAワールドカップが開幕する。"
       },
       {
         "title": "电子赛历_新浪体育_新浪网",
