@@ -1,60 +1,33 @@
 /**
  * scripts/build.ts
- * 1. 同步 ~/Desktop/小新日报-*.json → public/data/
- * 2. 更新 public/manifest.json
- * 3. bun run astro build
- * 4. git add/commit/push
+ * 1. 扫描 public/data/ 下的 JSON 文件，更新 manifest.json
+ * 2. bun run astro build
+ * 3. git add/commit/push
  */
 
-import { readdir, copyFile, mkdir, writeFile, stat } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
 
-const HOME = process.env.HOME!;
-const DESKTOP = `${HOME}/Desktop`;
-const REPO = join(import.meta.dir, "..");
+const REPO        = join(import.meta.dir, "..");
 const PUBLIC_DATA = join(REPO, "public", "data");
-const MANIFEST = join(REPO, "public", "manifest.json");
+const MANIFEST    = join(REPO, "public", "manifest.json");
 
-// ── Sync JSON files ──────────────────────────────────────────────────
-async function syncData(): Promise<string[]> {
-  await mkdir(PUBLIC_DATA, { recursive: true });
-
-  const files = (await readdir(DESKTOP))
+// ── Manifest ─────────────────────────────────────────────────────────
+async function writeManifest(): Promise<string[]> {
+  const files = (await readdir(PUBLIC_DATA))
     .filter((f) => f.startsWith("小新日报-") && f.endsWith(".json"))
     .sort()
     .reverse();
 
-  const dates: string[] = [];
+  const dates = files.map((f) => f.replace("小新日报-", "").replace(".json", ""));
 
-  for (const file of files) {
-    const src = join(DESKTOP, file);
-    const dst = join(PUBLIC_DATA, file);
-    const date = file.replace("小新日报-", "").replace(".json", "");
-    dates.push(date);
-
-    let needsCopy = !existsSync(dst);
-    if (!needsCopy) {
-      const [s, d] = await Promise.all([stat(src), stat(dst)]);
-      needsCopy = s.mtimeMs > d.mtimeMs;
-    }
-    if (needsCopy) {
-      await copyFile(src, dst);
-      console.log(`  ↑ synced ${file}`);
-    }
-  }
-
-  return dates;
-}
-
-// ── Manifest ─────────────────────────────────────────────────────────
-async function writeManifest(dates: string[]): Promise<void> {
   await writeFile(
     MANIFEST,
     JSON.stringify({ dates, updated: new Date().toISOString() }, null, 2),
     "utf-8"
   );
+  return dates;
 }
 
 // ── Astro build ──────────────────────────────────────────────────────
@@ -66,7 +39,7 @@ function astroBuild(): void {
 // ── Git push ─────────────────────────────────────────────────────────
 function gitPush(): boolean {
   const today = new Date()
-    .toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" }); // YYYY-MM-DD
+    .toLocaleDateString("sv-SE", { timeZone: "Asia/Shanghai" });
 
   const cmds = [
     `git -C ${REPO} add -A`,
@@ -84,7 +57,7 @@ function gitPush(): boolean {
         console.log("  (nothing to commit)");
         return true;
       }
-      console.error(`  ✗ ${cmd.split(" ").slice(2, 4).join(" ")}: ${msg.slice(0, 120)}`);
+      console.error(`  ✗ ${msg.slice(0, 120)}`);
       return false;
     }
   }
@@ -93,12 +66,8 @@ function gitPush(): boolean {
 
 // ── Main ─────────────────────────────────────────────────────────────
 async function main() {
-  console.log("🔄 Syncing digest data...");
-  const dates = await syncData();
-  console.log(`  ${dates.length} digests: ${dates.slice(0, 3).join(", ")}${dates.length > 3 ? "..." : ""}`);
-
-  await writeManifest(dates);
-  console.log("  manifest.json updated");
+  const dates = await writeManifest();
+  console.log(`📋 manifest updated: ${dates.slice(0, 3).join(", ")}${dates.length > 3 ? "..." : ""}`);
 
   astroBuild();
 
