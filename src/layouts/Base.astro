@@ -12,7 +12,11 @@ const { title = "小新日报" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content="小新日报 · 每日自动生成的新闻简报" />
+    <meta name="theme-color" content="#0d0d0d" />
+    <link rel="manifest" href="/daily-news-site/site.webmanifest" />
     <style is:global>
+      @import "@fontsource-variable/inter";
+
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
@@ -28,18 +32,32 @@ const { title = "小新日报" } = Astro.props;
         --heading: #f0f0f0;
         --link: #60a5fa;
         --radius: 10px;
+        --font: 'Inter Variable', -apple-system, "PingFang SC",
+          "Microsoft YaHei", "Helvetica Neue", sans-serif;
       }
 
       html { scroll-behavior: smooth; }
 
       body {
-        font-family: -apple-system, "PingFang SC", "Microsoft YaHei",
-          "Helvetica Neue", sans-serif;
+        font-family: var(--font);
         background: var(--bg);
         color: var(--text);
         min-height: 100vh;
         font-size: 15px;
         line-height: 1.75;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ── Read progress bar ── */
+      #progress-bar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 3px;
+        width: 0%;
+        background: linear-gradient(90deg, #e74c3c, #f39c12);
+        z-index: 9999;
+        transition: width 0.1s linear;
+        pointer-events: none;
       }
 
       ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -51,6 +69,20 @@ const { title = "小新日报" } = Astro.props;
     </style>
   </head>
   <body>
+    <div id="progress-bar"></div>
     <slot />
+    <script>
+      const bar = document.getElementById("progress-bar")!;
+      window.addEventListener("scroll", () => {
+        const h = document.documentElement;
+        const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+        bar.style.width = `${Math.min(pct, 100)}%`;
+      }, { passive: true });
+
+      // Service Worker
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/daily-news-site/sw.js");
+      }
+    </script>
   </body>
 </html>
