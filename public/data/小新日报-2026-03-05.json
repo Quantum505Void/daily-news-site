@@ -2,26 +2,26 @@
   "date": "2026-03-05",
   "weekday": "周四",
   "title": "2026年03月05日 周四",
-  "summary": "两会明日开幕，“十五五”开局之年的宏观定调将决定今年消费修复、有效投资与科技自主的资源投向，市场预期正在快速收敛。与此同时，中东冲突外溢到航运与军事对抗层面，能源与全球风险溢价抬升，成为影响外需与大宗价格的最大变量。",
+  "summary": "两会窗口期叠加“开局之年”定调，宏观政策主线正从“稳增长”进一步转向“提振消费+投资于人”，这将重塑今年财政与产业资源的去向。外部最危险的变量来自中东冲突外溢：美伊海上交火与地区导弹拦截把油运与保险风险抬上桌面，全球通胀与风险资产定价都将被迫重估。",
   "sections": [
     {
       "id": "highlight",
       "items": [
         {
-          "title": "两会定调窗口",
-          "body": "全国两会明日开幕，处在“十五五”开局之年，政策信号会比往年更“指向结构”而非“只看总量”。外界关注点将集中在：增长目标与财政/货币协同、提振消费的抓手（收入预期与公共服务）、以及科技自主与新质生产力的预算倾斜。判断：若“投资于人”和消费修复被置于更高优先级，A股主线可能从纯算力外溢到“AI+制造/民生服务”的扩散。来源：新华社、BBC中文两会焦点梳理。",
-          "tag": "重磅",
-          "url": "http://www.xinhuanet.com/"
+          "title": "两会定调看消费",
+          "body": "从两会前瞻与政策讨论看，“内生动能”被放到更核心位置：提振消费不再只靠短期刺激，而是围绕居民收入预期、公共服务与“投资于人”打开空间。判断：今年真正的分水岭不是GDP目标数字，而是财政资金如何从“修路建楼”更多转向教育、医疗、托育、技能培训等可形成长期消费与人力资本回报的支出结构。",
+          "tag": "知识库",
+          "url": ""
         },
         {
-          "title": "霍尔木兹风险抬头",
-          "body": "Reuters报道围绕伊朗的美以打击与“护航”讨论升级，且出现美方在远离海湾海域击沉伊朗军舰等高度对抗事件，冲突从陆上空袭外溢到海上通道与盟友基地安全。判断：即便油价未立刻失控，航运保险费率与绕航成本也会先行上升，进而推高输入型通胀与化工、航运链条波动；对亚洲制造业而言，最先体现的是交付周期与运价不确定性。来源：Reuters。",
-          "tag": "突发",
+          "title": "中东外溢抬升油险",
+          "body": "Reuters披露美方潜艇击沉伊朗军舰、北约拦截飞向土耳其方向的伊朗导弹等信息，意味着冲突外溢已触及航运安全与北约防空链条。判断：短期市场关注油价，但更隐蔽的传导在“运费+保险+绕航成本”，它会推高企业输入性成本并扰动全球供应链交付，进而影响各国央行对通胀回落路径的信心。",
+          "tag": "重磅",
           "url": "https://www.reuters.com/"
         },
         {
-          "title": "AI走向务实落地",
-          "body": "TechCrunch对2026年的研判强调：行业从“更大模型”转向“可靠智能体、世界模型与物理AI”，核心竞争点变为可验证、可控与可集成的工程能力。判断：企业侧预算会从“买算力试点”转向“可度量ROI的流程重构”，能交付端到端代理系统、具备数据/权限治理能力的厂商将更受益，纯“参数崇拜”项目会快速退潮。来源：TechCrunch。",
+          "title": "AI进入务实兑现期",
+          "body": "TechCrunch等对2026年的判断是“从热炒走向务实”：更小模型、可靠智能体、物理AI与世界模型成为主线。判断：产业上真正的机会不在“再训练一个更大模型”，而在企业流程的可验证自动化（财务、客服、供应链、运维）与边缘端落地；对应风险是安全、合规与不可控代理行为带来的经营事故。",
           "tag": "趋势",
           "url": "https://techcrunch.com/"
         }
@@ -34,28 +34,28 @@
       "id": "china",
       "items": [
         {
-          "title": "“十五五”开局定价",
-          "body": "两会前瞻普遍将“提振消费、扩大有效投资”视为主线，并出现“投资于人”的政策表述：通过公共服务、教育医疗、社保与技能提升改善预期，从而带动消费倾向与劳动力质量。判断：这意味着地方项目型投资的边际空间收窄，中央层面更可能用制度与民生支出撬动需求，消费链与服务业修复的政策确定性上升。来源：两会前瞻报道（搜索数据）。",
+          "title": "一件事清单再扩围",
+          "body": "国务院办公厅印发《“高效办成一件事”2026年度第一批重点事项清单》，体现政务服务从“能办”向“好办、快办、少跑腿”升级。判断：这类清单的价值在于倒逼跨部门数据共享与流程再造，直接降低企业合规与群众办事摩擦成本；对地方而言，考核重点将从窗口服务转向后端数据、标准与协同能力。",
           "tag": "分析",
-          "url": ""
-        },
-        {
-          "title": "政务改革再提速",
-          "body": "国务院办公厅印发《“高效办成一件事”2026年度第一批重点事项清单》，强调跨部门联办与流程再造。判断：这一类清单的意义不在“上线多少事项”，而在把数据共享、电子证照、统一身份认证等基础设施变成硬约束；对企业端的直接影响是合规与申办成本下降，利好ToG数字化、政务云与基础软件生态，但也会加速淘汰低附加值集成商。来源：国家信访局网站转载国务院文件（搜索数据）。",
-          "tag": "重磅",
-          "url": ""
+          "url": "https://www.gov.cn/"
         },
         {
           "title": "低温雨雪预案落地",
-          "body": "国务院办公厅印发《国家低温雨雪冰冻灾害应急预案》，把极端天气作为系统性风险进行“预案化”管理。判断：这类预案的信号在于极端天气常态化背景下，电网韧性、城市生命线工程、粮食与物流保供将获得更稳定投入；对企业而言，储能、配网改造、应急通信、工程防灾检测等赛道的订单确定性更强，但地方执行绩效将决定项目回款质量。来源：国家信访局网站转载国务院文件（搜索数据）。",
+          "body": "国办印发《国家低温雨雪冰冻灾害应急预案》，意味着极端天气治理进一步制度化。判断：预案的核心不只是救灾，更是“前置化”的能源保供、交通保通与重点人群兜底；对产业端，电网韧性、储能调峰、应急物资与冷链保供的投入确定性上升，地方财政也将更重视灾害损失的可量化评估与保险工具。",
           "tag": "提醒",
+          "url": "https://www.gov.cn/"
+        },
+        {
+          "title": "社团评估新规施行",
+          "body": "民政部新修订《社会组织评估管理办法》已于2026年3月1日起施行，放宽参评条件并优化程序、强化监督。判断：这将提高社会组织的透明度与信用分层，长期利好政府购买服务、公益慈善与社区治理的“可评价、可追责”；但也会挤压“只重名头不重治理”的机构生存空间，合规成本短期上升。",
+          "tag": "观察",
           "url": ""
         },
         {
-          "title": "社会组织评估新规",
-          "body": "民政部新修订《社会组织评估管理办法》自3月1日起实施，放宽参评条件、优化程序并强化监督。判断：对公益与行业协会而言，评估的“可比性”提升，有利于资金与项目向治理透明、合规能力强的组织集中；对地方政府购买服务也意味着更可量化的准入门槛。短期会带来评估咨询与合规审计需求上升，长期推动社会服务供给更专业化。来源：3月施行新规汇总（搜索数据）。",
-          "tag": "观察",
-          "url": ""
+          "title": "统计公报揭示结构压",
+          "body": "人民日报转载的《2025年国民经济和社会发展统计公报》为“十四五”收官提供底账。判断：宏观最重要的信息通常不在总量，而在结构压力——人口、就业、地产与地方财政对增长质量的约束仍在。政策的可持续性将取决于能否把投资效率抬回合理区间，并用更稳定的居民收入增长去支撑消费复苏。",
+          "tag": "分析",
+          "url": "http://www.people.com.cn/"
         }
       ],
       "title": "国内",
@@ -66,27 +66,27 @@
       "id": "world",
       "items": [
         {
-          "title": "美伊对抗升级",
-          "body": "Reuters称美方潜艇在国际水域击沉伊朗军舰，并出现北约拦截朝土耳其方向飞行的伊朗导弹等信息，显示冲突链条正向“海上通道+盟友防空”扩散。判断：这会把欧洲与北约更深卷入中东安全议题，进而推高欧洲能源成本预期与军费压力；全球市场将以更高风险溢价定价油运与航运周期，企业需预备供应链绕行与库存策略。来源：Reuters。",
+          "title": "美伊海上交火升级",
+          "body": "Reuters称美方潜艇在远离海湾的国际水域击沉伊朗军舰，显示对抗不局限于波斯湾近岸。影响链：海上冲突升级→航运公司提高风险溢价→油运与化工品运费上行→输入性通胀压力回潮→股债汇波动加大。判断：若形成“报复—反报复”的连续回合，市场会从交易油价改为交易地缘尾部风险。",
           "tag": "突发",
           "url": "https://www.reuters.com/"
         },
         {
-          "title": "特朗普国情咨文",
-          "body": "BBC中文梳理特朗普2026年国情咨文：以破纪录时长强调“黄金时代”，但争议同样凸显。判断：对外部世界更重要的是其政策输出的一致性——若贸易与关税工具继续被高频使用，全球制造业将面临更强的合规与原产地审查压力；同时美国国内政治分裂加深，会提高财政与监管政策的反复风险。来源：BBC中文。",
-          "tag": "观察",
-          "url": "https://www.bbc.com/zhongwen"
+          "title": "北约拦截导弹示警",
+          "body": "Reuters提到北约击落飞向土耳其方向的伊朗导弹，意味着冲突触碰北约成员国安全边界。影响链：防空拦截事件→军事误判概率上升→地区防空与情报协同强化→军费与防务采购预期抬升。判断：这类事件对市场的长期影响是“安全优先”重新排序，能源、航运、航空与旅游会首先承压。",
+          "tag": "重磅",
+          "url": "https://www.reuters.com/"
         },
         {
-          "title": "中东外溢冲击欧陆",
-          "body": "搜索信息显示“欧洲军事设施成为伊朗报复目标”的相关报道，且与英国向美军开放基地用于对伊行动的决定相互关联。判断：欧洲将面临典型的“安全—经济”二选一困境：军事协同提升带来本土反击风险上升，同时能源与难民/社会治安压力可能回潮；欧元区增长的下行尾部风险被抬高。来源：相关外媒报道线索（搜索数据）。",
+          "title": "以色列多线打击外溢",
+          "body": "Reuters直播稿显示以色列对伊朗与黎巴嫩的打击持续，且美方在考虑为霍尔木兹油轮提供军事掩护。判断：一旦护航常态化，等同于把商业运输纳入军事对抗框架，任何小规模摩擦都可能被放大；对亚洲与欧洲的共同挑战是能源进口成本与供应稳定性，企业更需要做“替代航线+库存策略+对冲”组合管理。",
           "tag": "分析",
-          "url": ""
+          "url": "https://www.reuters.com/"
         },
         {
-          "title": "全球对华观察升温",
-          "body": "BBC中文的“两会五大焦点”将经济增速、“十五五”开局、科技自主、人事与国防预算列为关注点。判断：国际投资者对中国的“可预期性”需求增强——只要宏观政策在稳增长与防风险间给出清晰取舍，并形成对消费与科创的连续支持，外部叙事的波动会下降，资本对中国资产的风险折价有望收敛。来源：BBC中文。",
-          "tag": "趋势",
+          "title": "BBC关注多地政治动荡",
+          "body": "BBC中文近期多条国际报道集中于冲突、选举与社会议题的交织。判断：全球政治的共同特征是“国内议题外溢到外交与贸易”，关税、科技限制与移民政策更容易成为选票工具；对中国企业出海而言，合规、数据、供应链可追溯与本地化雇佣将从加分项变为生存项。",
+          "tag": "观察",
           "url": "https://www.bbc.com/zhongwen"
         }
       ],
@@ -98,22 +98,22 @@
       "id": "military",
       "items": [
         {
-          "title": "海上冲突阈值变了",
-          "body": "Reuters所述“潜艇击沉军舰”“护航霍尔木兹油轮”意味着冲突进入更高烈度的海上对抗叙事。判断：海上交通线一旦被纳入作战想定，升级往往不靠宣战而靠误判与“护航规则”摩擦，金融市场会先交易“最坏可能性”；各国海军与海事执法的联动强度将上升，商船的安保与情报服务需求同步增长。来源：Reuters。",
+          "title": "海上战场扩展化",
+          "body": "美伊在更远海域发生击沉事件，说明对抗正在从“近岸威慑”转向“远海猎歼/反介入”。判断：这会迫使各方提升远程侦察、反潜与海上补给能力，商业船舶可能被更广泛地卷入识别与管制；对地区国家而言，最现实的安全投资将集中在海空预警、航道监控与港口防护，而非单一大平台崇拜。",
           "tag": "分析",
           "url": "https://www.reuters.com/"
         },
         {
-          "title": "日本军费信号强",
-          "body": "搜索数据提到日本内阁通过创纪录防务预算，并承诺更早达到2%目标。判断：这不是单纯的预算扩张，而是日本在地区安全架构中角色再定位的延续，未来会体现在远程打击、弹药储备、情报与联合作战体系上；周边国家的军备互动将更频繁，安全议题对经贸与科技合作的“溢出效应”会更明显。来源：相关报道线索（搜索数据）。",
+          "title": "欧洲基地成报复靶",
+          "body": "公开信息显示欧洲军事设施在伊朗报复中面临被针对的风险，这强化了“盟国基地=前沿节点=可打击目标”的逻辑。判断：未来冲突更可能呈现“分布式打击”与无人系统蜂群化，基地防护将从硬化工事转向分散部署、快速修复与防空反导的层次化；欧洲政治也将更难在“支持盟友”与“本土安全”间平衡。",
           "tag": "观察",
           "url": ""
         },
         {
-          "title": "舆论战与规则战并行",
-          "body": "从多国防务部门例行发布与外媒高频战况快讯看，信息发布已成为冲突的一部分：通过“定性事件—塑造合法性—争取盟友支持”形成闭环。判断：未来安全风险管理不只看兵力，还要看信息可信度与法律叙事；对企业出海而言，合规、制裁与供应链“可解释性”将成为新的安全底盘。来源：中国国防部例行发布（搜索数据）与外媒报道环境。",
-          "tag": "提醒",
-          "url": "https://www.mod.gov.cn/"
+          "title": "东亚军费竞赛固化",
+          "body": "日本内阁通过创纪录防务预算并加速靠近2%目标的报道，与多方国防战略文件相互呼应。判断：东亚安全困境正在制度化：一方增加能力会触发他方对冲，最终把资源从民生与增长挤向军费。值得警惕的是灰色地带摩擦（海空相遇、无人平台）更频繁，危机管控机制与沟通热线的重要性将显著上升。",
+          "tag": "趋势",
+          "url": ""
         }
       ],
       "title": "军事与安全",
@@ -124,28 +124,28 @@
       "id": "economy",
       "items": [
         {
-          "title": "财政力度明牌",
-          "body": "财新“财经早知道”提示财政部表态：2026年财政总体支出力度“只增不减”。判断：这句话的关键在“结构走向”而非总量，可能更偏向民生、科技与安全韧性方向的确定性投入；对市场而言，财政发力若与消费修复同向，将改善企业现金流预期，利好可选消费中“以旧换新/服务消费”、以及与公共投资相关的设备更新链条。来源：财新（搜索数据）。",
-          "tag": "重磅",
+          "title": "财政“只增不减”信号",
+          "body": "财新提及财政部表态2026年财政总体支出力度“只增不减”。判断：市场要盯两件事——一是增量资金更多投向消费端与民生端，还是继续以传统基建为主；二是资金效率与项目现金流约束是否更硬。若“投资于人”占比提升，将利好教育、医疗、社服与新型公共服务数字化，也更有利于稳定中长期内需。",
+          "tag": "分析",
           "url": "https://www.caixin.com/"
         },
         {
-          "title": "存储涨价或贯穿全年",
-          "body": "券商观点称AI需求拉动存储景气，涨价可能贯穿2026年，并带动材料与零部件环节受益。判断：若价格上行来自“AI服务器+端侧AI”双驱动，周期属性会被弱化、更像供需紧平衡的结构行情；操作层面应区分“有议价能力的存储IDM/模组”与“纯量增但毛利受挤的代工链”，以及国产替代带来的设备材料弹性。来源：财经早报引用研报（搜索数据）。",
+          "title": "存储涨价进入长坡",
+          "body": "券商研报称AI需求拉动下存储景气可能贯穿2026年，涨价带来行业催化。判断：这轮周期与传统PC/手机不同，核心变量是数据中心推理与训练的“单位算力存储消耗”上升；受益顺序通常是：存储芯片→封测→上游材料与设备零部件。风险在于产能集中释放导致价格回落，以及海外出口管制对高端产品结构的扰动。",
           "tag": "机会",
           "url": ""
         },
         {
-          "title": "两会前市场押注扩散",
-          "body": "来自“股市沙龙”走访与讨论关键词显示，算力、AI、CPO仍是高频主题。判断：情绪交易后通常面临两个拐点：一是业绩兑现，二是政策定调后的“主线扩散”。若两会强调提振消费与投资于人，资金可能从硬件景气链外溢到AI在教育、医疗、政务与工业软件的落地公司；波动期要关注回撤后的成交量与机构持仓变化。来源：市场走访类报道（搜索数据）。",
+          "title": "金银新高是风险温度计",
+          "body": "财新提到国际金价银价再创新高。判断：贵金属走强不仅是降息预期交易，更是地缘冲突与金融不确定性的“保险费”。对资产配置而言，它提示两点：其一，风险资产波动可能放大；其二，若油运与供应链继续受扰，通胀回落斜率趋缓，债券久期与股市估值都要重新校准。",
           "tag": "观察",
-          "url": ""
+          "url": "https://www.caixin.com/"
         },
         {
-          "title": "交易日历别踩坑",
-          "body": "上交所发布2026年部分节假日休市安排。判断：长假前后流动性收缩往往放大题材波动，尤其在外部地缘风险抬升时，隔夜事件容易造成开盘跳空；策略上更应控制杠杆与隔夜敞口，利用假期前后做仓位再平衡。来源：上海证券交易所休市安排（搜索数据）。",
+          "title": "A股主题热度再抬头",
+          "body": "多篇市场观察显示A股讨论聚焦“算力、人工智能、CPO”等高频词。判断：主题行情能走多远取决于两条硬指标：订单兑现（算力租赁利用率、运营现金流）与供给瓶颈（光模块、先进封装、HBM替代链）。操作层面要防“情绪先行、业绩滞后”的回撤，优先筛选有真实客户与交付能力的链条公司。",
           "tag": "提醒",
-          "url": "https://www.sse.com.cn/"
+          "url": ""
         }
       ],
       "title": "财经与市场",
@@ -156,27 +156,27 @@
       "id": "tech",
       "items": [
         {
-          "title": "智能体从炫技到系统",
-          "body": "36氪判断2026年核心转变是从“更聪明模型”转向“可协调、可验证、持续进化的智能体操作系统”。判断：企业真正缺的是“可控的自动化”，即权限、审计、记忆、工具调用与回滚机制；谁能把智能体做成可治理的IT资产，而不是一次性Demo，谁就能吃到下一轮企业级预算。来源：36氪（搜索数据）。",
+          "title": "智能体从演示到交付",
+          "body": "36氪与TechCrunch都把2026的关键词指向“可靠智能体/智能体操作系统”。判断：企业买单的前提是可验证、可审计、可回滚——也就是把智能体变成“受控员工”，而非“自由发挥的黑箱”。技术上将推动工具调用标准、权限系统、日志与评测体系成熟；商业上会催生面向财务、人事、法务、客服的行业智能体与运营监控岗位。",
           "tag": "趋势",
-          "url": ""
-        },
-        {
-          "title": "TechCrunch押注可靠代理",
-          "body": "TechCrunch提出2026年将出现新架构、更小模型、世界模型、可靠智能体与物理AI。判断：小模型并非降级，而是把能力放到端侧与专用场景，用“成本/延迟/隐私”换取规模化部署；世界模型与物理AI一旦进入工业场景，将把竞争从算法转到数据采集、仿真平台与安全认证体系，产业壁垒更高。来源：TechCrunch。",
-          "tag": "分析",
           "url": "https://techcrunch.com/"
         },
         {
-          "title": "物理AI进工厂",
-          "body": "搜索数据强调“AI从云端大脑落地为边缘终端”，进入工业现实。判断：物理AI的难点不在识别，而在闭环控制——传感器噪声、时延、故障模式与安全责任都会把落地门槛抬高；因此最先跑出来的不是通用机器人，而是“工艺单点突破”的专用设备（质检、分拣、预测性维护、能耗优化）。来源：物理AI趋势解读（搜索数据）。",
-          "tag": "观察",
+          "title": "物理AI进入工厂边缘",
+          "body": "关于“AI物理扎根”的讨论强调从云端走向边缘终端与工业现场。判断：这意味着AI价值评估从“模型指标”切换为“良率、停机时间、能耗、工伤率”等KPI；难点在数据稀缺、场景长尾与安全责任。先落地的往往不是通用机器人，而是视觉质检、预测性维护、仓储分拣与能耗优化等窄场景闭环。",
+          "tag": "分析",
           "url": ""
         },
         {
-          "title": "推理成本下跌是拐点",
-          "body": "多家预测文章将2026的商业转型归因于“推理成本崩塌”。判断：当推理足够便宜，AI的价值从“替代人工”转向“创造新流程”，例如实时个性化推荐、全量客服代理、研发自动化与代码测试；但成本下降会同时带来滥用与合规压力上升，企业必须同步建设内容安全、数据分级与模型评测体系。来源：趋势类文章汇总（搜索数据）。",
+          "title": "推理成本崩塌改规则",
+          "body": "多篇行业判断认为2026年关键拐点是推理成本快速下降。判断：当推理足够便宜，应用会从“少数高价值问答”扩展到“高频流程自动化”，并带来算力需求结构变化：小模型、多实例、低时延优先。对企业IT来说，成本中心会从训练转向推理与数据治理；对芯片与云厂商来说，比拼将落在能效与端云协同调度能力。",
           "tag": "趋势",
+          "url": ""
+        },
+        {
+          "title": "MWC的AI味更重",
+          "body": "MWC26相关观察显示电信展会被AI全面渗透。判断：运营商的关键不再是“有没有大模型”，而是能否把网络能力产品化——把5G/6G、边缘计算、切片、位置与计费体系变成AI应用的可调用能力。短期机会在行业专网与边缘推理节点建设；长期风险在投入巨大但商业化不及预期，导致资本开支周期被迫收缩。",
+          "tag": "观察",
           "url": ""
         }
       ],
@@ -188,22 +188,22 @@
       "id": "entertainment",
       "items": [
         {
-          "title": "综艺重启要拼内容力",
-          "body": "行业文章称2026可能是“熟悉的综艺回归”的重启大年。判断：回归不等于胜利，观众对“套路化真人秀”耐受度继续下降，平台更需要用更强的叙事、真实关系与垂直兴趣社区来提升完播与复看；对制作方而言，真正的护城河将从明星阵容转向“可复制的IP机制+短视频二次传播设计”。来源：犀牛娱乐/相关综艺资讯（搜索数据）。",
+          "title": "综艺重启不等于复兴",
+          "body": "行业文章称2026可能是“熟悉的综艺回归”之年。判断：重启能快速拿到注意力，但真正的胜负在内容供给侧改革——更强的叙事、更少的同质化、更稳定的艺人风险管理。平台会更看重可控成本与可持续IP，而非一次性爆款；广告主则倾向“效果可量化”的整合营销，倒逼节目把电商、线下与会员体系打通。",
           "tag": "观察",
           "url": ""
         },
         {
-          "title": "路透不如口碑更值钱",
-          "body": "围绕《我们的客栈》等项目的路透与话题持续发酵，折射出宣发前置与社媒驱动的常态。判断：流量预热依然有效，但“先热后塌”的风险也更高——观众会用正片质量与人设一致性快速结算；平台在2026的关键不在制造热搜，而在让内容形成稳定口碑曲线，以降低获客成本。来源：新浪娱乐相关条目（搜索数据）。",
-          "tag": "趋势",
-          "url": "https://ent.sina.com.cn/"
+          "title": "路透式路透的代价",
+          "body": "社媒“路透”与偷拍视频仍是剧综预热常用方式。判断：它短期能带热搜，但也会提前透支新鲜感、放大粉黑大战，甚至带来制作方的版权与安全管理风险。更成熟的宣发应回到“信息节奏控制”：用明确物料与幕后内容建立期待，而不是靠碎片化泄露维持热度，否则上线后口碑一旦不及预期，反噬更快。",
+          "tag": "提醒",
+          "url": ""
         },
         {
-          "title": "演唱会经济看续航",
-          "body": "音乐频道信息显示多地演出与巡演继续推进。判断：演唱会对本地消费拉动仍强，但行业开始进入“供给扩张后的分化期”：头部艺人一票难求，中腰部项目更依赖城市补贴、票价策略与文旅联动。对消费者是利好——选择更多、溢价回落；对主办方则考验现金流与风控。来源：新浪音乐（搜索数据）。",
+          "title": "演唱会走向精细化",
+          "body": "从平台音乐资讯看，演唱会与巡演仍是艺人收入与品牌合作核心场景。判断：市场正在从“报复性消费”回归理性，票价与体验的性价比决定复购；主办方的盈利关键在票务风控、二级市场治理与城市文旅联动。对观众来说，退改规则、票务平台资质与反黄牛机制将变得比阵容更重要。",
           "tag": "观察",
-          "url": "https://ent.sina.com.cn/music/"
+          "url": ""
         }
       ],
       "title": "娱乐",
@@ -214,22 +214,22 @@
       "id": "sports",
       "items": [
         {
-          "title": "三月赛程密集期",
-          "body": "赛历信息显示3月赛事密集，属于各项目“冬训后状态检验”的窗口。判断：这个阶段的成绩更像训练质量与伤病管理的反馈，而非全年峰值；对顶尖运动员与教练组来说，最重要的是在高强度参赛中控制伤病、完成技术微调，为后续大赛周期做负荷铺排。来源：新浪体育电子赛历（搜索数据）。",
+          "title": "世界杯年预热升温",
+          "body": "2026是男足世界杯之年（美加墨），各国联赛与国家队将进入更强的备战与选人周期。判断：强队会更重视伤病管理与轮换，球员在俱乐部的出场策略会受影响；商业层面，赞助与转播的议价会提前启动，亚洲市场的品牌投放也会更集中。中国球迷的关注点或更偏向旅居球员与亚洲球队竞争力变化。",
+          "tag": "知识库",
+          "url": ""
+        },
+        {
+          "title": "奥运周期进入冲刺段",
+          "body": "巴黎奥运后，各项目进入新周期的阵容重组与积分赛布局阶段。判断：这个阶段的关键不是单站成绩，而是训练体系与伤病恢复能否稳定；对中国队而言，优势项目需要防“惯性下滑”，潜力项目则要靠外训、科技保障与教练团队迭代缩小差距。大众层面，青训与校园体育的持续投入决定未来人才供给。",
+          "tag": "知识库",
+          "url": ""
+        },
+        {
+          "title": "竞彩热度需防误区",
+          "body": "从公开赛程与足彩分析内容看，球迷对赔率与走势讨论热度不低。判断：竞猜内容本质是概率游戏，最常见误区是用小样本状态替代长期实力、把“连胜连败”当作必然趋势。更理性的方式是控制投注规模、避免串关过度放大方差，并把信息来源从碎片化自媒体迁移到更稳定的伤停、赛程密度、轮换与战术对位分析。",
           "tag": "提醒",
-          "url": "https://sports.sina.com.cn/"
-        },
-        {
-          "title": "足球竞猜热度回升",
-          "body": "新浪彩票对足彩第26034期给出对阵趋势提示，反映欧洲联赛比赛密度带来的不确定性。判断：密集赛程下强队轮换增多，“冷门概率”上升；如果参与竞猜应更关注球队伤停、轮换与客场旅行因素，而不只看排名。对内容平台而言，数据化解读与即时信息的价值会继续提升。来源：新浪彩票（搜索数据）。",
-          "tag": "观察",
-          "url": "https://sports.sina.com.cn/l/zhixu/"
-        },
-        {
-          "title": "大赛周期拉长",
-          "body": "外媒与赛程汇总强调2026年依旧是体育大年、跨项目大赛多。判断：商业层面赞助与转播将更看重“多平台分发+短内容剪辑权”，传统单一转播权模式的议价能力下降；运动员个人IP运营与合规（广告、代言、社媒）会成为成绩之外的第二战场。来源：Goal/奥林匹克相关赛程信息（搜索数据）。",
-          "tag": "趋势",
-          "url": "https://olympics.com/"
+          "url": ""
         }
       ],
       "title": "体育",
@@ -240,79 +240,44 @@
       "id": "jobs_hot",
       "items": [
         {
-          "title": "杭州人事专员8k+双休",
-          "body": "智联招聘信息显示：杭州招聘专员/人事岗主打“8k+、双休、不加班、90后团队、无经验可投”。判断：这是典型的“交付型HR”岗位，适合用半年建立招聘漏斗、面试评估与雇主品牌的基本功；但需确认KPI口径（到面/入职/留存）与底薪提成结构，避免“高薪”来自极端绩效。来源：智联招聘（搜索数据）。",
-          "tag": "机会",
-          "url": "https://www.zhaopin.com/"
+          "title": "AI应用产品经理",
+          "body": "公司/方向：大模型应用公司、SaaS厂商、互联网（ToB增长）。岗位：AI应用产品经理/Agent产品。薪资：一线城市常见40-80万/年（知识库估计，视期权与级别浮动大）。亮点：把模型能力变成可交付流程，核心竞争力在业务闭环、评测体系、权限与合规设计；更偏“落地与ROI”，不是单纯写PRD。",
+          "tag": "知识库",
+          "url": ""
         },
         {
-          "title": "代招司机9000+周结",
-          "body": "智联招聘出现“高薪司机9000+、时间自由、公司提供车辆、周结”的代招信息。判断：此类岗位最大风险在费用陷阱与劳动关系不清（押金、租车、平台抽成、违章责任）。求职者应在入职前核对：是否0费用、车辆归属、保险/维修承担、结算周期与最低流水要求，并尽量选择可签正式协议的企业。来源：智联招聘（搜索数据）。",
-          "tag": "提醒",
-          "url": "https://www.zhaopin.com/"
+          "title": "推理优化工程师",
+          "body": "公司/方向：云厂商、AI算力平台、芯片与系统软件团队。岗位：LLM推理性能/并行与量化/编译优化。薪资：50-120万/年较常见（知识库估计）。亮点：推理成本下降是行业主线，优化直接对应利润与用户体验；加分项包括CUDA/ROCm、TensorRT/TVM、量化（INT8/FP8）、KV cache与分布式推理实战。",
+          "tag": "知识库",
+          "url": ""
         },
         {
-          "title": "招生顾问冲刺高提成",
-          "body": "智联招聘显示青岛地区招生顾问岗位强调“挑战高薪”，围绕升学规划与教育咨询。判断：行业仍有需求，但强依赖线索质量与转化体系；面试时要问清楚客资来源（公域投放/私域转介绍）、试用期考核、提成结算与退费扣回规则。对擅长销售与沟通的人，这是现金流较快的选择。来源：智联招聘（搜索数据）。",
-          "tag": "机会",
-          "url": "https://www.zhaopin.com/"
+          "title": "数据治理与合规",
+          "body": "公司/方向：金融、医疗、政务数字化、跨境电商。岗位：数据治理经理/隐私合规官/安全治理（含AI治理）。薪资：30-70万/年（知识库估计）。亮点：出海与行业监管强化，使数据可追溯、权限、日志审计、脱敏与数据资产化成为刚需；复合型人才稀缺，既懂法务/合规又懂数据架构的人更吃香。",
+          "tag": "知识库",
+          "url": ""
         },
         {
-          "title": "居家自媒体变现岗",
-          "body": "智联招聘出现“可长期线上居家办公、多劳多得，通过AI工具制作图文/短视频”相关职位。判断：这类岗位门槛低但两极分化：正规团队会给选题库、数据复盘与结算规则；不规范的可能用“培训/材料费”收割。应要求对方提供历史账号案例、结算方式（CPM/分成/计件）与版权责任边界。来源：智联招聘（搜索数据）。",
-          "tag": "提醒",
-          "url": "https://www.zhaopin.com/"
+          "title": "工业视觉算法",
+          "body": "公司/方向：制造业龙头、工业自动化、机器视觉集成商。岗位：视觉算法/缺陷检测/边缘部署。薪资：25-60万/年（知识库估计）。亮点：物理AI落地最快的赛道之一，能直接用良率与节拍证明价值；需要理解产线工艺、相机光学与标注体系，且要能在算力受限环境做稳定部署与持续迭代。",
+          "tag": "知识库",
+          "url": ""
+        },
+        {
+          "title": "海外本地化运营",
+          "body": "公司/方向：游戏、短剧/内容出海、电商平台、硬件品牌。岗位：本地化运营/增长/内容策划。薪资：25-80万/年（知识库估计，含外派补贴差异大）。亮点：全球政治与合规收紧背景下，“懂当地文化+懂投放与内容+懂合规”的人变稀缺；对结果负责的岗位更容易拿到绩效与长期发展，但对抗压与沟通要求高。",
+          "tag": "知识库",
+          "url": ""
         }
       ],
-      "title": "热门职位",
+      "title": "热门方向",
       "icon": "💼",
       "color": "#f39c12"
     }
   ],
-  "generated_at": "2026-03-05T10:07:00.763273+08:00",
+  "generated_at": "2026-03-05T10:33:33.126497+08:00",
   "raw": {
-    "highlight": [
-      {
-        "title": "2026年全国两会明日将拉开帷幕，中国进入“两会时间”",
-        "url": "https://m.thepaper.cn/newsDetail_forward_32691875",
-        "desc": "3月4日，2026年全国两会将拉开帷幕，中国进入“两会时间”。时值“十五五”开局之年，2026年的全国两会备受期待。 · 十四届全国人大四次会议将于3月5日在北京召开。"
-      },
-      {
-        "title": "中国 - BBC News 中文",
-        "url": "https://www.bbc.com/zhongwen/topics/ckr7mn6r003t/simp",
-        "desc": "2026年3月3日 · 5:22 · 2026年3月2日 · 12:29 · 2026年3月2日 · 13:53 · 2026年3月2日 · 2026年3月1日 · 2026年2月27日 · 2026年2月27日 · 2026年2月26日 · 2026年2月26日 · 17:55 · 2026年2月25日 · 2026年2月24日 · 2026年2月24日 ·"
-      },
-      {
-        "title": "中国“两会”五大焦点：经济增速、“十五五”开局、科技自主、高层人事安排及国防预算 - BBC News 中文",
-        "url": "https://www.bbc.com/zhongwen/articles/cqj9gnynk5lo/simp",
-        "desc": "每年春天，在北京召开的中国“两会”（全国人大与全国政协会议）都是观察中国政治经济走向的重要视窗。 2026年<strong>全国政协十四届四次会议和十四届全国人大四次会议</strong>，将分别于3月..."
-      },
-      {
-        "title": "國際 - BBC News 中文",
-        "url": "https://www.bbc.com/zhongwen/topics/c83plve5vmjt/trad",
-        "desc": "2026年3月4日 · 2026年3月4日 · 2026年3月3日 · 2026年3月3日 · 2026年3月3日 · 5:22 · 2026年3月2日 · 3:43 · 2026年3月2日 · 13:08 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 ·"
-      },
-      {
-        "title": "春天里，听奋进中国的铿锵足音——写在2026年全国两会召开之际--2026年全国两会--人民网",
-        "url": "http://politics.people.com.cn/n1/2026/0303/c1001-40673807.html",
-        "desc": "2026年03月03日14:31 来源：新华社 · 新华社北京3月3日电 题：春天里，听奋进中国的铿锵足音——写在2026年全国两会召开之际"
-      },
-      {
-        "title": "中華人民共和國2025年國民經濟和社會發展統計公報[1]--時政--人民網",
-        "url": "http://politics.people.com.cn/BIG5/n1/2026/0301/c1001-40672380.html",
-        "desc": "[52]《區域全面經濟伙伴關系協定》（RCEP）其他成員國包括文萊、緬甸、柬埔寨、印度尼西亞、老撾、馬來西亞、菲律賓、新加坡、泰國、越南、日本、韓國、澳大利亞、新西蘭。 · [53]自2025年1月起，中國人民銀行啟用新修訂的狹義貨幣（M1）統計口徑。修訂后的M1包括流通中貨幣（M0）、單位活期存款、個人活期存款、非銀行支付機構客戶備付金，2025年增速按可比口徑計算。"
-      },
-      {
-        "title": "特朗普国情咨文夸赞美国步入“黄金时代” 一文看懂关键点和争议点 - BBC News 中文",
-        "url": "https://www.bbc.com/zhongwen/articles/cn0zxe0rl7po/simp",
-        "desc": "美国总统唐纳德·特朗普（Donald Trump，川普）在<strong>2026年</strong>国情咨文报告中，以近1小时50分钟的破纪录长度，向国会与全美民众宣称在其第二任期“美国黄金时代已来临”，试图扭转民调下滑..."
-      },
-      {
-        "title": "国际 - BBC News 中文",
-        "url": "https://www.bbc.com/zhongwen/topics/c83plve5vmjt/simp",
-        "desc": "2026年3月4日 · 2026年3月4日 · 2026年3月3日 · 2026年3月3日 · 2026年3月3日 · 5:22 · 2026年3月2日 · 3:43 · 2026年3月2日 · 13:08 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 ·"
-      }
-    ],
+    "highlight": [],
     "china": [
       {
         "title": "中华人民共和国国家发展和改革委员会",
@@ -367,14 +332,14 @@
         "desc": "2026年3月4日 · 2026年3月4日 · 2026年3月3日 · 2026年3月3日 · 2026年3月3日 · 5:22 · 2026年3月2日 · 3:43 · 2026年3月2日 · 13:08 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 · 2026年3月2日 ·"
       },
       {
-        "title": "中国 - BBC News 中文",
-        "url": "https://www.bbc.com/zhongwen/topics/ckr7mn6r003t/simp",
-        "desc": "2026年3月3日 · 5:22 · 2026年3月2日 · 12:29 · 2026年3月2日 · 13:53 · 2026年3月2日 · 2026年3月1日 · 2026年2月27日 · 2026年2月27日 · 2026年2月26日 · 2026年2月26日 · 17:55 · 2026年2月25日 · 2026年2月24日 · 2026年2月24日 ·"
-      },
-      {
         "title": "US sinks Iranian warship far from Gulf, NATO downs Iranian missile heading for Turkey | Reuters",
         "url": "https://www.reuters.com/world/middle-east/us-assault-iran-ahead-schedule-says-us-middle-east-commander-2026-03-04/",
         "desc": "&quot;<strong>An American submarine sunk an ​Iranian warship that thought it was safe in international waters</strong>,&quot; said Hegseth, the U.S. defense secretary. &quot;Instead, it was sunk by a torpedo."
+      },
+      {
+        "title": "中国 - BBC News 中文",
+        "url": "https://www.bbc.com/zhongwen/topics/ckr7mn6r003t/simp",
+        "desc": "2026年3月3日 · 5:22 · 2026年3月2日 · 12:29 · 2026年3月2日 · 13:53 · 2026年3月2日 · 2026年3月1日 · 2026年2月27日 · 2026年2月27日 · 2026年2月26日 · 2026年2月26日 · 17:55 · 2026年2月25日 · 2026年2月24日 · 2026年2月24日 ·"
       },
       {
         "title": "Israel pounds Iran and Lebanon; Trump weighs military cover for Hormuz tankers - as it happened | Reuters",
@@ -404,14 +369,14 @@
         "desc": "<strong>This came just hours after the U.K. government had decided to grant U.S. forces access to its bases for strikes on Iran</strong>. No casualties and only “limited” damage were reported."
       },
       {
-        "title": "Regular Press Conference of the Ministry of National Defenseon January 29, 2026 - Ministry of National Defense",
-        "url": "http://eng.mod.gov.cn/2025xb/P/16444927.html",
-        "desc": "Journalist: The first question is that according to the 2026 National Defense Strategy released by the US Department of War, the US will deter China in the Asia-Pacific through strength, not confrontation, and seek a wider range of military-to-military communications with the PLA, so as to maintain strategic stability with China and allow for a decent peace."
-      },
-      {
         "title": "Regular Press Briefing of the Ministry of National Defense on February 10, 2026 - Ministry of National Defense",
         "url": "http://eng.mod.gov.cn/2025xb/P/16444928.html",
         "desc": "There is every indication that Japan&#x27;s right-wing forces are deliberately challenging the post-war international order from multiple fronts including military, public opinion, and legal areas. The international community should be on high alert, firmly thwart any dangerous move, and join hands to safeguard the outcomes of WWII victory as well as regional peace and stability. On the afternoon of February 10, 2026, Senior Colonel Jiang Bin, Deputy Director-General of the Information Office of the Ministry of National Defense (MND) and Spokesperson for the MND, answers recent media queries concerning the military."
+      },
+      {
+        "title": "Regular Press Conference of the Ministry of National Defenseon January 29, 2026 - Ministry of National Defense",
+        "url": "http://eng.mod.gov.cn/2025xb/P/16444927.html",
+        "desc": "Journalist: The first question is that according to the 2026 National Defense Strategy released by the US Department of War, the US will deter China in the Asia-Pacific through strength, not confrontation, and seek a wider range of military-to-military communications with the PLA, so as to maintain strategic stability with China and allow for a decent peace."
       },
       {
         "title": "Regular Press Conference of the Ministry of National Defense on December 25, 2025 - Ministry of National Defense",
@@ -419,14 +384,14 @@
         "desc": "Zhang Xiaogang: This year, with a pioneering spirit and proactive efforts, work related to China&#x27;s military diplomacy has been conducted in a way that kept in alignment with the overall work of the Party and the state, adhered to the strategic guidance of head-of-state diplomacy, and focused on contributing to the improvement of combat readiness. Firstly, we have strengthened strategic communication with countries including Russia, the US, and European countries. A Vice Chairman of the CMC visited Russia upon invitation. The Defense Minister had virtual and in-person meetings with the US Secretary of War, and paid visits to France and Germany."
       },
       {
-        "title": "Japan’s Cabinet OKs record defense budget that aims to deter China",
-        "url": "https://www.defensenews.com/global/asia-pacific/2025/12/26/japans-cabinet-oks-record-defense-budget-that-aims-to-deter-china/",
-        "desc": "Takaichi’s government, under U.S. pressure for a military increase, pledged to achieve the 2% target by March, two years earlier than planned. Japan also plans to revise its ongoing security and defense policy by December 2026 to further strengthen its military."
-      },
-      {
         "title": "Regular Press Briefing of the Ministry of National Defense on January 8, 2026 - Ministry of National Defense",
         "url": "http://eng.mod.gov.cn/2025xb/P/16437098.html",
         "desc": "Besides, in a significant budget boost for Official Security Assistance program, Japan&#x27;s foreign ministry plans to supply Southeast Asian countries with defense equipment and materials, such as advanced radar systems. What&#x27;s your comment on this? Zhang Xiaogang: Criticism over Japan&#x27;s negative moves in military and security areas among the international community, including the Southeast Asian countries, has been vocal and consistent."
+      },
+      {
+        "title": "Japan’s Cabinet OKs record defense budget that aims to deter China",
+        "url": "https://www.defensenews.com/global/asia-pacific/2025/12/26/japans-cabinet-oks-record-defense-budget-that-aims-to-deter-china/",
+        "desc": "Takaichi’s government, under U.S. pressure for a military increase, pledged to achieve the 2% target by March, two years earlier than planned. Japan also plans to revise its ongoing security and defense policy by December 2026 to further strengthen its military."
       },
       {
         "title": "Defense Ministry Spokesperson's Remarks on Recent Media Queries Concerning the Military on February 14, 2025 - Ministry of National Defense",
@@ -614,14 +579,14 @@
         "desc": "智联招聘为您推荐各种职位简称2026年最新相关岗位招聘信息，岗位真实无虚假，企业简介、任职条件、薪资范围等关键信息一目了然，帮您快速锁定心仪岗位，提高求职效率。招聘求职找各种职位简称相关工作就上智联招聘!"
       },
       {
-        "title": "青岛各区招聘网站招聘信息 - 智联招聘",
-        "url": "https://www.zhaopin.com/zhaopin/97523fc69ea94aac9770973210678a34/",
-        "desc": "高薪诚聘招生顾问！挑战高薪，成就自我！用专业与热情为家长和学生规划成长升学路径，助力更多孩子拥抱优质教育资源！寻找敢于突破、热爱教育事业"
-      },
-      {
         "title": "招考面试内容招聘信息 - 智联招聘",
         "url": "https://www.zhaopin.com/zhaopin/531f2031c18c42febdf5d14bac0d1923/",
         "desc": "智联招聘为您推荐招考面试内容2026年最新相关岗位招聘信息，岗位真实无虚假，企业简介、任职条件、薪资范围等关键信息一目了然，帮您快速锁定心仪岗位，提高求职效率。招聘求职找招考面试内容相关工作就上智联招聘!"
+      },
+      {
+        "title": "青岛各区招聘网站招聘信息 - 智联招聘",
+        "url": "https://www.zhaopin.com/zhaopin/97523fc69ea94aac9770973210678a34/",
+        "desc": "高薪诚聘招生顾问！挑战高薪，成就自我！用专业与热情为家长和学生规划成长升学路径，助力更多孩子拥抱优质教育资源！寻找敢于突破、热爱教育事业"
       },
       {
         "title": "今日头条中国人才招聘信息 - 智联招聘",
