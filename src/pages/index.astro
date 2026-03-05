@@ -333,16 +333,27 @@ import Base from "../layouts/Base.astro";
         const isJob = s.id === "jobs_hot";
         const cards = (s.items ?? [])
           .map((item) => {
-            const titleEl = item.url
-              ? `<a href="${item.url}" target="_blank" rel="noopener">${item.title}</a>`
-              : `<span>${item.title}</span>`;
+            const domain = (() => {
+              try { return item.url ? new URL(item.url).hostname.replace(/^www\./, "") : ""; }
+              catch { return ""; }
+            })();
+            const sourceHtml = domain
+              ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">${domain} ↗</a>`
+              : item.url
+                ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>`
+                : "";
+            const titleEl = `<span>${item.title}</span>`;
             const extraClass = isJob ? " card--job"
               : item.tag === "突发" ? " card--breaking"
               : item.tag === "重磅" ? " card--major"
               : "";
             return `<article class="card${extraClass}">
               <div class="card-title">${titleEl}${tagHtml(item.tag)}</div>
-              <p class="card-body">${item.body}</p>
+              <p class="card-body card-body--collapsed">${item.body}</p>
+              <div class="card-footer">
+                ${sourceHtml}
+                <button class="card-expand" aria-label="展开">展开 ▾</button>
+              </div>
             </article>`;
           })
           .join("");
@@ -358,14 +369,21 @@ import Base from "../layouts/Base.astro";
       })
       .join("");
 
+    const totalItems = sections.reduce((n, s) => n + (s.items?.length ?? 0), 0);
+    const statsHtml = `<div class="digest-stats">
+      <span>📋 ${sections.length} 板块</span>
+      <span>📰 ${totalItems} 条资讯</span>
+      ${genTime ? `<span>🕐 更新于 ${genTime}</span>` : ""}
+    </div>`;
+
     return `
       <div class="digest-header">
         <div class="digest-top">
           <span class="digest-title">🗞️ 小新<b>日报</b></span>
           <span class="digest-badge">${d.title ?? d.date}</span>
-          ${genTime ? `<span class="digest-time">生成于 ${genTime}</span>` : ""}
         </div>
         ${d.summary ? `<div class="digest-summary"><p class="digest-summary-text">${d.summary}</p></div>` : ""}
+        ${statsHtml}
       </div>
       <nav class="sec-nav">${navHtml}</nav>
       ${sectionsHtml}
@@ -429,6 +447,19 @@ import Base from "../layouts/Base.astro";
   }, { passive: true });
   backTop.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // ── 展开/折叠卡片 ──
+  document.getElementById("main")!.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest(".card-expand") as HTMLElement | null;
+    if (!btn) return;
+    const card = btn.closest(".card")!;
+    const body = card.querySelector(".card-body") as HTMLElement;
+    const expanded = body.classList.toggle("card-body--collapsed");
+    btn.textContent = expanded ? "展开 ▾" : "收起 ▴";
+    // 第一次展开后不再折叠到2行（用 expanded 反转逻辑）
+    if (!expanded) btn.textContent = "收起 ▴";
+    else btn.textContent = "展开 ▾";
   });
 
   // ── Search ──
@@ -609,6 +640,52 @@ import Base from "../layouts/Base.astro";
   .card-title a { color: var(--heading); text-decoration: none; }
   .card-title a:hover { color: var(--link); }
   .card-body { font-size: 14px; color: var(--text); line-height: 1.75; }
+  .card-body--collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    gap: 8px;
+  }
+  .card-source {
+    font-size: 11px;
+    color: var(--text2);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  .card-source:hover { opacity: 1; color: var(--link); }
+  .card-expand {
+    font-size: 11px;
+    color: var(--text2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+  }
+  .card-expand:hover { opacity: 1; color: var(--accent); }
+  .digest-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text2);
+    opacity: 0.75;
+  }
 
   /* ── Tags ── */
   .tag {
