@@ -18,11 +18,11 @@ const SEARCH_IDX  = join(REPO, "public", "search-index.json");
 // ── Manifest ─────────────────────────────────────────────────────────
 async function writeManifest(): Promise<string[]> {
   const files = (await readdir(PUBLIC_DATA))
-    .filter((f) => f.startsWith("小新日报-") && f.endsWith(".json"))
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))   // 新格式：2026-03-05.json
     .sort()
     .reverse();
 
-  const dates = files.map((f) => f.replace("小新日报-", "").replace(".json", ""));
+  const dates = files.map((f) => f.replace(".json", ""));
 
   await writeFile(
     MANIFEST,
@@ -47,7 +47,7 @@ async function writeSearchIndex(dates: string[]): Promise<void> {
 
   for (const date of dates) {
     try {
-      const raw = await readFile(join(PUBLIC_DATA, `小新日报-${date}.json`), "utf-8");
+      const raw = await readFile(join(PUBLIC_DATA, `${date}.json`), "utf-8");
       const d = JSON.parse(raw);
       for (const sec of d.sections ?? []) {
         for (const item of sec.items ?? []) {

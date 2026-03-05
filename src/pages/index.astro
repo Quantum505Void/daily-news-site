@@ -260,7 +260,7 @@ import Base from "../layouts/Base.astro";
 
   async function fetchDigest(date: string): Promise<Digest> {
     if (cache[date]) return cache[date];
-    const r = await fetch(`${BASE}data/小新日报-${date}.json?t=${Date.now()}`);
+    const r = await fetch(`${BASE}data/${date}.json?t=${Date.now()}`);
     if (!r.ok) throw new Error(`${r.status}`);
     const d: Digest = await r.json();
     cache[date] = d;
