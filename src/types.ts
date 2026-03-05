@@ -18,11 +18,9 @@ export interface Digest {
   weekday: string;
   title: string;
   summary?: string;
-  sections?: DigestSection[];
-  /** v1 legacy */
-  html?: string;
-  version?: number;
+  sections: DigestSection[];
   generated_at?: string;
+  version: 2;
 }
 
 export interface Manifest {

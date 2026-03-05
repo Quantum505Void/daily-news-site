@@ -224,18 +224,6 @@ import Base from "../layouts/Base.astro";
     `;
   }
 
-  function renderV1(d: Digest): string {
-    return `
-      <div class="digest-header">
-        <div class="digest-top">
-          <span class="digest-title">🗞️ 小新<b>日报</b></span>
-          <span class="digest-badge">${d.title ?? d.date}</span>
-        </div>
-      </div>
-      <div class="legacy-body">${d.html ?? "<p>内容为空</p>"}</div>
-    `;
-  }
-
   async function showDate(date: string) {
     renderSidebar(date);
     location.hash = date;
@@ -244,8 +232,7 @@ import Base from "../layouts/Base.astro";
 
     try {
       const d = await fetchDigest(date);
-      const html = d.version === 2 && d.sections ? renderV2(d) : renderV1(d);
-      main.innerHTML = html;
+      main.innerHTML = renderV2(d);
       window.scrollTo({ top: 0, behavior: "instant" });
     } catch {
       main.innerHTML = '<div class="state-msg"><div class="icon">⚠️</div><p>加载失败，请稍后重试</p></div>';
@@ -419,25 +406,4 @@ import Base from "../layouts/Base.astro";
   .tag-knowledge   { background: #1f2937; color: #9ca3af; }
   .tag-default     { background: #2a2a2a; color: #aaa; }
 
-  /* ── Legacy v1 ── */
-  .legacy-body h2 {
-    font-size: 16px; font-weight: 700; color: var(--heading);
-    margin-top: 28px; margin-bottom: 12px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .legacy-body h2::before {
-    content: ""; display: inline-block;
-    width: 3px; height: 16px;
-    background: var(--accent); border-radius: 2px; flex-shrink: 0;
-  }
-  .legacy-body ul { padding-left: 0; list-style: none; }
-  .legacy-body li {
-    padding: 10px 14px; background: var(--bg2);
-    border-radius: 8px; margin-bottom: 8px;
-    border-left: 3px solid var(--border);
-  }
-  .legacy-body li:hover { border-left-color: var(--accent); }
-  .legacy-body strong { color: #fff; }
-  .legacy-body small { color: var(--text2); font-size: 12px; }
-  .legacy-body h1, .legacy-body .footer { display: none; }
 </style>
