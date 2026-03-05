@@ -346,14 +346,29 @@ import Base from "../layouts/Base.astro";
 
   // ── sec-nav 滚动高亮 ──
   function initSectionObserver() {
+    const setActive = (id: string) => {
+      document.querySelectorAll<HTMLElement>(".sec-nav-btn").forEach(b =>
+        b.classList.toggle("active", b.dataset.sec === id)
+      );
+    };
+
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => {
-        const id = e.target.id.replace("sec-", "");
-        const btn = document.querySelector<HTMLElement>(`.sec-nav-btn[data-sec="${id}"]`);
-        if (btn) btn.classList.toggle("active", e.isIntersecting);
+        if (e.isIntersecting)
+          setActive(e.target.id.replace("sec-", ""));
       });
-    }, { rootMargin: "-20% 0px -70% 0px" });
+    }, { rootMargin: "-15% 0px -55% 0px" });
+
     document.querySelectorAll(".section").forEach(s => obs.observe(s));
+
+    // 滚到底时强制激活最后一个板块
+    window.addEventListener("scroll", () => {
+      const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
+      if (!atBottom) return;
+      const sections = document.querySelectorAll<HTMLElement>(".section");
+      const last = sections[sections.length - 1];
+      if (last) setActive(last.id.replace("sec-", ""));
+    }, { passive: true });
   }
 
   async function init() {
