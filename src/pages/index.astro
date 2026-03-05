@@ -319,7 +319,7 @@ import Base from "../layouts/Base.astro";
       catch { return ""; }
     })();
     const sourceHtml = domain
-      ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">${domain} ↗</a>`
+      ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>`
       : item.url ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>` : "";
     const extraClass = isJob ? " card--job"
       : item.tag === "突发" ? " card--breaking"
@@ -333,6 +333,13 @@ import Base from "../layouts/Base.astro";
       <p class="card-body ${defCollapsed}">${item.body}</p>
       <div class="card-footer">${sourceHtml}${expandBtn}</div>
     </article>`;
+  }
+
+  function fmtBadge(d: Digest): string {
+    const [y, m, day] = (d.date ?? "").split("-").map(Number);
+    if (!y) return d.title ?? d.date ?? "";
+    const dow = ["日","一","二","三","四","五","六"][new Date(y, m-1, day).getDay()];
+    return `${m}月${day}日 · 周${dow}`;
   }
 
   function renderV2(d: Digest): string {
@@ -366,13 +373,14 @@ import Base from "../layouts/Base.astro";
       <div class="digest-header">
         <div class="digest-top">
           <span class="digest-title">🗞️ 小新<b>日报</b></span>
-          <span class="digest-badge">${d.title ?? d.date}</span>
+          <span class="digest-badge">${fmtBadge(d)}</span>
         </div>
         ${d.summary ? `<div class="digest-summary"><p class="digest-summary-text">${d.summary}</p></div>` : ""}
         <div class="digest-stats">
-          <span>📋 ${sections.length} 板块</span>
-          <span>📰 ${totalItems} 条资讯</span>
-          ${genTime ? `<span>🕐 更新于 ${genTime}</span>` : ""}
+          <span>${sections.length} 板块</span>
+          <span class="stats-sep">·</span>
+          <span>${totalItems} 条资讯</span>
+          ${genTime ? `<span class="stats-sep">·</span><span>更新于 ${genTime}</span>` : ""}
         </div>
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
@@ -543,6 +551,30 @@ import Base from "../layouts/Base.astro";
     searchInput.focus();
   });
 
+  // `/` 键聚焦搜索框
+  document.addEventListener("keydown", e => {
+    if (e.key === "/" && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+  });
+
+  // ── 离线 Toast ──
+  function showToast(msg: string, duration = 3500) {
+    let t = document.getElementById("offlineToast") as HTMLElement;
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "offlineToast";
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add("toast--show");
+    setTimeout(() => t.classList.remove("toast--show"), duration);
+  }
+  window.addEventListener("offline", () => showToast("📡 已离线，显示缓存内容"));
+  window.addEventListener("online",  () => showToast("✅ 网络已恢复"));
+
   init();
 </script>
 
@@ -636,9 +668,10 @@ import Base from "../layouts/Base.astro";
 
   /* ── Stats bar ── */
   .digest-stats {
-    display: flex; gap: 16px; margin-top: 8px;
+    display: flex; align-items: center; gap: 8px; margin-top: 8px;
     font-size: 12px; color: var(--text3);
   }
+  .stats-sep { opacity: 0.4; font-size: 14px; }
 
   /* ── Section nav ── */
   .sec-nav {
@@ -763,9 +796,11 @@ import Base from "../layouts/Base.astro";
   .card-source {
     font-size: 11px; color: var(--text3); text-decoration: none;
     opacity: 0.65; transition: opacity 0.15s;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
+    display: flex; align-items: center; gap: 4px;
   }
   .card-source:hover { opacity: 1; color: var(--link); }
+  .card-favicon { border-radius: 2px; flex-shrink: 0; vertical-align: middle; }
   .card-expand {
     font-size: 11px; color: var(--text3);
     background: none; border: none; cursor: pointer;
@@ -810,6 +845,7 @@ import Base from "../layouts/Base.astro";
     background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
     background-size: 1200px 100%;
     animation: shimmer 1.6s infinite linear;
+    transition: none !important;  /* 防止全局 transition 干扰 shimmer */
   }
   .skeleton-wrap { padding: 0; }
   .skeleton-hero { height: 96px; margin-bottom: 20px; border-radius: 14px; }
@@ -843,4 +879,24 @@ import Base from "../layouts/Base.astro";
   .card-meta { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
   mark { background: rgba(231,76,60,0.2); color: var(--accent); border-radius: 2px; padding: 0 2px; }
   [data-theme="light"] mark { background: rgba(231,76,60,0.15); color: #b91c1c; }
+
+  /* ── 今日看点卡片 hover ── */
+  .section--wide .card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(231,76,60,0.1);
+  }
+
+  /* ── 离线 Toast ── */
+  #offlineToast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1a1a1a; color: #fff;
+    padding: 10px 20px; border-radius: 24px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 9999; white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  #offlineToast.toast--show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  [data-theme="light"] #offlineToast { background: #333; }
 </style>
