@@ -49,7 +49,21 @@ const { title = "小新日报" } = Astro.props;
           "Microsoft YaHei", "Helvetica Neue", sans-serif;
       }
 
-      /* ── Light theme ── */
+      /* ── Dark theme defaults (root) ── */
+      :root {
+        --header-bg: linear-gradient(135deg, #0d0d1a 0%, #111827 60%, #0f1f3d 100%);
+        --search-bg: rgba(255,255,255,0.06);
+        --search-border: #252f45;
+        --summary-bg: linear-gradient(135deg, #111827 0%, #0f1f3d 100%);
+        --summary-border: #1e2d4a;
+        --summary-text: #b8cce8;
+        --breaking-bg: #1a0f0f;
+        --breaking-hover: #201313;
+        --major-bg: #1a1208;
+        --major-hover: #201608;
+      }
+
+      /* ── Light theme overrides ── */
       [data-theme="light"] {
         --bg: #f5f5f5;
         --bg2: #ffffff;
@@ -71,18 +85,6 @@ const { title = "小新日报" } = Astro.props;
         --breaking-hover: #ffe0e0;
         --major-bg: #fff8f0;
         --major-hover: #ffeed8;
-      }
-      :root {
-        --header-bg: linear-gradient(135deg, #0d0d1a 0%, #111827 60%, #0f1f3d 100%);
-        --search-bg: rgba(255,255,255,0.06);
-        --search-border: #252f45;
-        --summary-bg: linear-gradient(135deg, #111827 0%, #0f1f3d 100%);
-        --summary-border: #1e2d4a;
-        --summary-text: #b8cce8;
-        --breaking-bg: #1a0f0f;
-        --breaking-hover: #201313;
-        --major-bg: #1a1208;
-        --major-hover: #201608;
       }
 
       html { scroll-behavior: smooth; }
