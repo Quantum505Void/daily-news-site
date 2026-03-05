@@ -4,8 +4,10 @@ import Base from "../layouts/Base.astro";
 
 <Base title="小新日报">
   <header class="site-header">
-    <div class="logo">🗞️ 小新<span>日报</span></div>
-    <div class="tagline">每日新闻 · 科技 · 军事 · 娱乐 · 工作机会</div>
+    <div class="logo-block">
+      <div class="logo">🗞️ 小新<span>日报</span></div>
+      <div class="tagline">每日新闻 · 科技 · 军事 · 财经 · 娱乐</div>
+    </div>
     <div class="search-wrap">
       <input
         id="searchInput"
@@ -51,9 +53,10 @@ import Base from "../layouts/Base.astro";
     z-index: 200;
     flex-wrap: wrap;
   }
-  .logo { font-size: 20px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
+  .logo { font-size: 22px; font-weight: 900; color: var(--accent); line-height: 1.1; letter-spacing: -0.5px; }
   .logo span { color: #fff; }
-  .tagline { font-size: 12px; color: var(--text2); flex-shrink: 0; }
+  .logo-block { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+  .tagline { font-size: 11px; color: var(--text2); letter-spacing: 0.5px; opacity: 0.8; }
 
   .search-wrap {
     position: relative;
@@ -91,7 +94,7 @@ import Base from "../layouts/Base.astro";
     .search-wrap { margin-left: 0; width: 100%; }
     #searchInput { width: 100%; }
     #searchInput:focus { width: 100%; }
-    .tagline { display: none; }
+    .tagline { display: block; font-size: 10px; }
   }
 
   /* ── Layout ── */
