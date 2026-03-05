@@ -169,7 +169,7 @@ import Base from "../layouts/Base.astro";
   import Fuse from "fuse.js";
 
   // ── 常量 ──
-  const BASE = import.meta.env.BASE_URL;
+  const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/?$/, "/");
   const TAG_COLORS: Record<string, string> = {
     突发: "tag-breaking", 重磅: "tag-major", 分析: "tag-analysis",
     趋势: "tag-trend", 观察: "tag-watch", 机会: "tag-opportunity",
