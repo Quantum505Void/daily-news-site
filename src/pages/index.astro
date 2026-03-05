@@ -33,6 +33,7 @@ import Base from "../layouts/Base.astro";
   <footer class="page-footer">
     由小新 🔧 自动生成 ·
     <a href="https://github.com/Quantum505Void/daily-news-site" target="_blank" rel="noopener">GitHub</a>
+    · <span id="buildTime"></span>
   </footer>
 
   <button class="back-top" id="backTop" aria-label="回到顶部" title="回到顶部">↑</button>
@@ -52,8 +53,9 @@ import Base from "../layouts/Base.astro";
     z-index: 200;
     flex-wrap: wrap;
   }
+  /* ── logo ── */
   .logo { font-size: 22px; font-weight: 900; color: var(--accent); line-height: 1.1; letter-spacing: -0.5px; }
-  .logo span { color: #fff; }
+  .logo span { color: var(--heading); }   /* light 主题下也清晰 */
   .logo-block { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
   .tagline { font-size: 11px; color: var(--text2); letter-spacing: 0.5px; opacity: 0.7; }
 
@@ -287,7 +289,7 @@ import Base from "../layouts/Base.astro";
     );
   }
 
-  function cardHtml(item: any, isJob: boolean, idx: number): string {
+  function cardHtml(item: any, isJob: boolean, idx: number, defCollapsed = "card-body--collapsed"): string {
     const domain = (() => {
       try { return item.url ? new URL(item.url).hostname.replace(/^www\./, "") : ""; }
       catch { return ""; }
@@ -301,8 +303,8 @@ import Base from "../layouts/Base.astro";
     const num = `<span class="card-num">${idx + 1}</span>`;
     return `<article class="card${extraClass}">
       <div class="card-title">${num}<span>${item.title}</span>${tagHtml(item.tag)}</div>
-      <p class="card-body card-body--collapsed">${item.body}</p>
-      <div class="card-footer">${sourceHtml}<button class="card-expand">展开 ▾</button></div>
+      <p class="card-body ${defCollapsed}">${item.body}</p>
+      <div class="card-footer">${sourceHtml}<button class="card-expand">${defCollapsed ? "展开 ▾" : ""}</button></div>
     </article>`;
   }
 
@@ -320,13 +322,14 @@ import Base from "../layouts/Base.astro";
     const sectionsHtml = sections.map(s => {
       const isJob  = s.id === "jobs_hot";
       const isWide = WIDE_SECTIONS.has(s.id);
-      const cards  = (s.items ?? []).map((item, idx) => cardHtml(item, isJob, idx)).join("");
+      // 今日看点默认展开，其他默认折叠
+      const defCollapsed = isWide ? "" : "card-body--collapsed";
+      const cards  = (s.items ?? []).map((item, idx) => cardHtml(item, isJob, idx, defCollapsed)).join("");
       const gridClass = isWide ? "cards cards--wide" : "cards cards--grid";
       return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}">
-        <div class="section-heading">
+        <div class="section-heading" style="--sec-color:${s.color}">
           <span class="section-icon">${s.icon}</span>
           <h2 class="section-title">${s.title}</h2>
-          <div class="section-bar" style="background:${s.color}"></div>
           <button class="section-toggle" aria-label="折叠板块">▴</button>
         </div>
         <div class="${gridClass}">${cards}</div>
@@ -400,6 +403,9 @@ import Base from "../layouts/Base.astro";
   }
 
   async function init() {
+    // 显示构建时间
+    const bt = document.getElementById("buildTime");
+    if (bt) bt.textContent = `构建于 ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })}`;
     try {
       dates = await fetchManifest();
       if (!dates.length) {
@@ -495,17 +501,24 @@ import Base from "../layouts/Base.astro";
   /* ── Sidebar buttons ── */
   .date-btn {
     display: flex; flex-direction: column;
-    width: 100%; padding: 8px 10px;
+    width: 100%; padding: 8px 10px 8px 12px;
     border-radius: 8px; background: none; border: none;
     color: var(--text2); font-size: 13px;
     text-align: left; cursor: pointer;
     transition: background 0.15s, color 0.15s; gap: 1px;
+    position: relative;
   }
   .date-btn:hover { background: var(--bg3); color: var(--text); }
-  .date-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
-  .date-sub { font-size: 10px; opacity: 0.75; font-weight: 400; }
+  .date-btn.active {
+    background: rgba(231,76,60,0.12);
+    color: var(--accent); font-weight: 700;
+    border-left: 3px solid var(--accent);
+    padding-left: 9px;
+  }
+  .date-sub { font-size: 10px; opacity: 0.6; font-weight: 400; }
   @media (max-width: 680px) {
-    .date-btn { flex-direction: row; align-items: center; width: auto; white-space: nowrap; padding: 6px 12px; gap: 4px; }
+    .date-btn { flex-direction: row; align-items: center; width: auto; white-space: nowrap; padding: 6px 12px; gap: 4px; border-left: none !important; }
+    .date-btn.active { background: var(--accent); color: #fff; padding-left: 12px; }
     .date-sub { display: none; }
   }
 
@@ -513,7 +526,7 @@ import Base from "../layouts/Base.astro";
   .digest-header { margin-bottom: 24px; }
   .digest-top { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
   .digest-title { font-size: 18px; font-weight: 800; color: var(--accent); }
-  .digest-title b { color: #fff; font-weight: 800; }
+  .digest-title b { color: var(--heading); font-weight: 800; }
   .digest-badge {
     background: var(--accent); color: #fff;
     padding: 3px 12px; border-radius: 20px;
@@ -551,16 +564,32 @@ import Base from "../layouts/Base.astro";
     display: flex; gap: 6px; flex-wrap: wrap;
     margin-bottom: 24px; position: sticky;
     top: 53px; z-index: 100;
-    background: var(--bg); padding: 8px 0;
+    background: var(--bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 8px 0;
     border-bottom: 1px solid var(--border);
+  }
+  @media (max-width: 680px) {
+    .sec-nav {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 8px 12px;
+      gap: 6px;
+    }
+    .sec-nav::-webkit-scrollbar { display: none; }
   }
   .sec-nav-btn {
     padding: 4px 12px; border-radius: 20px;
     background: var(--bg3); border: 1px solid var(--border);
     color: var(--text2); font-size: 12px;
     text-decoration: none; transition: all 0.15s; white-space: nowrap;
+    flex-shrink: 0;
   }
-  .sec-nav-btn:hover, .sec-nav-btn.active {
+  .sec-nav-btn:hover { background: var(--bg4); color: var(--text); border-color: var(--text3); text-decoration: none; }
+  .sec-nav-btn.active {
     background: var(--accent); color: #fff;
     border-color: var(--accent); text-decoration: none;
   }
@@ -569,13 +598,17 @@ import Base from "../layouts/Base.astro";
   .section { margin-bottom: 32px; scroll-margin-top: 110px; }
   .section-heading {
     display: flex; align-items: center; gap: 8px;
-    margin-bottom: 12px; padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px; padding: 8px 12px 8px 14px;
+    border-radius: 8px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--sec-color, #888);  /* 板块颜色左边框 */
   }
   .section-icon { font-size: 17px; line-height: 1; }
-  .section-title { font-size: 16px; font-weight: 700; color: var(--heading); }
-  .section-bar { height: 3px; width: 28px; border-radius: 2px; margin-left: auto; flex-shrink: 0; }
+  .section-title { font-size: 15px; font-weight: 700; color: var(--heading); }
+  .section-bar { display: none; }  /* 原右侧色条不再需要 */
   .section-toggle {
+    margin-left: auto;
     background: none; border: none; cursor: pointer;
     color: var(--text3); font-size: 12px; padding: 2px 6px;
     border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0;
@@ -601,10 +634,14 @@ import Base from "../layouts/Base.astro";
   .card {
     background: var(--bg2); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 14px 16px;
-    transition: border-color 0.18s, background 0.18s;
+    transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
     display: flex; flex-direction: column;
   }
-  .card:hover { border-color: #3a3a3a; background: var(--bg3); }
+  .card:hover {
+    border-color: var(--accent);
+    background: var(--bg3);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
   .card--job { border-left: 3px solid #f39c12; }
   .card--breaking { border-left: 3px solid #e74c3c; background: var(--breaking-bg); }
   .card--breaking:hover { background: var(--breaking-hover); }
@@ -714,5 +751,6 @@ import Base from "../layouts/Base.astro";
   }
   .search-result-header b { color: var(--heading); }
   .card-meta { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
-  mark { background: rgba(231,76,60,0.25); color: #fca5a5; border-radius: 2px; padding: 0 2px; }
+  mark { background: rgba(231,76,60,0.2); color: var(--accent); border-radius: 2px; padding: 0 2px; }
+  [data-theme="light"] mark { background: rgba(231,76,60,0.15); color: #b91c1c; }
 </style>
