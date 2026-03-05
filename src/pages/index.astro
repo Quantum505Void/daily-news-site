@@ -167,7 +167,6 @@ import Base from "../layouts/Base.astro";
     }
     .sidebar-label { display: none; }
     .layout { flex-direction: column; }
-    .main { padding: 14px 12px 40px; }
   }
 </style>
 
@@ -254,13 +253,17 @@ import Base from "../layouts/Base.astro";
       const { title, body, secTitle, date, tag, url } = r.item;
       const titleHl = highlight(title, r.matches, "title");
       const bodyHl  = highlight(body,  r.matches, "body");
+      const domain = (() => { try { return url ? new URL(url).hostname.replace(/^www\./, "") : ""; } catch { return ""; } })();
+      const faviconHtml = domain ? `<img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">` : "";
+      const sourceHtml = url ? `<a class="card-source" href="${url}" target="_blank" rel="noopener">${faviconHtml}${domain || "查看原文"} ↗</a>` : "";
       const titleEl = url
-        ? `<a href="${url}" target="_blank" rel="noopener">${titleHl}</a>`
-        : `<span>${titleHl}</span>`;
-      return `<article class="card">
+        ? `<a class="card-title-text" href="${url}" target="_blank" rel="noopener">${titleHl}</a>`
+        : `<span class="card-title-text">${titleHl}</span>`;
+      return `<article class="card" ${url ? `data-url="${url}"` : ""} style="${url ? "cursor:pointer" : ""}">
         <div class="card-meta">${date} · ${secTitle}</div>
         <div class="card-title">${titleEl}${tagHtml(tag)}</div>
         <p class="card-body">${bodyHl}</p>
+        <div class="card-footer">${sourceHtml}</div>
       </article>`;
     }).join("");
     main.innerHTML = `
@@ -327,8 +330,10 @@ import Base from "../layouts/Base.astro";
     const num = `<span class="card-num">${idx + 1}</span>`;
     const expandBtn = defCollapsed
       ? `<button class="card-expand">展开 ▾</button>`
-      : ``;   // 今日看点默认展开，不需要按钮
-    return `<article class="card${extraClass}">
+      : ``;
+    const urlAttr = item.url ? `data-url="${item.url}"` : "";
+    const cursorStyle = item.url ? `style="cursor:pointer"` : "";
+    return `<article class="card${extraClass}" ${urlAttr} ${cursorStyle}>
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <p class="card-body ${defCollapsed}">${item.body}</p>
       <div class="card-footer">${sourceHtml}${expandBtn}</div>
@@ -414,13 +419,29 @@ import Base from "../layouts/Base.astro";
     }
   }
 
-  // ── sec-nav 滚动高亮 ──
+  // ── sec-nav 滚动高亮 + 精确滚动 ──
   function initSectionObserver() {
     const setActive = (id: string) => {
       document.querySelectorAll<HTMLElement>(".sec-nav-btn").forEach(b =>
         b.classList.toggle("active", b.dataset.sec === id)
       );
     };
+
+    // 精确滚动：计算 sticky header + sec-nav 高度后定位
+    document.querySelectorAll<HTMLElement>(".sec-nav-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.preventDefault();
+        const secId = btn.dataset.sec!;
+        const target = document.getElementById(`sec-${secId}`);
+        if (!target) return;
+        const header = document.querySelector(".site-header") as HTMLElement;
+        const nav    = document.getElementById("secNav") as HTMLElement;
+        const offset = (header?.offsetHeight ?? 53) + (nav?.offsetHeight ?? 45) + 12;
+        const top = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: "smooth" });
+        setActive(secId);
+      });
+    });
 
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => {
@@ -496,6 +517,13 @@ import Base from "../layouts/Base.astro";
   // ── 事件委托：展开/折叠卡片 + 折叠板块 ──
   document.getElementById("main")!.addEventListener("click", (e) => {
     const t = e.target as HTMLElement;
+
+    // 卡片整行跳转（data-url）
+    const cardEl = t.closest(".card[data-url]") as HTMLElement | null;
+    if (cardEl && !(t.closest("a,button"))) {
+      window.open(cardEl.dataset.url, "_blank", "noopener");
+      return;
+    }
 
     // 展开卡片
     const expandBtn = t.closest(".card-expand") as HTMLElement | null;
@@ -656,7 +684,7 @@ import Base from "../layouts/Base.astro";
   }
   .digest-summary::before {
     content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-    width: 4px; background: linear-gradient(to bottom, #e74c3c, #c0392b);
+    width: 4px; background: var(--accent);
     border-radius: 14px 0 0 14px;
   }
   .digest-summary::after {
@@ -734,8 +762,16 @@ import Base from "../layouts/Base.astro";
 
   /* ── Main fade-in ── */
   .main { flex: 1; min-width: 0; padding: 24px 28px 60px; transition: opacity 0.25s ease; }
+  @media (max-width: 680px) { .main { padding: 14px 12px 40px; } }
   .main--fadein { animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  /* prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .main--fadein { animation: none; }
+    .skeleton { animation: none; }
+    .back-top { transition: opacity 0.1s; }
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
 
   /* ── 今日看点 全宽 ── */
   .section--wide .cards--wide { display: flex; flex-direction: column; gap: 10px; }
