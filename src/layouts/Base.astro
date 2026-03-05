@@ -49,6 +49,20 @@ const { title = "小新日报" } = Astro.props;
           "Microsoft YaHei", "Helvetica Neue", sans-serif;
       }
 
+      /* ── Light theme ── */
+      [data-theme="light"] {
+        --bg: #f5f5f5;
+        --bg2: #ffffff;
+        --bg3: #ebebeb;
+        --bg4: #e0e0e0;
+        --border: #d0d0d0;
+        --text: #222222;
+        --text2: #555555;
+        --text3: #999999;
+        --heading: #111111;
+        --link: #1d4ed8;
+      }
+
       html { scroll-behavior: smooth; }
 
       body {
@@ -85,6 +99,13 @@ const { title = "小新日报" } = Astro.props;
     <div id="progress-bar"></div>
     <slot />
     <script>
+      // ── 主题 ──
+      const html = document.documentElement;
+      const saved = localStorage.getItem("theme");
+      const preferLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+      if (saved === "light" || (!saved && preferLight)) html.setAttribute("data-theme", "light");
+
+      // ── 进度条 ──
       const bar = document.getElementById("progress-bar")!;
       window.addEventListener("scroll", () => {
         const h = document.documentElement;

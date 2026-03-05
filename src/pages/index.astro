@@ -18,6 +18,7 @@ import Base from "../layouts/Base.astro";
       />
       <span class="search-icon">⌕</span>
     </div>
+    <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
   </header>
 
   <div class="layout">
@@ -80,6 +81,19 @@ import Base from "../layouts/Base.astro";
     transform: translateY(-50%);
     color: var(--text3); font-size: 16px; pointer-events: none;
   }
+
+  .theme-toggle {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid #252f45;
+    border-radius: 8px;
+    padding: 5px 9px;
+    font-size: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+  .theme-toggle:hover { background: rgba(255,255,255,0.13); }
 
   /* ── Layout ── */
   .layout {
@@ -260,7 +274,7 @@ import Base from "../layouts/Base.astro";
     );
   }
 
-  function cardHtml(item: any, isJob: boolean): string {
+  function cardHtml(item: any, isJob: boolean, idx: number): string {
     const domain = (() => {
       try { return item.url ? new URL(item.url).hostname.replace(/^www\./, "") : ""; }
       catch { return ""; }
@@ -271,8 +285,9 @@ import Base from "../layouts/Base.astro";
     const extraClass = isJob ? " card--job"
       : item.tag === "突发" ? " card--breaking"
       : item.tag === "重磅" ? " card--major" : "";
+    const num = `<span class="card-num">${idx + 1}</span>`;
     return `<article class="card${extraClass}">
-      <div class="card-title"><span>${item.title}</span>${tagHtml(item.tag)}</div>
+      <div class="card-title">${num}<span>${item.title}</span>${tagHtml(item.tag)}</div>
       <p class="card-body card-body--collapsed">${item.body}</p>
       <div class="card-footer">${sourceHtml}<button class="card-expand">展开 ▾</button></div>
     </article>`;
@@ -292,7 +307,7 @@ import Base from "../layouts/Base.astro";
     const sectionsHtml = sections.map(s => {
       const isJob  = s.id === "jobs_hot";
       const isWide = WIDE_SECTIONS.has(s.id);
-      const cards  = (s.items ?? []).map(item => cardHtml(item, isJob)).join("");
+      const cards  = (s.items ?? []).map((item, idx) => cardHtml(item, isJob, idx)).join("");
       const gridClass = isWide ? "cards cards--wide" : "cards cards--grid";
       return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}">
         <div class="section-heading">
@@ -391,6 +406,19 @@ import Base from "../layouts/Base.astro";
   window.addEventListener("hashchange", () => {
     const d = location.hash.replace("#", "");
     if (d && dates.includes(d)) showDate(d);
+  });
+
+  // ── 主题切换 ──
+  const themeBtn = document.getElementById("themeToggle")!;
+  function applyTheme(light: boolean) {
+    document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
+    themeBtn.textContent = light ? "☀️" : "🌙";
+    localStorage.setItem("theme", light ? "light" : "dark");
+  }
+  // 初始化按钮状态
+  applyTheme(document.documentElement.getAttribute("data-theme") === "light");
+  themeBtn.addEventListener("click", () => {
+    applyTheme(document.documentElement.getAttribute("data-theme") !== "light");
   });
 
   // ── 回到顶部 ──
@@ -521,7 +549,7 @@ import Base from "../layouts/Base.astro";
   }
 
   /* ── Section ── */
-  .section { margin-bottom: 32px; scroll-margin-top: 100px; }
+  .section { margin-bottom: 32px; scroll-margin-top: 110px; }
   .section-heading {
     display: flex; align-items: center; gap: 8px;
     margin-bottom: 12px; padding-bottom: 10px;
@@ -569,6 +597,13 @@ import Base from "../layouts/Base.astro";
     font-size: 14px; font-weight: 600; color: var(--heading);
     margin-bottom: 7px; display: flex; align-items: flex-start;
     flex-wrap: wrap; gap: 6px;
+  }
+  .card-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; border-radius: 4px;
+    background: var(--accent); color: #fff;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+    margin-top: 2px; line-height: 1;
   }
   .card-title a { color: var(--heading); text-decoration: none; }
   .card-title a:hover { color: var(--link); }
