@@ -17,6 +17,7 @@ import Base from "../layouts/Base.astro";
         spellcheck="false"
       />
       <span class="search-icon">⌕</span>
+      <button id="searchClear" class="search-clear" style="display:none" aria-label="清空">✕</button>
     </div>
     <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
   </header>
@@ -63,7 +64,20 @@ import Base from "../layouts/Base.astro";
     position: relative;
     margin-left: auto;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
   }
+  .search-clear {
+    position: absolute; right: 8px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    padding: 0; line-height: 1;
+    transition: background 0.15s, color 0.15s;
+  }
+  .search-clear:hover { background: var(--bg4); color: var(--text); }
   #searchInput {
     background: var(--search-bg);
     border: 1px solid var(--search-border);
@@ -126,7 +140,7 @@ import Base from "../layouts/Base.astro";
   }
 
   /* ── Main ── */
-  .main { flex: 1; min-width: 0; padding: 24px 28px 60px; }
+  /* 已合并到 section-toggle 后的 .main 定义 */
 
   /* ── State msgs ── */
   :global(.state-msg) { text-align: center; padding: 80px 20px; color: var(--text2); }
@@ -271,8 +285,9 @@ import Base from "../layouts/Base.astro";
   }
 
   function fmtDate(d: string): string {
-    const [, m, day] = d.split("-");
-    return `${parseInt(m)}月${parseInt(day)}日`;
+    const [y, m, day] = d.split("-").map(Number);
+    const dow = ["日","一","二","三","四","五","六"][new Date(y, m-1, day).getDay()];
+    return `${m}月${day}日 周${dow}`;
   }
 
   function renderSidebar(selected: string) {
@@ -280,8 +295,10 @@ import Base from "../layouts/Base.astro";
     nav.innerHTML = '<span class="sidebar-label">历史</span>' +
       dates.slice(0, 30).map((d, i) => {
         const active = d === selected ? "active" : "";
-        const label = i === 0 ? `今天` : fmtDate(d);
-        const sub   = i === 0 ? `<span class="date-sub">${fmtDate(d)}</span>` : "";
+        const label = i === 0 ? `今天` : `${d.slice(5).replace("-","月")}日`;
+        const [y, mo, day] = d.split("-").map(Number);
+        const dow = ["日","一","二","三","四","五","六"][new Date(y, mo-1, day).getDay()];
+        const sub = `<span class="date-sub">周${dow}</span>`;
         return `<button class="date-btn ${active}" data-date="${d}">${label}${sub}</button>`;
       }).join("");
     nav.querySelectorAll(".date-btn").forEach(btn =>
@@ -301,10 +318,13 @@ import Base from "../layouts/Base.astro";
       : item.tag === "突发" ? " card--breaking"
       : item.tag === "重磅" ? " card--major" : "";
     const num = `<span class="card-num">${idx + 1}</span>`;
+    const expandBtn = defCollapsed
+      ? `<button class="card-expand">展开 ▾</button>`
+      : ``;   // 今日看点默认展开，不需要按钮
     return `<article class="card${extraClass}">
-      <div class="card-title">${num}<span>${item.title}</span>${tagHtml(item.tag)}</div>
+      <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <p class="card-body ${defCollapsed}">${item.body}</p>
-      <div class="card-footer">${sourceHtml}<button class="card-expand">${defCollapsed ? "展开 ▾" : ""}</button></div>
+      <div class="card-footer">${sourceHtml}${expandBtn}</div>
     </article>`;
   }
 
@@ -357,6 +377,7 @@ import Base from "../layouts/Base.astro";
     renderSidebar(date);
     location.hash = date;
     const main = document.getElementById("main")!;
+    main.classList.remove("main--fadein");
     main.innerHTML = `<div class="skeleton-wrap">
       <div class="skeleton skeleton-hero"></div>
       <div class="skeleton-nav">${Array(7).fill('<div class="skeleton skeleton-pill"></div>').join("")}</div>
@@ -368,6 +389,8 @@ import Base from "../layouts/Base.astro";
     try {
       const d = await fetchDigest(date);
       main.innerHTML = renderV2(d);
+      // fade-in
+      requestAnimationFrame(() => { main.classList.add("main--fadein"); });
       window.scrollTo({ top: 0, behavior: "instant" });
       initSectionObserver();
     } catch {
@@ -471,14 +494,22 @@ import Base from "../layouts/Base.astro";
       const cards = section.querySelector(".cards") as HTMLElement;
       const collapsed = cards.classList.toggle("cards--hidden");
       toggleBtn.textContent = collapsed ? "▾" : "▴";
+      toggleBtn.classList.toggle("section-toggle--collapsed", collapsed);
     }
   });
 
   // ── 搜索 ──
   const searchInput = document.getElementById("searchInput") as HTMLInputElement;
+  const searchClear = document.getElementById("searchClear") as HTMLElement;
   let searchTimer: ReturnType<typeof setTimeout>;
+
+  function updateClearBtn() {
+    searchClear.style.display = searchInput.value ? "flex" : "none";
+  }
+
   searchInput.addEventListener("input", () => {
     clearTimeout(searchTimer);
+    updateClearBtn();
     const q = searchInput.value.trim();
     if (!q) {
       const current = location.hash.replace("#", "") || dates[0];
@@ -490,8 +521,15 @@ import Base from "../layouts/Base.astro";
   searchInput.addEventListener("keydown", e => {
     if (e.key === "Escape") {
       searchInput.value = "";
+      updateClearBtn();
       searchInput.dispatchEvent(new Event("input"));
     }
+  });
+  searchClear.addEventListener("click", () => {
+    searchInput.value = "";
+    updateClearBtn();
+    searchInput.dispatchEvent(new Event("input"));
+    searchInput.focus();
   });
 
   init();
@@ -614,6 +652,12 @@ import Base from "../layouts/Base.astro";
     border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0;
   }
   .section-toggle:hover { background: var(--bg3); color: var(--text); }
+  .section-toggle--collapsed { color: var(--accent) !important; }
+
+  /* ── Main fade-in ── */
+  .main { flex: 1; min-width: 0; padding: 24px 28px 60px; transition: opacity 0.25s ease; }
+  .main--fadein { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
   /* ── 今日看点 全宽 ── */
   .section--wide .cards--wide { display: flex; flex-direction: column; gap: 10px; }
@@ -661,6 +705,7 @@ import Base from "../layouts/Base.astro";
   }
   .card-title a { color: var(--heading); text-decoration: none; }
   .card-title a:hover { color: var(--link); }
+  .card-title-text { flex: 1; min-width: 0; }  /* 防止长标题溢出挤压 tag */
   .card-body { font-size: 13px; color: var(--text); line-height: 1.75; flex: 1; }
   .card-body--collapsed {
     display: -webkit-box; -webkit-line-clamp: 2;
@@ -735,13 +780,13 @@ import Base from "../layouts/Base.astro";
     width: 40px; height: 40px; border-radius: 50%;
     background: var(--accent); color: #fff;
     font-size: 18px; font-weight: 700; border: none; cursor: pointer;
-    opacity: 0; transform: translateY(12px);
+    opacity: 0; transform: translateY(12px) scale(0.9);
     transition: opacity 0.25s, transform 0.25s;
     z-index: 300; display: flex; align-items: center; justify-content: center;
     box-shadow: 0 4px 16px rgba(231,76,60,0.4); line-height: 1;
   }
-  .back-top.visible { opacity: 1; transform: translateY(0); }
-  .back-top:hover { background: #c0392b; }
+  .back-top.visible { opacity: 1; transform: translateY(0) scale(1); }
+  .back-top:hover { background: #c0392b; transform: translateY(-2px) scale(1.08); box-shadow: 0 6px 20px rgba(231,76,60,0.5); }
 
   /* ── Search ── */
   .search-result-header {
