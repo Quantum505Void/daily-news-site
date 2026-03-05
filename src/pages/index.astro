@@ -186,7 +186,7 @@ import Base from "../layouts/Base.astro";
 
     const sectionsHtml = sections
       .map((s) => {
-        const isJob = s.id === "jobs_cpp" || s.id === "jobs_ai";
+        const isJob = s.id === "jobs_hot";
         const cards = (s.items ?? [])
           .map((item) => {
             const titleEl = item.url
