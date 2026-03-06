@@ -582,8 +582,10 @@ import Base from "../layouts/Base.astro";
           ${genTime ? `<span class="stats-sep">·</span><span>更新于 ${genTime}</span>` : ""}
         </div>
         ${wordCloud}
+        ${renderWeatherAlmanac(d)}
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
+      ${renderHistoryToday(d)}
       ${sectionsHtml}`;
   }
 
@@ -679,6 +681,62 @@ import Base from "../layouts/Base.astro";
       );
     }
   }, { passive: true });
+
+  // ── 天气 + 黄历 ──
+  function renderWeatherAlmanac(d: any): string {
+    const w = d.weather;
+    const a = d.almanac;
+    if (!w && !a) return "";
+    const parts: string[] = [];
+
+    if (w && !w.error) {
+      const desc = w.desc || "";
+      const emoji = desc.includes("Sun") || desc.includes("Clear") ? "☀️"
+        : desc.includes("Cloud") ? "⛅"
+        : desc.includes("Rain") ? "🌧️"
+        : desc.includes("Snow") ? "❄️"
+        : desc.includes("Thunder") ? "⛈️"
+        : desc.includes("Fog") || desc.includes("Mist") ? "🌫️" : "🌤️";
+      const fc = (w.forecasts ?? []).slice(0, 3).map((f: any) =>
+        `<span class="weather-fc">${f.date?.slice(5) ?? ""} ${f.min_c}~${f.max_c}°</span>`
+      ).join("");
+      parts.push(`<div class="weather-block">
+        <span class="weather-icon">${emoji}</span>
+        <span class="weather-main">${w.temp_c}°C · ${desc}</span>
+        <span class="weather-city">${w.city}</span>
+        ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}
+      </div>`);
+    }
+
+    if (a && a.lunar_date) {
+      const yi = (a.yi ?? []).map((s: string) => `<span class="almanac-yi">宜${s}</span>`).join("");
+      const ji = (a.ji ?? []).map((s: string) => `<span class="almanac-ji">忌${s}</span>`).join("");
+      parts.push(`<div class="almanac-block">
+        <span class="almanac-date">🗓 ${a.lunar_date}</span>
+        ${a.lucky_color ? `<span class="almanac-color">🎨 ${a.lucky_color}</span>` : ""}
+        <div class="almanac-tags">${yi}${ji}</div>
+        ${a.fortune ? `<div class="almanac-fortune">${a.fortune}</div>` : ""}
+      </div>`);
+    }
+
+    return parts.length ? `<div class="weather-almanac-row">${parts.join("")}</div>` : "";
+  }
+
+  // ── 历史上的今天 ──
+  function renderHistoryToday(d: any): string {
+    const items: Array<{year: string; event: string}> = d.history_today ?? [];
+    if (!items.length) return "";
+    const rows = items.map(h =>
+      `<div class="history-item"><span class="history-year">${h.year}</span><span class="history-event">${h.event}</span></div>`
+    ).join("");
+    return `<section class="section history-section" id="sec-history">
+      <div class="section-heading" style="--sec-color:#8b5cf6">
+        <span class="section-icon">📜</span>
+        <h2 class="section-title">历史上的今天</h2>
+      </div>
+      <div class="history-list">${rows}</div>
+    </section>`;
+  }
 
   // 直接渲染服务端已计算好的热词
   function renderWordCloud(hotWords: Array<{word: string, count: number}>): string {
@@ -1748,6 +1806,45 @@ import Base from "../layouts/Base.astro";
   }
 
   /* ── 热词云 ── */
+  /* ── 天气 + 黄历 ── */
+  .weather-almanac-row {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin-top: 14px;
+  }
+  .weather-block, .almanac-block {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+    font-size: 13px; flex: 1; min-width: 200px;
+  }
+  .weather-icon { font-size: 22px; }
+  .weather-main { font-weight: 600; color: var(--heading); }
+  .weather-city { color: var(--text3); font-size: 11px; }
+  .weather-forecast { width: 100%; display: flex; gap: 8px; margin-top: 2px; }
+  .weather-fc { font-size: 11px; color: var(--text2); background: var(--bg4); border-radius: 6px; padding: 2px 6px; }
+  .almanac-date { font-weight: 600; color: var(--heading); }
+  .almanac-color { font-size: 12px; color: var(--text2); }
+  .almanac-tags { width: 100%; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+  .almanac-yi { font-size: 11px; background: rgba(34,197,94,0.12); color: #22c55e; border-radius: 6px; padding: 2px 7px; }
+  .almanac-ji { font-size: 11px; background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 6px; padding: 2px 7px; }
+  .almanac-fortune { width: 100%; font-size: 12px; color: var(--text2); margin-top: 4px; font-style: italic; }
+
+  /* ── 历史上的今天 ── */
+  .history-section { margin-bottom: 24px; }
+  .history-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 12px; }
+  .history-item {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 8px 14px; background: var(--bg2); border-radius: 10px;
+    border-left: 3px solid #8b5cf6; font-size: 13.5px;
+    transition: background 0.15s;
+  }
+  .history-item:hover { background: var(--bg3); }
+  .history-year {
+    font-size: 13px; font-weight: 700; color: #8b5cf6;
+    flex-shrink: 0; min-width: 42px;
+  }
+  .history-event { color: var(--text); line-height: 1.5; }
+
   .word-cloud {
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
     margin-top: 10px; padding: 10px 14px;
