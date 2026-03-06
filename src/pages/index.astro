@@ -781,59 +781,179 @@ import Base from "../layouts/Base.astro";
     return CITY_EN2ZH[city] ?? CITY_EN2ZH[city.split(" ")[0]] ?? city;
   }
 
-  async function fetchLocalWeather(): Promise<any | null> {
-    try {
-      // ipapi.co — 免费 HTTPS，支持 CORS
-      let cityZh = "", lat = "", lon = "";
-      try {
-        const geo = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) });
-        const g = await geo.json();
-        if (g.city) {
-          cityZh = g.city;  // 直接用英文城市名
-          lat = g.latitude; lon = g.longitude;
-        }
-      } catch { /* 降级 */ }
+  // WMO 天气代码 → 描述
+  const WMO: Record<number, string> = {
+    0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",
+    45:"Fog",48:"Icy fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",
+    61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",
+    80:"Rain showers",81:"Rain showers",82:"Violent showers",
+    95:"Thunderstorm",96:"Thunderstorm+hail",99:"Thunderstorm+hail",
+  };
 
-      const query = lat && lon ? `${lat},${lon}` : "";
-      const r = await fetch(`https://wttr.in/${query}?format=j1`, { signal: AbortSignal.timeout(6000) });
-      if (!r.ok) return null;
-      const data = await r.json();
-      const cur = data.current_condition?.[0];
-      const area = data.nearest_area?.[0];
-      const rawCity = area?.areaName?.[0]?.value || area?.region?.[0]?.value || "";
-      const cityName = cityZh || rawCity;
-      const forecasts = (data.weather ?? []).slice(0, 3).map((d: any) => ({
-        date: d.date, min_c: d.mintempC, max_c: d.maxtempC,
-        desc: d.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
-      }));
-      return {
-        city: cityName,
-        temp_c: cur?.temp_C ?? "",
-        desc: cur?.weatherDesc?.[0]?.value ?? "",
-        humidity: cur?.humidity ?? "",
-        wind_kmph: cur?.windspeedKmph ?? "",
-        forecasts,
-        _local: true,
-      };
-    } catch { return null; }
+  async function fetchWttr(lat: string, lon: string) {
+    const query = lat && lon ? `${lat},${lon}` : "";
+    const r = await fetch(`https://wttr.in/${query}?format=j1`, { signal: AbortSignal.timeout(7000) });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const cur = d.current_condition?.[0];
+    const forecasts = (d.weather ?? []).slice(0, 3).map((w: any) => ({
+      date: w.date, min_c: +w.mintempC, max_c: +w.maxtempC,
+      desc: w.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
+    }));
+    return {
+      source: "wttr.in",
+      temp_c: +(cur?.temp_C ?? 0),
+      feels_c: +(cur?.FeelsLikeC ?? 0),
+      humidity: +(cur?.humidity ?? 0),
+      wind_kmph: +(cur?.windspeedKmph ?? 0),
+      desc: cur?.weatherDesc?.[0]?.value ?? "",
+      forecasts,
+    };
+  }
+
+  async function fetchOpenMeteo(lat: string, lon: string) {
+    if (!lat || !lon) return null;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+      + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code`
+      + `&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
+    const r = await fetch(url, { signal: AbortSignal.timeout(7000) });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const cur = d.current ?? {};
+    const daily = d.daily ?? {};
+    const forecasts = (daily.time ?? []).map((date: string, i: number) => ({
+      date, min_c: daily.temperature_2m_min?.[i] ?? 0,
+      max_c: daily.temperature_2m_max?.[i] ?? 0,
+      desc: WMO[daily.weather_code?.[i]] ?? "",
+    }));
+    return {
+      source: "Open-Meteo",
+      temp_c: cur.temperature_2m ?? 0,
+      feels_c: cur.apparent_temperature ?? 0,
+      humidity: cur.relative_humidity_2m ?? 0,
+      wind_kmph: cur.wind_speed_10m ?? 0,
+      desc: WMO[cur.weather_code] ?? "",
+      forecasts,
+    };
+  }
+
+  async function fetchOpenWeatherMap(lat: string, lon: string) {
+    // openweathermap.org 的免费无需 key 的 geocode 接口（实际需要 key，改用 weatherapi.com 免费层）
+    // 改为 7timer.info 纯公益气象 API
+    if (!lat || !lon) return null;
+    const url = `https://www.7timer.info/bin/api.pl?lon=${lon}&lat=${lat}&product=civillight&output=json`;
+    const r = await fetch(url, { signal: AbortSignal.timeout(7000) });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const series = d.dataseries ?? [];
+    if (!series.length) return null;
+    const cur = series[0];
+    const PREC: Record<string, string> = {
+      clear:"Clear",pcloudy:"Partly cloudy",mcloudy:"Mostly cloudy",
+      cloudy:"Cloudy",rain:"Rain",snow:"Snow",ts:"Thunderstorm",
+      tsrain:"Thunderstorm+rain",windy:"Windy",fog:"Fog",
+    };
+    const forecasts = series.slice(0, 3).map((s: any) => {
+      const ds = String(s.date);
+      const date = `${ds.slice(0,4)}-${ds.slice(4,6)}-${ds.slice(6,8)}`;
+      return { date, min_c: s.temp2m?.min ?? 0, max_c: s.temp2m?.max ?? 0, desc: PREC[s.weather] ?? s.weather };
+    });
+    return {
+      source: "7Timer",
+      temp_c: (cur.temp2m?.min + cur.temp2m?.max) / 2,
+      feels_c: (cur.temp2m?.min + cur.temp2m?.max) / 2,
+      humidity: 0,
+      wind_kmph: (cur.wind10m?.speed ?? 0) * 3.6,
+      desc: PREC[cur.weather] ?? cur.weather ?? "",
+      forecasts,
+    };
+  }
+
+  async function fetchLocalWeather(): Promise<any | null> {
+    // 1. 先拿 IP 定位
+    let city = "", lat = "", lon = "";
+    try {
+      const geo = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) });
+      const g = await geo.json();
+      if (g.city) { city = g.city; lat = String(g.latitude); lon = String(g.longitude); }
+    } catch { /* 降级 */ }
+
+    // 2. 三源并行
+    const [wttr, meteo, timer7] = await Promise.allSettled([
+      fetchWttr(lat, lon),
+      fetchOpenMeteo(lat, lon),
+      fetchOpenWeatherMap(lat, lon),
+    ]);
+
+    const sources = [wttr, meteo, timer7]
+      .filter(r => r.status === "fulfilled" && r.value)
+      .map(r => (r as PromiseFulfilledResult<any>).value);
+
+    if (!sources.length) return null;
+
+    // 3. 综合：温度取均值，天气描述取票数最多的，预报合并
+    const avg = (arr: number[]) => Math.round(arr.reduce((a, b) => a + b, 0) / arr.length * 10) / 10;
+    const mode = (arr: string[]) => {
+      const freq: Record<string, number> = {};
+      arr.forEach(s => { freq[s] = (freq[s] ?? 0) + 1; });
+      return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? arr[0];
+    };
+
+    const temp_c  = avg(sources.map(s => +s.temp_c).filter(Boolean));
+    const feels_c = avg(sources.map(s => +s.feels_c).filter(Boolean));
+    const humidity= avg(sources.map(s => +s.humidity).filter(n => n > 0));
+    const wind    = avg(sources.map(s => +s.wind_kmph).filter(Boolean));
+    const desc    = mode(sources.map(s => s.desc).filter(Boolean));
+
+    // 预报：以天为键合并，min 取最小，max 取最大
+    const fcMap: Record<string, {min: number[], max: number[], desc: string[]}> = {};
+    sources.forEach(s => (s.forecasts ?? []).forEach((f: any) => {
+      if (!f.date) return;
+      fcMap[f.date] ??= { min: [], max: [], desc: [] };
+      if (f.min_c !== undefined) fcMap[f.date].min.push(+f.min_c);
+      if (f.max_c !== undefined) fcMap[f.date].max.push(+f.max_c);
+      if (f.desc) fcMap[f.date].desc.push(f.desc);
+    }));
+    const forecasts = Object.entries(fcMap).slice(0, 3).map(([date, v]) => ({
+      date,
+      min_c: Math.round(Math.min(...v.min)),
+      max_c: Math.round(Math.max(...v.max)),
+      desc: mode(v.desc),
+    }));
+
+    return {
+      city, temp_c, feels_c, humidity, wind_kmph: wind, desc, forecasts,
+      sources: sources.map(s => s.source),
+      _local: true,
+    };
   }
 
   async function injectLocalWeather() {
     const local = await fetchLocalWeather();
     if (!local?.city) return;
-    // 直接替换主卡内容
     const emoji = weatherEmoji(local.desc ?? "");
     const fc = (local.forecasts ?? []).slice(0, 3).map((f: any) =>
       `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
     ).join("");
+    const srcBadges = (local.sources ?? []).map((s: string) =>
+      `<span class="weather-src-badge">${s}</span>`
+    ).join("");
+    const extra = [
+      local.feels_c ? `体感 ${local.feels_c}°` : "",
+      local.humidity ? `湿度 ${local.humidity}%` : "",
+      local.wind_kmph ? `风速 ${local.wind_kmph} km/h` : "",
+    ].filter(Boolean).join(" · ");
+
     const card = document.getElementById("weatherPrimaryCard");
     if (!card) return;
     card.classList.add("weather-card--local");
     card.querySelector<HTMLElement>(".weather-card-top .weather-icon")!.textContent = emoji;
     card.querySelector<HTMLElement>("#weatherCityName")!.textContent = `📍 ${local.city}`;
     card.querySelector<HTMLElement>("#weatherTemp")!.textContent = `${local.temp_c}°C`;
-    card.querySelector<HTMLElement>("#weatherDesc")!.textContent = local.desc ?? "";
-    card.querySelector<HTMLElement>("#weatherForecast")!.innerHTML = fc;
+    card.querySelector<HTMLElement>("#weatherDesc")!.innerHTML =
+      `${local.desc ?? ""}${extra ? `<span class="weather-extra"> · ${extra}</span>` : ""}`;
+    card.querySelector<HTMLElement>("#weatherForecast")!.innerHTML =
+      fc + (srcBadges ? `<div class="weather-sources">${srcBadges}</div>` : "");
   }
 
   function weatherEmoji(desc: string): string {
@@ -2118,6 +2238,12 @@ import Base from "../layouts/Base.astro";
     border-radius: 12px; padding: 10px 14px;
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
+  }
+  .weather-extra { color: var(--text3); font-size: 11px; }
+  .weather-sources { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+  .weather-src-badge {
+    font-size: 10px; padding: 1px 6px; border-radius: 4px;
+    background: var(--bg4); color: var(--text3); border: 1px solid var(--border);
   }
   .weather-card--local {
     border: 1px solid var(--accent);
