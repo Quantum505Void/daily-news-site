@@ -274,7 +274,7 @@ import Base from "../layouts/Base.astro";
     }
     const html = items.map(item => {
       const domain = (() => { try { return item.url ? new URL(item.url).hostname.replace(/^www\./,"") : ""; } catch { return ""; } })();
-      const src = domain ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>` : "";
+      const src = domain ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>` : "";
       return `<article class="card" data-url="${item.url}" style="cursor:pointer">
         <div class="card-meta">${item.date} · ${item.secTitle}</div>
         <div class="card-title"><span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
@@ -357,7 +357,7 @@ import Base from "../layouts/Base.astro";
       const titleHl = highlight(title, r.matches, "title");
       const bodyHl  = highlight(body,  r.matches, "body");
       const domain = (() => { try { return url ? new URL(url).hostname.replace(/^www\./, "") : ""; } catch { return ""; } })();
-      const faviconHtml = domain ? `<img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">` : "";
+      const faviconHtml = domain ? `<img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.style.display='none'">` : "";
       const sourceHtml = url ? `<a class="card-source" href="${url}" target="_blank" rel="noopener">${faviconHtml}${domain || "查看原文"} ↗</a>` : "";
       const titleEl = url
         ? `<a class="card-title-text" href="${url}" target="_blank" rel="noopener">${titleHl}</a>`
@@ -438,7 +438,7 @@ import Base from "../layouts/Base.astro";
       catch { return ""; }
     })();
     const sourceHtml = domain
-      ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>`
+      ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>`
       : item.url ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>` : "";
     const extraClass = isJob ? " card--job"
       : item.tag === "突发" ? " card--breaking"
@@ -461,7 +461,7 @@ import Base from "../layouts/Base.astro";
   // 今日看点英雄卡（第一条）
   function heroCardHtml(item: any, favedSet?: Set<string>): string {
     const domain = (() => { try { return item.url ? new URL(item.url).hostname.replace(/^www\./,"") : ""; } catch { return ""; } })();
-    const src = domain ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>` : "";
+    const src = domain ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>` : "";
     const faved = favedSet ? favedSet.has(item.url) : isFaved(item.url);
     const faveHtml = item.url ? `<button class="fave-btn${faved ? " faved" : ""}" data-url="${item.url}" title="${faved ? "取消收藏" : "收藏"}">${faved ? "★" : "☆"}</button>` : "";
     return `<article class="hero-card${item.tag === "突发" ? " card--breaking" : ""}" data-url="${item.url ?? ""}" ${item.url ? 'style="cursor:pointer"' : ""}>
