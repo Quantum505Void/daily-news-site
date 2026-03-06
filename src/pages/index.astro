@@ -756,7 +756,7 @@ import Base from "../layouts/Base.astro";
         { role: "system", content: systemPrompt },
         ...aiHistory.slice(-6)
       ];
-      const res = await fetch("http://localhost:7799/chat", {
+      const res = await fetch("https://xiaoxin-ai-proxy.moke521-wang.workers.dev/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages, max_tokens: 400 }),
@@ -777,7 +777,7 @@ import Base from "../layouts/Base.astro";
       }, 18);
     } catch {
       loadEl.remove();
-      appendAiMsg("ai", "连接 AI 代理失败，请确认 ai-proxy.py 正在运行（python3 ai-proxy.py）");
+      appendAiMsg("ai", "AI 请求失败，请稍后重试");
     }
   }
 
