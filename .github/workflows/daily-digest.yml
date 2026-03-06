@@ -1,0 +1,82 @@
+name: Daily Digest
+
+on:
+  schedule:
+    # 每天北京时间 07:00 (UTC 23:00 前一天)
+    - cron: '0 23 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Generate daily digest
+        env:
+          GHU_TOKEN: ${{ secrets.GHU_TOKEN }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          PROJECT_DIR: ${{ github.workspace }}
+        run: |
+          python3 scripts/daily-digest.py
+
+      - name: Commit & push JSON
+        run: |
+          git config user.name "xiaoxin-bot"
+          git config user.email "bot@xiaoxin"
+          git add public/data/ README.md || true
+          git diff --cached --quiet || git commit -m "daily: $(date +%Y-%m-%d)"
+          git push
+
+  deploy:
+    needs: generate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main  # 拉取刚 push 的最新代码
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build Astro site
+        run: bun run astro build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
