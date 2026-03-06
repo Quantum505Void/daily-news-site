@@ -7,23 +7,27 @@ import Base from "../layouts/Base.astro";
   <div class="read-progress" id="readProgress"></div>
 
   <header class="site-header">
-    <div class="logo-block">
-      <div class="logo">🗞️ 小新<span>日报</span></div>
-      <div class="tagline">新闻 · 财经 · 科技 · 汽车 · 旅游 · 娱乐</div>
+    <div class="header-row1">
+      <div class="logo-block">
+        <div class="logo">🗞️ 小新<span>日报</span></div>
+        <div class="tagline">新闻 · 财经 · 科技 · 汽车 · 旅游 · 娱乐</div>
+      </div>
+      <div class="header-actions">
+        <div class="search-wrap">
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="搜索日报内容..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span class="search-icon">⌕</span>
+          <kbd class="search-kbd" id="searchKbd">⌘K</kbd>
+          <button id="searchClear" class="search-clear" style="display:none" aria-label="清空">✕</button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+      </div>
     </div>
-    <div class="search-wrap">
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="搜索日报内容..."
-        autocomplete="off"
-        spellcheck="false"
-      />
-      <span class="search-icon">⌕</span>
-      <kbd class="search-kbd" id="searchKbd">⌘K</kbd>
-      <button id="searchClear" class="search-clear" style="display:none" aria-label="清空">✕</button>
-    </div>
-    <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
   </header>
 
   <div class="layout">
@@ -104,23 +108,27 @@ import Base from "../layouts/Base.astro";
     background: var(--header-bg);
     padding: 10px 24px;
     display: flex;
-    align-items: center;
-    gap: 16px;
+    flex-direction: column;
+    gap: 0;
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 200;
-    flex-wrap: wrap;
+  }
+  .header-row1 {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+  }
+  .header-actions {
+    display: flex; align-items: center; gap: 8px; margin-left: auto;
   }
   /* ── logo ── */
   .logo { font-size: 22px; font-weight: 900; color: var(--accent); line-height: 1.1; letter-spacing: -0.5px; }
-  .logo span { color: var(--heading); }   /* light 主题下也清晰 */
+  .logo span { color: var(--heading); }
   .logo-block { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
   .tagline { font-size: 11px; color: var(--text2); letter-spacing: 0.5px; opacity: 0.7; }
 
   .search-wrap {
     position: relative;
-    margin-left: auto;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -189,7 +197,7 @@ import Base from "../layouts/Base.astro";
 
   /* ── Sidebar ── */
   .sidebar {
-    width: 130px;
+    width: 148px;
     flex-shrink: 0;
     padding: 16px 8px;
     border-right: 1px solid var(--border);
@@ -216,20 +224,33 @@ import Base from "../layouts/Base.astro";
 
   /* ── Footer ── */
   .page-footer {
-    text-align: center; padding: 20px 18px;
+    text-align: center; padding: 24px 18px 20px;
     color: var(--text3); font-size: 12px;
-    border-top: 1px solid var(--border);
-    display: flex; flex-direction: column; gap: 6px; align-items: center;
+    border-top: none;
+    position: relative;
+    display: flex; flex-direction: column; gap: 8px; align-items: center;
+  }
+  .page-footer::before {
+    content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border) 30%, var(--border) 70%, transparent);
   }
   .footer-inner { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .footer-sep { opacity: 0.35; }
-  .footer-stats { display: flex; align-items: center; gap: 8px; }
-  .footer-stat { display: flex; align-items: center; gap: 3px; }
-  .footer-stat-val { font-weight: 600; color: var(--text2); transition: color 0.3s; }
+  .footer-inner a { color: var(--text3); text-decoration: none; transition: color 0.15s; }
+  .footer-inner a:hover { color: var(--accent); }
+  .footer-sep { opacity: 0.3; }
+  .footer-stats {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 14px;
+  }
+  .footer-stat { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+  .footer-stat-val { font-weight: 700; color: var(--text2); transition: color 0.3s; }
 
   /* ── Mobile ── */
   @media (max-width: 680px) {
-    .search-wrap { margin-left: 0; width: 100%; }
+    .header-row1 { flex-wrap: wrap; }
+    .header-actions { width: 100%; margin-left: 0; }
+    .search-wrap { flex: 1; }
     #searchInput { width: 100%; }
     #searchInput:focus { width: 100%; }
     .tagline { font-size: 10px; }
@@ -291,7 +312,7 @@ import Base from "../layouts/Base.astro";
     const faves = getFaves();
     const main = document.getElementById("main")!;
     if (!faves.size) {
-      main.innerHTML = `<div class="state-msg"><div class="icon">⭐</div><p>还没有收藏，点击卡片右下角 ☆ 收藏</p></div>`;
+      main.innerHTML = `<div class="state-msg"><div class="icon">⭐</div><p>还没有收藏</p><p style="font-size:12px;opacity:0.6;margin-top:6px">浏览日报时点击卡片右下角 ☆ 即可收藏</p></div>`;
       return;
     }
     // 从 cache 里找收藏的条目
@@ -971,10 +992,13 @@ import Base from "../layouts/Base.astro";
     const rows = items.map(h =>
       `<div class="history-item"><span class="history-year">${h.year}</span><span class="history-event">${h.event}</span></div>`
     ).join("");
+    const today = new Date();
+    const mmdd = `${today.getMonth()+1}月${today.getDate()}日`;
     return `<section class="section history-section" id="sec-history">
       <div class="section-heading" style="--sec-color:#8b5cf6">
         <span class="section-icon">📜</span>
         <h2 class="section-title">历史上的今天</h2>
+        <span class="section-count">${mmdd}</span>
       </div>
       <div class="history-list">${rows}</div>
     </section>`;
@@ -2253,7 +2277,7 @@ import Base from "../layouts/Base.astro";
 
   /* ── 今日名言 ── */
   .daily-quote {
-    margin: 0 0 18px;
+    margin: 0 0 22px;
     padding: 14px 18px 14px 22px;
     border-left: 4px solid var(--accent);
     background: linear-gradient(135deg, var(--bg2), var(--bg3));
@@ -2270,42 +2294,48 @@ import Base from "../layouts/Base.astro";
   /* ── 今日时间轴 ── */
   .day-timeline {
     margin-top: 14px;
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 14px 14px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 16px 18px;
   }
   .tl-header {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; margin-bottom: 14px;
   }
-  .tl-title { font-weight: 600; color: var(--heading); }
-  .tl-time { font-size: 15px; font-weight: 700; color: var(--accent); margin-left: 4px; font-variant-numeric: tabular-nums; }
-  .tl-pct { font-size: 12px; color: var(--text3); margin-left: auto; }
-  .tl-track-wrap { position: relative; padding-bottom: 28px; }
+  .tl-title { font-size: 12px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .tl-time {
+    font-size: 20px; font-weight: 900; color: var(--accent);
+    margin-left: 6px; font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .tl-pct {
+    margin-left: auto; font-size: 11px; color: var(--text3);
+    background: var(--bg3); border-radius: 10px; padding: 2px 8px;
+  }
+  .tl-track-wrap { position: relative; padding-bottom: 32px; }
   .tl-track {
-    position: relative; height: 8px;
-    background: var(--bg4); border-radius: 4px; overflow: visible;
+    position: relative; height: 6px;
+    background: var(--bg4); border-radius: 3px; overflow: visible;
   }
   .tl-fill {
-    height: 100%; border-radius: 4px;
-    background: linear-gradient(90deg, var(--accent), #f59e0b);
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent) 0%, #f59e0b 100%);
     transition: width 0.6s ease;
   }
   .tl-cursor {
     position: absolute; top: 50%; transform: translate(-50%, -50%);
-    width: 14px; height: 14px; border-radius: 50%;
-    background: #f59e0b; border: 2px solid var(--bg);
-    box-shadow: 0 0 6px rgba(245,158,11,0.6);
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #f59e0b; border: 3px solid var(--bg2);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.25), 0 0 10px rgba(245,158,11,0.5);
     transition: left 0.6s ease;
   }
-  .tl-ticks { position: absolute; top: 12px; left: 0; right: 0; }
+  .tl-ticks { position: absolute; top: 10px; left: 0; right: 0; }
   .tl-tick {
     position: absolute; transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 1px;
-    opacity: 0.4;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    opacity: 0.35; transition: opacity 0.3s;
   }
   .tl-tick--passed { opacity: 1; }
-  .tl-tick-icon { font-size: 12px; line-height: 1; }
-  .tl-tick-label { font-size: 9px; color: var(--text3); white-space: nowrap; }
+  .tl-tick-icon { font-size: 13px; line-height: 1; }
+  .tl-tick-label { font-size: 9px; color: var(--text3); white-space: nowrap; font-weight: 500; }
 
   /* ── 每日一问 ── */
   .dq-section { margin-bottom: 28px; }
@@ -2566,6 +2596,8 @@ import Base from "../layouts/Base.astro";
   .card--read {
     border-color: var(--border) !important;
     box-shadow: none !important;
+    filter: grayscale(0.25);
+    opacity: 0.85;
   }
   .card--read::after {
     content: '✓ 已读';
