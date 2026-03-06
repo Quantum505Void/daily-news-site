@@ -989,17 +989,60 @@ import Base from "../layouts/Base.astro";
     if (!local?.city) return;
     applyWeatherToCard(local);
 
-    // ✏️ 按钮：弹出城市输入，保存后刷新天气
+    // ✏️ 按钮：内联输入框 + wttr 验证后保存
     document.getElementById("weatherLocateBtn")?.addEventListener("click", () => {
+      const card = document.getElementById("weatherPrimaryCard")!;
+      // 已有输入框时直接 focus
+      if (card.querySelector(".weather-city-input")) {
+        card.querySelector<HTMLInputElement>(".weather-city-input")?.focus();
+        return;
+      }
       const current = getSavedCity();
-      const input = prompt("输入城市名（英文，如 Beijing / Chengdu / Shanghai）:", current);
-      if (!input || !input.trim() || input.trim() === current) return;
-      saveCity(input.trim());
-      const btn = document.getElementById("weatherLocateBtn")!;
-      btn.textContent = "⏳";
-      fetchLocalWeather(input.trim()).then(w => {
-        if (w) applyWeatherToCard(w);
-        btn.textContent = "✏️";
+      const bar = document.createElement("div");
+      bar.className = "weather-city-bar";
+      bar.innerHTML = `
+        <input class="weather-city-input" value="${current}" placeholder="City name (e.g. Chengdu)" spellcheck="false" />
+        <button class="weather-city-confirm">✓</button>
+        <button class="weather-city-cancel">✕</button>
+        <span class="weather-city-hint"></span>`;
+      card.appendChild(bar);
+      const inp  = bar.querySelector<HTMLInputElement>(".weather-city-input")!;
+      const hint = bar.querySelector<HTMLSpanElement>(".weather-city-hint")!;
+      const confirmBtn = bar.querySelector<HTMLButtonElement>(".weather-city-confirm")!;
+      inp.focus(); inp.select();
+
+      const tryConfirm = async () => {
+        const val = inp.value.trim();
+        if (!val || val === current) { bar.remove(); return; }
+        hint.textContent = "验证中…"; hint.style.color = "var(--text3)";
+        confirmBtn.disabled = true;
+        try {
+          const r = await fetch(`https://wttr.in/${encodeURIComponent(val)}?format=j1`, { signal: AbortSignal.timeout(6000) });
+          if (!r.ok) throw new Error();
+          const d = await r.json();
+          // wttr 找不到城市时返回一个特殊响应，nearest_area 为空
+          const area = d.nearest_area?.[0];
+          if (!area) throw new Error();
+          const realCity = area.areaName?.[0]?.value || val;
+          saveCity(realCity);
+          hint.textContent = `✓ ${realCity}`;
+          hint.style.color = "var(--accent)";
+          setTimeout(() => bar.remove(), 800);
+          // 用真实城市名重新拉天气
+          fetchLocalWeather(realCity).then(w => { if (w) applyWeatherToCard(w); });
+        } catch {
+          hint.textContent = "❌ 找不到该城市";
+          hint.style.color = "#f87171";
+          confirmBtn.disabled = false;
+          inp.focus(); inp.select();
+        }
+      };
+
+      confirmBtn.addEventListener("click", tryConfirm);
+      bar.querySelector(".weather-city-cancel")!.addEventListener("click", () => bar.remove());
+      inp.addEventListener("keydown", e => {
+        if (e.key === "Enter") tryConfirm();
+        if (e.key === "Escape") bar.remove();
       });
     });
   }
@@ -2288,6 +2331,20 @@ import Base from "../layouts/Base.astro";
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
   }
+  .weather-city-bar {
+    display: flex; align-items: center; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+  }
+  .weather-city-input {
+    flex: 1; min-width: 0; padding: 3px 7px; border-radius: 6px; font-size: 12px;
+    border: 1px solid var(--accent); background: var(--bg3); color: var(--text1);
+    outline: none;
+  }
+  .weather-city-confirm, .weather-city-cancel {
+    padding: 2px 7px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px;
+  }
+  .weather-city-confirm { background: var(--accent); color: #fff; }
+  .weather-city-cancel  { background: var(--bg4); color: var(--text2); }
+  .weather-city-hint    { font-size: 11px; }
   .weather-locate-btn {
     margin-left: auto; background: none; border: none; cursor: pointer;
     font-size: 14px; padding: 2px 4px; border-radius: 6px; opacity: 0.6;
