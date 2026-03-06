@@ -789,7 +789,7 @@ import Base from "../layouts/Base.astro";
         const geo = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) });
         const g = await geo.json();
         if (g.city) {
-          cityZh = toChinese(g.city);
+          cityZh = g.city;  // 直接用英文城市名
           lat = g.latitude; lon = g.longitude;
         }
       } catch { /* 降级 */ }
@@ -801,8 +801,7 @@ import Base from "../layouts/Base.astro";
       const cur = data.current_condition?.[0];
       const area = data.nearest_area?.[0];
       const rawCity = area?.areaName?.[0]?.value || area?.region?.[0]?.value || "";
-      // 优先用 ipapi.co 的中文名，否则尝试翻译 wttr 英文名
-      const cityName = cityZh || toChinese(rawCity);
+      const cityName = cityZh || rawCity;
       const forecasts = (data.weather ?? []).slice(0, 3).map((d: any) => ({
         date: d.date, min_c: d.mintempC, max_c: d.maxtempC,
         desc: d.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
@@ -857,7 +856,7 @@ import Base from "../layouts/Base.astro";
       // 只取第一个城市（北京）作为降级显示
       const w = weatherArr.find(x => !x.error) ?? weatherArr[0];
       const emoji = weatherEmoji(w?.desc ?? "");
-      const cn = toChinese(w?.city ?? "");
+      const cn = w?.city ?? "";
       const fc = (w?.forecasts ?? []).slice(0, 3).map((f: any) =>
         `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
       ).join("");
