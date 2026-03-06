@@ -888,21 +888,22 @@ import Base from "../layouts/Base.astro";
       const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!r.ok) throw 0;
       const data = await r.json();
-      const quotes: any[] = data.quoteResponse?.result ?? [];
-
-      quotes.forEach(q => {
-        const sym = SYMBOLS.find(s => s.sym === q.symbol);
-        if (!sym) return;
+      // spark 返回 { "^IXIC": { close:[价格], chartPreviousClose: 昨收 }, ... }
+      SYMBOLS.forEach(sym => {
+        const entry = data[sym.sym];
+        if (!entry) return;
+        const price = entry.close?.[entry.close.length - 1] ?? 0;
+        const prev  = entry.chartPreviousClose ?? price;
+        const chg   = prev ? ((price - prev) / prev) * 100 : 0;
+        const up    = chg >= 0;
         const item = grid.querySelector<HTMLElement>(`.market-item[data-name="${sym.id}"]`);
         if (!item) return;
-        const price = q.regularMarketPrice ?? 0;
-        const chg   = q.regularMarketChangePercent ?? 0;
-        const up    = chg >= 0;
         item.querySelector<HTMLElement>(".market-val")!.textContent =
-          sym.type === "fx" ? price.toFixed(4) : price.toFixed(2);
+          sym.type === "fx" ? price.toFixed(4) : price >= 10000 ? (price/10000).toFixed(2)+"w" : price.toFixed(2);
         const chgEl = item.querySelector<HTMLElement>(".market-chg")!;
         chgEl.textContent = `${up ? "▲" : "▼"} ${Math.abs(chg).toFixed(2)}%`;
         chgEl.className = `market-chg ${up ? "market-chg--up" : "market-chg--down"}`;
+        item.classList.remove("market-item--up","market-item--down");
         item.classList.add(up ? "market-item--up" : "market-item--down");
       });
 

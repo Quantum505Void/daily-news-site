@@ -11,7 +11,8 @@ export default {
       const syms = url.searchParams.get("symbols") ?? "";
       if (!syms) return json({ error: "missing symbols" }, 400);
       try {
-        const upstream = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent,shortName`;
+        // 用 spark v8 接口，无需 crumb/cookie，稳定可用
+        const upstream = `https://query2.finance.yahoo.com/v8/finance/spark?symbols=${encodeURIComponent(syms)}&range=1d&interval=1d`;
         const r = await fetch(upstream, {
           headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" },
         });
