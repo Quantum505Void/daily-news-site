@@ -466,15 +466,16 @@ import Base from "../layouts/Base.astro";
   // ── 访问计数 ──
   async function trackVisit() {
     try {
-      const r = await fetch("https://api.counterapi.dev/v1/xiaoxin-daily/visits/up", {
+      const r = await fetch("https://api.counterapi.dev/v2/yus-team-3163/first-counter-3163/up", {
         headers: { "Authorization": "Bearer ut_tIQKJP2jBsCuwbrrChVk4eiqblYaxgaMl0A9o8sL" }
       });
       if (!r.ok) return;
       const data = await r.json();
       const el = document.getElementById("visitCount");
-      if (el && data?.count != null) {
-        el.textContent = `👁 ${data.count.toLocaleString()} 次`;
-        el.title = `累计访问 ${data.count.toLocaleString()} 次`;
+      if (el && data?.data?.up_count != null) {
+        const count = data.data.up_count;
+        el.textContent = `👁 ${count.toLocaleString()} 次`;
+        el.title = `累计访问 ${count.toLocaleString()} 次`;
       }
     } catch { /* 静默失败 */ }
   }
