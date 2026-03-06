@@ -1048,12 +1048,21 @@ import Base from "../layouts/Base.astro";
     const toggleBtn = t.closest(".section-toggle") as HTMLElement | null;
     if (toggleBtn) {
       const section = toggleBtn.closest(".section")!;
-      // 同时隐藏 .cards 和独立的 .hero-card
       const targets = section.querySelectorAll<HTMLElement>(".cards, .hero-card");
       const willCollapse = !targets[0]?.classList.contains("cards--hidden");
       targets.forEach(c => c.classList.toggle("cards--hidden", willCollapse));
       toggleBtn.textContent = willCollapse ? "▾" : "▴";
       toggleBtn.classList.toggle("section-toggle--collapsed", willCollapse);
+    }
+
+    // 摘要折叠
+    const sumBtn = t.closest(".summary-toggle") as HTMLElement | null;
+    if (sumBtn) {
+      e.stopPropagation();
+      const summary = document.getElementById("digestSummary");
+      if (!summary) return;
+      const collapsed = summary.classList.toggle("digest-summary--collapsed");
+      sumBtn.textContent = collapsed ? "展开 ▾" : "收起 ▴";
     }
   });
 
@@ -1914,6 +1923,9 @@ import Base from "../layouts/Base.astro";
   .digest-summary--collapsed .digest-summary-text {
     display: -webkit-box; -webkit-line-clamp: 2;
     -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .digest-summary-text {
+    overflow: hidden;
   }
   .summary-toggle {
     background: none; border: none; cursor: pointer;
