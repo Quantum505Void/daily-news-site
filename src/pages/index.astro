@@ -1026,11 +1026,13 @@ import Base from "../layouts/Base.astro";
     // 展开卡片（平滑动画）
     const expandBtn = t.closest(".card-expand") as HTMLElement | null;
     if (expandBtn) {
-      const wrap = expandBtn.closest(".card")!.querySelector(".card-body-wrap") as HTMLElement;
+      const wrap = expandBtn.closest(".card")!.querySelector(".card-body-wrap") as HTMLElement | null;
+      if (!wrap) return;
       const collapsed = wrap.classList.contains("card-body-wrap--collapsed");
       if (collapsed) {
         wrap.classList.remove("card-body-wrap--collapsed");
-        wrap.style.maxHeight = wrap.scrollHeight + "px";
+        const h = wrap.scrollHeight || 200;
+        wrap.style.maxHeight = h + "px";
         setTimeout(() => { wrap.style.maxHeight = ""; }, 350);
       } else {
         wrap.style.maxHeight = wrap.scrollHeight + "px";
