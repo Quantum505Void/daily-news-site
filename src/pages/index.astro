@@ -1806,7 +1806,11 @@ import Base from "../layouts/Base.astro";
   }
 
   /* ── Digest header ── */
-  .digest-header { margin-bottom: 28px; }
+  .digest-header {
+    margin-bottom: 28px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px 20px;
+  }
   .digest-top {
     display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;
   }
@@ -1844,7 +1848,7 @@ import Base from "../layouts/Base.astro";
     background: var(--summary-bg);
     border: 1px solid var(--summary-border); border-radius: 14px;
     padding: 0; overflow: hidden;
-    margin-bottom: 16px;
+    margin-bottom: 0;
     list-style: none;
   }
   .digest-summary::before {
@@ -2383,24 +2387,28 @@ import Base from "../layouts/Base.astro";
   .history-event { color: var(--text); line-height: 1.6; }
 
   .word-cloud {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
-    margin-top: 10px; padding: 10px 14px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+    margin-top: 12px; padding: 12px 14px;
     background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
   }
   .wc-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
     color: var(--text3); text-transform: uppercase;
     margin-right: 4px; flex-shrink: 0;
+    background: var(--bg4); border-radius: 6px; padding: 2px 7px;
   }
   .wc-word {
-    background: none; border: none; cursor: pointer;
+    background: var(--bg3); border: 1px solid var(--border); cursor: pointer;
     color: var(--text2); font-family: var(--font);
-    padding: 2px 4px; border-radius: 4px;
-    transition: color 0.15s, background 0.15s, transform 0.15s;
-    line-height: 1.4;
+    padding: 3px 10px; border-radius: 20px;
+    transition: color 0.15s, background 0.15s, border-color 0.15s, transform 0.15s;
+    line-height: 1.5; white-space: nowrap;
   }
-  .wc-word:hover { color: var(--accent); background: rgba(231,76,60,0.08); transform: scale(1.1); }
+  .wc-word:hover {
+    color: var(--accent); background: rgba(231,76,60,0.08);
+    border-color: var(--accent); transform: translateY(-1px);
+  }
 
   /* ── 卡片微放大 hover ── */
   .card {
@@ -2541,7 +2549,7 @@ import Base from "../layouts/Base.astro";
   /* ── 阅读进度条 ── */
   .read-progress {
     position: fixed; top: 0; left: 0; right: 0;
-    height: 3px; background: linear-gradient(90deg, var(--accent), #f39c12);
+    height: 3px; background: linear-gradient(90deg, var(--accent) 0%, #f59e0b 50%, #22c55e 100%);
     width: 0%; z-index: 9999;
     transition: width 0.1s linear;
     border-radius: 0 2px 2px 0;
@@ -2567,7 +2575,7 @@ import Base from "../layouts/Base.astro";
     font-size: 16px; line-height: 1;
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(128,128,128,0.12);
+    background: color-mix(in srgb, var(--sec-color,#888) 15%, transparent);
     flex-shrink: 0;
   }
 
