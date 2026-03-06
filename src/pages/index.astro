@@ -584,6 +584,7 @@ import Base from "../layouts/Base.astro";
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
       ${renderHistoryToday(d)}
+      ${renderDailyQuestion(d)}
       ${sectionsHtml}`;
   }
 
@@ -620,6 +621,7 @@ import Base from "../layouts/Base.astro";
       requestAnimationFrame(() => { main.classList.add("main--fadein"); });
       window.scrollTo({ top: 0, behavior: "instant" });
       initSectionObserver();
+      restoreDQVotes();
       // 客户端按 IP 注入本地天气（异步，不阻塞渲染）
       injectLocalWeather();
       // 预备 AI 推荐问题（当 AI 面板打开时使用）
@@ -685,13 +687,28 @@ import Base from "../layouts/Base.astro";
   // ── 天气（客户端按 IP 自动定位 + 服务端多城市兜底） ──
   async function fetchLocalWeather(): Promise<any | null> {
     try {
-      // wttr.in 不传城市 → 自动按访客 IP 定位
-      const r = await fetch("https://wttr.in/?format=j1", { signal: AbortSignal.timeout(6000) });
+      // 先用 ip-api.com 拿中文城市名 + 经纬度
+      let cityZh = "", lat = "", lon = "";
+      try {
+        const geo = await fetch("http://ip-api.com/json/?lang=zh-CN&fields=city,regionName,lat,lon,status", {
+          signal: AbortSignal.timeout(4000)
+        });
+        const g = await geo.json();
+        if (g.status === "success") {
+          cityZh = g.city || g.regionName || "";
+          lat = g.lat; lon = g.lon;
+        }
+      } catch { /* 降级 */ }
+
+      // 用经纬度查 wttr.in，无经纬度则自动 IP 定位
+      const query = lat && lon ? `${lat},${lon}` : "";
+      const r = await fetch(`https://wttr.in/${query}?format=j1`, { signal: AbortSignal.timeout(6000) });
       if (!r.ok) return null;
       const data = await r.json();
       const cur = data.current_condition?.[0];
       const area = data.nearest_area?.[0];
-      const cityName = area?.areaName?.[0]?.value ?? area?.region?.[0]?.value ?? "";
+      // 优先用 ip-api 拿到的中文名，否则用 wttr 返回的英文名
+      const cityName = cityZh || area?.areaName?.[0]?.value || area?.region?.[0]?.value || "";
       const forecasts = (data.weather ?? []).slice(0, 3).map((d: any) => ({
         date: d.date, min_c: d.mintempC, max_c: d.maxtempC,
         desc: d.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
@@ -797,6 +814,84 @@ import Base from "../layouts/Base.astro";
       </div>
       <div class="history-list">${rows}</div>
     </section>`;
+  }
+
+  // ── 每日一问 ──
+  function renderDailyQuestion(d: any): string {
+    const q = d.daily_question;
+    if (!q?.question || !q?.options?.length) return "";
+    const key = `dq_${d.date}`;
+    const opts = (q.options as string[]).map((opt, i) => {
+      const letter = String.fromCharCode(65 + i); // A B C D
+      return `<button class="dq-opt" data-idx="${i}" data-key="${key}">${letter}. ${opt}</button>`;
+    }).join("");
+    return `<section class="section dq-section" id="sec-dq">
+      <div class="section-heading" style="--sec-color:#f59e0b">
+        <span class="section-icon">🗳️</span>
+        <h2 class="section-title">今日一问</h2>
+      </div>
+      <div class="dq-card">
+        <p class="dq-question">${q.question}</p>
+        <div class="dq-options" id="dqOptions-${d.date}">${opts}</div>
+        <div class="dq-result" id="dqResult-${d.date}" style="display:none"></div>
+      </div>
+    </section>`;
+  }
+
+  // 每日一问投票逻辑（事件委托，挂在 main 上）
+  function handleDailyQuestion(btn: HTMLElement) {
+    const key = btn.dataset.key!;
+    const idx = parseInt(btn.dataset.idx!);
+    if (localStorage.getItem(key) !== null) return; // 已投过
+    localStorage.setItem(key, String(idx));
+
+    // 读取/更新票数
+    const tallyKey = `${key}_tally`;
+    const tally: number[] = JSON.parse(localStorage.getItem(tallyKey) ?? "null") 
+      ?? btn.closest(".dq-options")!.querySelectorAll(".dq-opt").length > 0
+        ? Array(btn.closest(".dq-options")!.querySelectorAll(".dq-opt").length).fill(0)
+        : [];
+    tally[idx] = (tally[idx] ?? 0) + 1;
+    localStorage.setItem(tallyKey, JSON.stringify(tally));
+
+    showDQResult(btn.closest(".dq-card")!, idx, tally, key);
+  }
+
+  function showDQResult(card: Element, voted: number, tally: number[], key: string) {
+    const optsEl = card.querySelector<HTMLElement>(".dq-options");
+    const resultEl = card.querySelector<HTMLElement>(".dq-result");
+    if (!optsEl || !resultEl) return;
+    const total = tally.reduce((a, b) => a + b, 0) || 1;
+    const bars = tally.map((v, i) => {
+      const pct = Math.round(v / total * 100);
+      const letter = String.fromCharCode(65 + i);
+      const optBtn = optsEl.querySelectorAll(".dq-opt")[i];
+      const label = optBtn?.textContent?.replace(/^[A-D]\. /, "") ?? "";
+      const isVoted = i === voted;
+      return `<div class="dq-bar-row${isVoted ? " dq-bar-row--voted" : ""}">
+        <span class="dq-bar-label">${letter}. ${label}</span>
+        <div class="dq-bar-track"><div class="dq-bar-fill" style="width:${pct}%"></div></div>
+        <span class="dq-bar-pct">${pct}%</span>
+      </div>`;
+    }).join("");
+    optsEl.style.display = "none";
+    resultEl.style.display = "";
+    resultEl.innerHTML = bars;
+  }
+
+  // 初始化时恢复已投票状态
+  function restoreDQVotes() {
+    document.querySelectorAll<HTMLElement>(".dq-options").forEach(optsEl => {
+      const btn0 = optsEl.querySelector<HTMLElement>(".dq-opt");
+      if (!btn0) return;
+      const key = btn0.dataset.key!;
+      const voted = localStorage.getItem(key);
+      if (voted === null) return;
+      const tallyKey = `${key}_tally`;
+      const tally: number[] = JSON.parse(localStorage.getItem(tallyKey) ?? "[]");
+      const card = optsEl.closest(".dq-card")!;
+      showDQResult(card, parseInt(voted), tally, key);
+    });
   }
 
   // 直接渲染服务端已计算好的热词
@@ -1122,6 +1217,10 @@ import Base from "../layouts/Base.astro";
   // ── 事件委托：展开/折叠卡片 + 折叠板块 + 收藏 + 热词云 ──
   document.getElementById("main")!.addEventListener("click", (e) => {
     const t = e.target as HTMLElement;
+
+    // 每日一问投票
+    const dqBtn = t.closest(".dq-opt") as HTMLElement | null;
+    if (dqBtn) { handleDailyQuestion(dqBtn); return; }
 
     // 收藏按钮
     const faveBtn = t.closest(".fave-btn") as HTMLElement | null;
@@ -1940,6 +2039,33 @@ import Base from "../layouts/Base.astro";
   .almanac-yi { font-size: 11px; background: rgba(34,197,94,0.12); color: #22c55e; border-radius: 6px; padding: 2px 7px; }
   .almanac-ji { font-size: 11px; background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 6px; padding: 2px 7px; }
   .almanac-fortune { width: 100%; font-size: 12px; color: var(--text2); margin-top: 4px; font-style: italic; }
+
+  /* ── 每日一问 ── */
+  .dq-section { margin-bottom: 24px; }
+  .dq-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 18px;
+  }
+  .dq-question {
+    font-size: 16px; font-weight: 700; color: var(--heading);
+    margin: 0 0 14px; line-height: 1.5;
+  }
+  .dq-options { display: flex; flex-direction: column; gap: 8px; }
+  .dq-opt {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 14px; color: var(--text); cursor: pointer; text-align: left;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .dq-opt:hover { background: var(--bg4); border-color: #f59e0b; transform: translateX(4px); }
+  .dq-result { display: flex; flex-direction: column; gap: 8px; }
+  .dq-bar-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .dq-bar-row--voted .dq-bar-label { color: #f59e0b; font-weight: 600; }
+  .dq-bar-label { flex: 1; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 50%; }
+  .dq-bar-track { flex: 2; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  .dq-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.6s ease; }
+  .dq-bar-row--voted .dq-bar-fill { background: #f59e0b; }
+  .dq-bar-pct { width: 34px; text-align: right; color: var(--text3); font-size: 12px; }
 
   /* ── 历史上的今天 ── */
   .history-section { margin-bottom: 24px; }
