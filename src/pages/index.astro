@@ -35,6 +35,7 @@ import Base from "../layouts/Base.astro";
     由小新 🔧 自动生成 ·
     <a href="https://github.com/Quantum505Void/daily-news-site" target="_blank" rel="noopener">GitHub</a>
     · <span id="buildTime"></span>
+    · <span id="visitCount" title="累计访问次数">👁 --</span>
   </footer>
 
   <button class="back-top" id="backTop" aria-label="回到顶部" title="回到顶部">↑</button>
@@ -462,10 +463,25 @@ import Base from "../layouts/Base.astro";
     }, { passive: true });
   }
 
+  // ── 访问计数 ──
+  async function trackVisit() {
+    try {
+      const r = await fetch("https://counterapi.dev/api/xiaoxin-daily-news/visit", { method: "GET" });
+      if (!r.ok) return;
+      const data = await r.json();
+      const el = document.getElementById("visitCount");
+      if (el && data?.count != null) {
+        el.textContent = `👁 ${data.count.toLocaleString()} 次`;
+        el.title = `累计访问 ${data.count.toLocaleString()} 次`;
+      }
+    } catch { /* 静默失败 */ }
+  }
+
   async function init() {
     // 显示构建时间
     const bt = document.getElementById("buildTime");
     if (bt) bt.textContent = `构建于 ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })}`;
+    trackVisit();
     try {
       dates = await fetchManifest();
       if (!dates.length) {
