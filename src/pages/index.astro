@@ -869,14 +869,76 @@ import Base from "../layouts/Base.astro";
     };
   }
 
+  // ── 多源 IP 定位，并行请求取最精确结果 ──
+  async function resolveLocation(): Promise<{city: string, lat: string, lon: string} | null> {
+    type GeoResult = { city: string; lat: number; lon: number; accuracy: number; source: string };
+
+    const sources: Promise<GeoResult | null>[] = [
+
+      // 1. ipapi.co — 免费 HTTPS CORS
+      fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) })
+        .then(r => r.json()).then(g => g.city ? ({
+          city: g.city, lat: +g.latitude, lon: +g.longitude,
+          accuracy: 3, source: "ipapi.co",
+        }) : null).catch(() => null),
+
+      // 2. ip-api.com via HTTPS proxy endpoint (fields only)
+      fetch("https://ipwho.is/", { signal: AbortSignal.timeout(4000) })
+        .then(r => r.json()).then(g => g.city ? ({
+          city: g.city, lat: +g.latitude, lon: +g.longitude,
+          accuracy: 3, source: "ipwho.is",
+        }) : null).catch(() => null),
+
+      // 3. freeipapi.com
+      fetch("https://freeipapi.com/api/json", { signal: AbortSignal.timeout(4000) })
+        .then(r => r.json()).then(g => g.cityName ? ({
+          city: g.cityName, lat: +g.latitude, lon: +g.longitude,
+          accuracy: 3, source: "freeipapi",
+        }) : null).catch(() => null),
+
+      // 4. Cloudflare trace — 只能拿国家，但极稳定，作为兜底
+      fetch("https://www.cloudflare.com/cdn-cgi/trace", { signal: AbortSignal.timeout(3000) })
+        .then(r => r.text()).then(txt => {
+          const loc = txt.match(/loc=(\w+)/)?.[1] ?? "";
+          const ip  = txt.match(/ip=([^\n]+)/)?.[1] ?? "";
+          return loc ? ({ city: loc, lat: 0, lon: 0, accuracy: 1, source: "cloudflare" }) : null;
+        }).catch(() => null),
+    ];
+
+    const results = await Promise.allSettled(sources);
+    const valid = results
+      .filter(r => r.status === "fulfilled" && r.value)
+      .map(r => (r as PromiseFulfilledResult<GeoResult>).value)
+      .sort((a, b) => b.accuracy - a.accuracy);
+
+    if (!valid.length) return null;
+
+    // 有多个高精度来源 → 检查经纬度一致性（偏差 <50km 视为一致）
+    const high = valid.filter(v => v.accuracy >= 3 && v.lat !== 0);
+    if (high.length >= 2) {
+      const [a, b] = high;
+      const dist = Math.sqrt((a.lat - b.lat) ** 2 + (a.lon - b.lon) ** 2);
+      if (dist < 0.5) {
+        // 一致：取平均经纬度，用第一个的城市名
+        return {
+          city: a.city,
+          lat: String(((a.lat + b.lat) / 2).toFixed(4)),
+          lon: String(((a.lon + b.lon) / 2).toFixed(4)),
+        };
+      }
+      // 不一致：用精度最高且有坐标的那个
+    }
+
+    const best = high[0] ?? valid[0];
+    return { city: best.city, lat: String(best.lat || ""), lon: String(best.lon || "") };
+  }
+
   async function fetchLocalWeather(): Promise<any | null> {
-    // 1. 先拿 IP 定位
-    let city = "", lat = "", lon = "";
-    try {
-      const geo = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) });
-      const g = await geo.json();
-      if (g.city) { city = g.city; lat = String(g.latitude); lon = String(g.longitude); }
-    } catch { /* 降级 */ }
+    // 1. 多源并行定位
+    const loc = await resolveLocation();
+    const city = loc?.city ?? "";
+    const lat  = loc?.lat  ?? "";
+    const lon  = loc?.lon  ?? "";
 
     // 2. 三源并行
     const [wttr, meteo, timer7] = await Promise.allSettled([
