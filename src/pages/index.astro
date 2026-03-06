@@ -514,6 +514,7 @@ import Base from "../layouts/Base.astro";
       : "";
     const sections = d.sections ?? [];
     const totalItems = sections.reduce((n, s) => n + (s.items?.length ?? 0), 0);
+    const globalFavedSet = getFaves(); // 整个 renderV2 只读一次 localStorage
 
     const navHtml = sections
       .map(s => {
@@ -528,7 +529,7 @@ import Base from "../layouts/Base.astro";
       const isWide = WIDE_SECTIONS.has(s.id);
       const defCollapsed = isWide ? "" : "card-body--collapsed";
       const items = s.items ?? [];
-      const favedSet = getFaves(); // Fix #6: 每板块读一次，不是每张卡
+      const favedSet = globalFavedSet;
       let cardsHtml: string;
       if (isWide && items.length > 0) {
         const hero = heroCardHtml(items[0], favedSet);
@@ -1067,16 +1068,6 @@ import Base from "../layouts/Base.astro";
       toggleBtn.textContent = willCollapse ? "▾" : "▴";
       toggleBtn.classList.toggle("section-toggle--collapsed", willCollapse);
     }
-
-    // 摘要折叠
-    const sumBtn = t.closest(".summary-toggle") as HTMLElement | null;
-    if (sumBtn) {
-      e.stopPropagation();
-      const summary = document.getElementById("digestSummary");
-      if (!summary) return;
-      const collapsed = summary.classList.toggle("digest-summary--collapsed");
-      sumBtn.textContent = collapsed ? "展开 ▾" : "收起 ▴";
-    }
   });
 
   // ── 搜索 ──
@@ -1094,7 +1085,8 @@ import Base from "../layouts/Base.astro";
     const q = searchInput.value.trim();
     if (!q) {
       const current = location.hash.replace("#", "") || dates[0];
-      if (current) showDate(current);
+      if (current && dates.includes(current)) showDate(current);
+      else if (current === "__faves__") renderFavesPage();
       return;
     }
     searchTimer = setTimeout(() => renderSearchResults(q), 300);
@@ -1206,11 +1198,15 @@ import Base from "../layouts/Base.astro";
   function hideDateTooltip() {
     tooltipEl?.classList.remove("date-tooltip--show");
   }
-  document.getElementById("sidebar")?.addEventListener("mouseover", e => {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>(".date-btn");
-    if (btn?.dataset.date) showDateTooltip(btn, btn.dataset.date);
-  });
-  document.getElementById("sidebar")?.addEventListener("mouseout", () => hideDateTooltip());
+  // tooltip 只在有精确指针的设备上生效（排除触摸屏）
+  const hasPointer = window.matchMedia("(pointer: fine)").matches;
+  if (hasPointer) {
+    document.getElementById("sidebar")?.addEventListener("mouseover", e => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>(".date-btn");
+      if (btn?.dataset.date) showDateTooltip(btn, btn.dataset.date);
+    });
+    document.getElementById("sidebar")?.addEventListener("mouseout", () => hideDateTooltip());
+  }
 
   // ── AI 动态推荐问题（基于热词） ──
   function renderAiSuggestions(hotWords: Array<{word: string}>) {
