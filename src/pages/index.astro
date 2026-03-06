@@ -882,7 +882,7 @@ import Base from "../layouts/Base.astro";
 
     try {
       const syms = SYMBOLS.map(s => s.sym).join(",");
-      const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
+      const url = `https://xiaoxin-ai-proxy.moke521-wang.workers.dev/quote?symbols=${encodeURIComponent(syms)}`;
       const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!r.ok) throw 0;
       const data = await r.json();
