@@ -47,6 +47,7 @@ jobs:
           git config user.email "bot@xiaoxin"
           git add public/data/ README.md || true
           git diff --cached --quiet || git commit -m "daily: $(date +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
 
   deploy:
