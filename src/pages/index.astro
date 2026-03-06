@@ -539,20 +539,57 @@ import Base from "../layouts/Base.astro";
     if (d && dates.includes(d)) showDate(d);
   });
 
-  // ── 主题切换 ──
+  // ── 主题切换（View Transitions 圆形扩散） ──
   const themeBtn = document.getElementById("themeToggle")!;
-  function applyTheme(light: boolean) {
+
+  function applyTheme(light: boolean, originX?: number, originY?: number) {
     const html = document.documentElement;
-    // 过渡动画
-    html.style.transition = "background 0.3s, color 0.3s";
-    html.setAttribute("data-theme", light ? "light" : "dark");
-    themeBtn.textContent = light ? "☀️" : "🌙";
-    localStorage.setItem("theme", light ? "light" : "dark");
-    setTimeout(() => { html.style.transition = ""; }, 350);
+    const isLight = light;
+
+    const doSwitch = () => {
+      html.setAttribute("data-theme", isLight ? "light" : "dark");
+      themeBtn.textContent = isLight ? "☀️" : "🌙";
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+    };
+
+    // View Transitions API 支持
+    if (
+      typeof document.startViewTransition === "function" &&
+      originX !== undefined && originY !== undefined &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      // 计算从点击位置扩散到最远角的半径
+      const maxR = Math.hypot(
+        Math.max(originX, window.innerWidth - originX),
+        Math.max(originY, window.innerHeight - originY)
+      );
+      document.documentElement.style.setProperty("--theme-x", `${originX}px`);
+      document.documentElement.style.setProperty("--theme-y", `${originY}px`);
+      document.documentElement.style.setProperty("--theme-r", `${maxR}px`);
+
+      const transition = document.startViewTransition(doSwitch);
+      transition.ready.then(() => {
+        const clipFrom = `circle(0px at ${originX}px ${originY}px)`;
+        const clipTo   = `circle(${maxR}px at ${originX}px ${originY}px)`;
+        document.documentElement.animate(
+          { clipPath: [clipFrom, clipTo] },
+          { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
+        );
+      });
+    } else {
+      // 降级：直接切换
+      html.style.transition = "background 0.3s, color 0.3s";
+      doSwitch();
+      setTimeout(() => { html.style.transition = ""; }, 350);
+    }
   }
+
   applyTheme(document.documentElement.getAttribute("data-theme") === "light");
-  themeBtn.addEventListener("click", () => {
-    applyTheme(document.documentElement.getAttribute("data-theme") !== "light");
+  themeBtn.addEventListener("click", (e) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    applyTheme(document.documentElement.getAttribute("data-theme") !== "light", cx, cy);
   });
 
   // ── 回到顶部 ──
@@ -675,6 +712,14 @@ import Base from "../layouts/Base.astro";
   *, *::before, *::after {
     transition: background-color 0.3s, border-color 0.3s, color 0.3s;
   }
+  /* View Transitions：禁用默认淡入淡出，用圆形扩散 */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  ::view-transition-old(root) { z-index: 1; }
+  ::view-transition-new(root) { z-index: 9999; }
   /* 但动画和变换不受影响 */
   .back-top, .main--fadein, .skeleton, .search-clear,
   .card-expand, .section-toggle, .sec-nav-btn, .date-btn {
