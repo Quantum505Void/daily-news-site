@@ -759,30 +759,50 @@ import Base from "../layouts/Base.astro";
   }
 
   // ── 天气（客户端按 IP 自动定位 + 服务端多城市兜底） ──
+  // 英文城市名 → 中文映射（常用城市）
+  const CITY_EN2ZH: Record<string, string> = {
+    Beijing: "北京", Shanghai: "上海", Guangzhou: "广州", Shenzhen: "深圳",
+    Chengdu: "成都", Hangzhou: "杭州", Nanjing: "南京", Wuhan: "武汉",
+    Chongqing: "重庆", Xi: "西安", "Xi'an": "西安", Xian: "西安",
+    Tianjin: "天津", Suzhou: "苏州", Zhengzhou: "郑州", Changsha: "长沙",
+    Qingdao: "青岛", Dongguan: "东莞", Shenyang: "沈阳", Ningbo: "宁波",
+    Kunming: "昆明", Hefei: "合肥", Fuzhou: "福州", Xiamen: "厦门",
+    Harbin: "哈尔滨", Jinan: "济南", Nanchang: "南昌", Guiyang: "贵阳",
+    Taiyuan: "太原", Nanning: "南宁", Urumqi: "乌鲁木齐", Lhasa: "拉萨",
+    Mianyang: "绵阳", Lanzhou: "兰州", Changchun: "长春", Dalian: "大连",
+    Zhuhai: "珠海", Foshan: "佛山", Wenzhou: "温州", Shijiazhuang: "石家庄",
+    // 国际
+    "Hong Kong": "香港", Macau: "澳门", Taipei: "台北",
+    Tokyo: "东京", Osaka: "大阪", Seoul: "首尔", Singapore: "新加坡",
+    "New York": "纽约", "Los Angeles": "洛杉矶", London: "伦敦",
+    Paris: "巴黎", Sydney: "悉尼", Dubai: "迪拜", Moscow: "莫斯科",
+  };
+  function toChinese(city: string): string {
+    return CITY_EN2ZH[city] ?? CITY_EN2ZH[city.split(" ")[0]] ?? city;
+  }
+
   async function fetchLocalWeather(): Promise<any | null> {
     try {
-      // 先用 ip-api.com 拿中文城市名 + 经纬度
+      // ipapi.co — 免费 HTTPS，支持 CORS
       let cityZh = "", lat = "", lon = "";
       try {
-        const geo = await fetch("http://ip-api.com/json/?lang=zh-CN&fields=city,regionName,lat,lon,status", {
-          signal: AbortSignal.timeout(4000)
-        });
+        const geo = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) });
         const g = await geo.json();
-        if (g.status === "success") {
-          cityZh = g.city || g.regionName || "";
-          lat = g.lat; lon = g.lon;
+        if (g.city) {
+          cityZh = toChinese(g.city);
+          lat = g.latitude; lon = g.longitude;
         }
       } catch { /* 降级 */ }
 
-      // 用经纬度查 wttr.in，无经纬度则自动 IP 定位
       const query = lat && lon ? `${lat},${lon}` : "";
       const r = await fetch(`https://wttr.in/${query}?format=j1`, { signal: AbortSignal.timeout(6000) });
       if (!r.ok) return null;
       const data = await r.json();
       const cur = data.current_condition?.[0];
       const area = data.nearest_area?.[0];
-      // 优先用 ip-api 拿到的中文名，否则用 wttr 返回的英文名
-      const cityName = cityZh || area?.areaName?.[0]?.value || area?.region?.[0]?.value || "";
+      const rawCity = area?.areaName?.[0]?.value || area?.region?.[0]?.value || "";
+      // 优先用 ipapi.co 的中文名，否则尝试翻译 wttr 英文名
+      const cityName = cityZh || toChinese(rawCity);
       const forecasts = (data.weather ?? []).slice(0, 3).map((d: any) => ({
         date: d.date, min_c: d.mintempC, max_c: d.maxtempC,
         desc: d.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
@@ -817,10 +837,6 @@ import Base from "../layouts/Base.astro";
     card.querySelector<HTMLElement>("#weatherForecast")!.innerHTML = fc;
   }
 
-  const CITY_CN: Record<string, string> = {
-    Beijing: "北京", Chengdu: "成都", Shanghai: "上海",
-    Guangzhou: "广州", Shenzhen: "深圳",
-  };
   function weatherEmoji(desc: string): string {
     if (!desc) return "🌤️";
     if (/Sun|Clear/i.test(desc)) return "☀️";
@@ -841,7 +857,7 @@ import Base from "../layouts/Base.astro";
       // 只取第一个城市（北京）作为降级显示
       const w = weatherArr.find(x => !x.error) ?? weatherArr[0];
       const emoji = weatherEmoji(w?.desc ?? "");
-      const cn = CITY_CN[w?.city ?? ""] ?? w?.city ?? "";
+      const cn = toChinese(w?.city ?? "");
       const fc = (w?.forecasts ?? []).slice(0, 3).map((f: any) =>
         `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
       ).join("");
