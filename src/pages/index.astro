@@ -622,6 +622,8 @@ import Base from "../layouts/Base.astro";
       requestAnimationFrame(() => { main.classList.add("main--fadein"); });
       window.scrollTo({ top: 0, behavior: "instant" });
       initSectionObserver();
+      // 客户端按 IP 注入本地天气（异步，不阻塞渲染）
+      injectLocalWeather();
       // 预备 AI 推荐问题（当 AI 面板打开时使用）
       if (d.hot_words?.length) {
         (window as any).__hotWords = d.hot_words;
@@ -682,7 +684,57 @@ import Base from "../layouts/Base.astro";
     }
   }, { passive: true });
 
-  // ── 天气 + 黄历 ──
+  // ── 天气（客户端按 IP 自动定位 + 服务端多城市兜底） ──
+  async function fetchLocalWeather(): Promise<any | null> {
+    try {
+      // wttr.in 不传城市 → 自动按访客 IP 定位
+      const r = await fetch("https://wttr.in/?format=j1", { signal: AbortSignal.timeout(6000) });
+      if (!r.ok) return null;
+      const data = await r.json();
+      const cur = data.current_condition?.[0];
+      const area = data.nearest_area?.[0];
+      const cityName = area?.areaName?.[0]?.value ?? area?.region?.[0]?.value ?? "";
+      const forecasts = (data.weather ?? []).slice(0, 3).map((d: any) => ({
+        date: d.date, min_c: d.mintempC, max_c: d.maxtempC,
+        desc: d.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
+      }));
+      return {
+        city: cityName,
+        temp_c: cur?.temp_C ?? "",
+        desc: cur?.weatherDesc?.[0]?.value ?? "",
+        humidity: cur?.humidity ?? "",
+        wind_kmph: cur?.windspeedKmph ?? "",
+        forecasts,
+        _local: true,
+      };
+    } catch { return null; }
+  }
+
+  async function injectLocalWeather() {
+    const block = document.querySelector<HTMLElement>(".weather-block");
+    if (!block) return;
+    const local = await fetchLocalWeather();
+    if (!local || !local.city) return;
+    // 在卡片列表最前面插入"我的位置"卡
+    const cards = block.querySelector(".weather-cards");
+    if (!cards) return;
+    const emoji = weatherEmoji(local.desc);
+    const fc = (local.forecasts ?? []).slice(0, 3).map((f: any) =>
+      `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
+    ).join("");
+    const el = document.createElement("div");
+    el.className = "weather-card weather-card--local";
+    el.innerHTML = `
+      <div class="weather-card-top">
+        <span class="weather-icon">${emoji}</span>
+        <span class="weather-city-name">📍 ${local.city}</span>
+        <span class="weather-temp">${local.temp_c}°C</span>
+      </div>
+      <div class="weather-desc">${local.desc}</div>
+      ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}`;
+    cards.prepend(el);
+  }
+
   const CITY_CN: Record<string, string> = {
     Beijing: "北京", Chengdu: "成都", Shanghai: "上海",
     Guangzhou: "广州", Shenzhen: "深圳",
@@ -1850,7 +1902,10 @@ import Base from "../layouts/Base.astro";
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
   }
-  .almanac-date { font-weight: 600; color: var(--heading); }
+  .weather-card--local {
+    border: 1px solid var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--bg2));
+  }
   .almanac-color { font-size: 12px; color: var(--text2); }
   .almanac-tags { width: 100%; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
   .almanac-yi { font-size: 11px; background: rgba(34,197,94,0.12); color: #22c55e; border-radius: 6px; padding: 2px 7px; }
