@@ -733,6 +733,10 @@ import Base from "../layouts/Base.astro";
       <div class="weather-desc">${local.desc}</div>
       ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}`;
     cards.prepend(el);
+    // 本地卡插入后，其他卡都变成 extra，更新按钮计数
+    const extras = cards.querySelectorAll(".weather-card--extra").length;
+    const btn = document.getElementById("weatherMoreBtn");
+    if (btn) btn.textContent = `+${extras} 个城市 ▾`;
   }
 
   const CITY_CN: Record<string, string> = {
@@ -756,13 +760,13 @@ import Base from "../layouts/Base.astro";
     const parts: string[] = [];
 
     if (weatherArr.length) {
-      const cards = weatherArr.filter(w => !w.error).map(w => {
+      const cards = weatherArr.filter(w => !w.error).map((w, i) => {
         const emoji = weatherEmoji(w.desc ?? "");
         const cn = CITY_CN[w.city] ?? w.city;
         const fc = (w.forecasts ?? []).slice(0, 3).map((f: any) =>
           `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
         ).join("");
-        return `<div class="weather-card">
+        return `<div class="weather-card${i > 0 ? " weather-card--extra" : ""}" style="${i > 0 ? "display:none" : ""}">
           <div class="weather-card-top">
             <span class="weather-icon">${emoji}</span>
             <span class="weather-city-name">${cn}</span>
@@ -772,7 +776,11 @@ import Base from "../layouts/Base.astro";
           ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}
         </div>`;
       }).join("");
-      parts.push(`<div class="weather-block"><div class="weather-cards">${cards}</div></div>`);
+      const moreCount = weatherArr.filter(w => !w.error).length - 1;
+      const moreBtn = moreCount > 0
+        ? `<button class="weather-more-btn" id="weatherMoreBtn">+${moreCount} 个城市 ▾</button>`
+        : "";
+      parts.push(`<div class="weather-block"><div class="weather-cards">${cards}</div>${moreBtn}</div>`);
     }
 
     if (a?.lunar_date) {
@@ -1128,6 +1136,19 @@ import Base from "../layouts/Base.astro";
   // ── 事件委托：展开/折叠卡片 + 折叠板块 + 收藏 + 热词云 ──
   document.getElementById("main")!.addEventListener("click", (e) => {
     const t = e.target as HTMLElement;
+
+    // 天气展开更多城市
+    const weatherBtn = t.closest("#weatherMoreBtn") as HTMLElement | null;
+    if (weatherBtn) {
+      const block = weatherBtn.closest(".weather-block");
+      const extras = block?.querySelectorAll<HTMLElement>(".weather-card--extra");
+      const open = weatherBtn.dataset.open === "1";
+      extras?.forEach(c => { c.style.display = open ? "none" : ""; });
+      weatherBtn.dataset.open = open ? "" : "1";
+      const count = extras?.length ?? 0;
+      weatherBtn.textContent = open ? `+${count} 个城市 ▾` : `收起 ▴`;
+      return;
+    }
 
     // 收藏按钮
     const faveBtn = t.closest(".fave-btn") as HTMLElement | null;
@@ -1938,6 +1959,14 @@ import Base from "../layouts/Base.astro";
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
   }
+  .weather-more-btn {
+    margin-top: 8px; width: 100%;
+    background: none; border: 1px dashed var(--border);
+    border-radius: 8px; padding: 4px 10px;
+    font-size: 11px; color: var(--text3); cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .weather-more-btn:hover { color: var(--accent); border-color: var(--accent); }
   .weather-card--local {
     border: 1px solid var(--accent);
     background: color-mix(in srgb, var(--accent) 8%, var(--bg2));
