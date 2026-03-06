@@ -209,6 +209,58 @@ import Base from "../layouts/Base.astro";
 
   const WIDE_SECTIONS = new Set(["highlight"]);
 
+  // ── 收藏夹（localStorage） ──
+  const FAVE_KEY = "xiaoxin_faves";
+  function getFaves(): Set<string> {
+    try { return new Set(JSON.parse(localStorage.getItem(FAVE_KEY) ?? "[]")); }
+    catch { return new Set(); }
+  }
+  function saveFaves(s: Set<string>) {
+    localStorage.setItem(FAVE_KEY, JSON.stringify([...s]));
+  }
+  function toggleFave(url: string): boolean {
+    const s = getFaves(); const had = s.has(url);
+    had ? s.delete(url) : s.add(url); saveFaves(s); return !had;
+  }
+  function isFaved(url: string): boolean { return getFaves().has(url); }
+
+  // 渲染收藏页
+  function renderFavesPage() {
+    const faves = getFaves();
+    const main = document.getElementById("main")!;
+    if (!faves.size) {
+      main.innerHTML = `<div class="state-msg"><div class="icon">⭐</div><p>还没有收藏，点击卡片右下角 ☆ 收藏</p></div>`;
+      return;
+    }
+    // 从 cache 里找收藏的条目
+    const items: Array<{ title: string; body: string; url: string; tag: string; secTitle: string; date: string }> = [];
+    for (const [date, d] of Object.entries(cache)) {
+      for (const sec of d.sections ?? []) {
+        for (const item of sec.items ?? []) {
+          if (item.url && faves.has(item.url)) {
+            items.push({ ...item, secTitle: sec.title, date });
+          }
+        }
+      }
+    }
+    if (!items.length) {
+      main.innerHTML = `<div class="state-msg"><div class="icon">⭐</div><p>收藏的条目已不在缓存中，请先加载对应日期</p></div>`;
+      return;
+    }
+    const html = items.map(item => {
+      const domain = (() => { try { return item.url ? new URL(item.url).hostname.replace(/^www\./,"") : ""; } catch { return ""; } })();
+      const src = domain ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>` : "";
+      return `<article class="card" data-url="${item.url}" style="cursor:pointer">
+        <div class="card-meta">${item.date} · ${item.secTitle}</div>
+        <div class="card-title"><span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
+        <div class="card-body-wrap"><p class="card-body">${item.body}</p></div>
+        <div class="card-footer">${src}<button class="fave-btn faved" data-url="${item.url}" title="取消收藏">★</button></div>
+      </article>`;
+    }).join("");
+    main.innerHTML = `<div class="faves-header">⭐ 已收藏 ${items.length} 条</div><div class="cards cards--grid">${html}</div>`;
+    main.classList.add("main--fadein");
+  }
+
   let dates: string[] = [];
   let cache: Record<string, Digest> = {};
 
@@ -321,10 +373,12 @@ import Base from "../layouts/Base.astro";
 
   function renderSidebar(selected: string) {
     const nav = document.getElementById("sidebar")!;
-    const backToday = selected !== dates[0]
+    const faveCount = getFaves().size;
+    const faveBtn = `<button class="fave-entry-btn${selected === "__faves__" ? " active" : ""}" id="faveEntryBtn">⭐ 收藏${faveCount ? `<span class="fave-count">${faveCount}</span>` : ""}</button>`;
+    const backToday = selected !== dates[0] && selected !== "__faves__"
       ? `<button class="back-today-btn" data-date="${dates[0]}">⬆ 今日</button>`
       : "";
-    nav.innerHTML = '<span class="sidebar-label">历史</span>' + backToday +
+    nav.innerHTML = '<span class="sidebar-label">历史</span>' + faveBtn + backToday +
       dates.slice(0, 30).map((d, i) => {
         const active = d === selected ? "active" : "";
         const label = i === 0 ? `今天` : `${d.slice(5).replace("-","月")}日`;
@@ -340,6 +394,11 @@ import Base from "../layouts/Base.astro";
         showDate((btn as HTMLElement).dataset.date!);
       })
     );
+    document.getElementById("faveEntryBtn")?.addEventListener("click", () => {
+      renderSidebar("__faves__");
+      renderFavesPage();
+      location.hash = "__faves__";
+    });
   }
 
   function cardHtml(item: any, isJob: boolean, idx: number, defCollapsed = "card-body--collapsed"): string {
@@ -357,12 +416,28 @@ import Base from "../layouts/Base.astro";
     const expandBtn = defCollapsed
       ? `<button class="card-expand">展开 ▾</button>`
       : ``;
+    const faveHtml = item.url
+      ? `<button class="fave-btn${isFaved(item.url) ? " faved" : ""}" data-url="${item.url}" title="${isFaved(item.url) ? "取消收藏" : "收藏"}">${isFaved(item.url) ? "★" : "☆"}</button>`
+      : "";
     const urlAttr = item.url ? `data-url="${item.url}"` : "";
     const cursorStyle = item.url ? `style="cursor:pointer"` : "";
     return `<article class="card${extraClass}" ${urlAttr} ${cursorStyle}>
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed" : ""}"><p class="card-body">${item.body}</p></div>
-      <div class="card-footer">${sourceHtml}${expandBtn}</div>
+      <div class="card-footer">${sourceHtml}${expandBtn}${faveHtml}</div>
+    </article>`;
+  }
+
+  // 今日看点英雄卡（第一条）
+  function heroCardHtml(item: any): string {
+    const domain = (() => { try { return item.url ? new URL(item.url).hostname.replace(/^www\./,"") : ""; } catch { return ""; } })();
+    const src = domain ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>` : "";
+    const faveHtml = item.url ? `<button class="fave-btn${isFaved(item.url) ? " faved" : ""}" data-url="${item.url}" title="${isFaved(item.url) ? "取消收藏" : "收藏"}">${isFaved(item.url) ? "★" : "☆"}</button>` : "";
+    return `<article class="hero-card${item.tag === "突发" ? " card--breaking" : ""}" data-url="${item.url ?? ""}" ${item.url ? 'style="cursor:pointer"' : ""}>
+      <div class="hero-tag-row">${tagHtml(item.tag)}<span class="hero-label">头条</span></div>
+      <h2 class="hero-title">${item.title}</h2>
+      <p class="hero-body">${item.body}</p>
+      <div class="hero-footer">${src}${faveHtml}</div>
     </article>`;
   }
 
@@ -392,17 +467,28 @@ import Base from "../layouts/Base.astro";
       const isJob  = s.id === "jobs_hot";
       const isWide = WIDE_SECTIONS.has(s.id);
       const defCollapsed = isWide ? "" : "card-body--collapsed";
-      const cards  = (s.items ?? []).map((item, idx) => cardHtml(item, isJob, idx, defCollapsed)).join("");
-      const gridClass = isWide ? "cards cards--wide" : "cards cards--grid";
+      const items = s.items ?? [];
+      let cardsHtml: string;
+      if (isWide && items.length > 0) {
+        // 今日看点：第一条英雄卡 + 其余普通卡
+        const hero = heroCardHtml(items[0]);
+        const rest = items.slice(1).map((item, idx) => cardHtml(item, false, idx + 1, "")).join("");
+        cardsHtml = `${hero}<div class="cards cards--grid">${rest}</div>`;
+      } else {
+        cardsHtml = `<div class="${isWide ? "cards cards--wide" : "cards cards--grid"}">${items.map((item, idx) => cardHtml(item, isJob, idx, defCollapsed)).join("")}</div>`;
+      }
       return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}">
         <div class="section-heading" style="--sec-color:${s.color}">
           <span class="section-icon">${s.icon}</span>
           <h2 class="section-title">${s.title}</h2>
           <button class="section-toggle" aria-label="折叠板块">▴</button>
         </div>
-        <div class="${gridClass}">${cards}</div>
+        ${cardsHtml}
       </section>`;
     }).join("");
+
+    // 热词云
+    const wordCloud = buildWordCloud(sections);
 
     return `
       <div class="digest-header">
@@ -417,6 +503,7 @@ import Base from "../layouts/Base.astro";
           <span data-countup="${totalItems}" class="stats-num">${totalItems}</span> 条资讯
           ${genTime ? `<span class="stats-sep">·</span><span>更新于 ${genTime}</span>` : ""}
         </div>
+        ${wordCloud}
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
       ${sectionsHtml}`;
@@ -495,6 +582,35 @@ import Base from "../layouts/Base.astro";
       const last = sections[sections.length - 1];
       if (last) setActive(last.id.replace("sec-", ""));
     }, { passive: true });
+  }
+
+  // ── 热词云 ──
+  const STOP_WORDS = new Set("的了在是我有和就不都而及与这的到以在于并其为了之中由从等该对中国美国日本欧洲全球市场公司企业发展相关表示称已将通过".split(""));
+  function buildWordCloud(sections: any[]): string {
+    const freq: Record<string, number> = {};
+    for (const s of sections) {
+      for (const item of s.items ?? []) {
+        const text = (item.title ?? "") + (item.body ?? "");
+        // 提取2-5字中文词组
+        const matches = text.match(/[\u4e00-\u9fa5]{2,5}/g) ?? [];
+        for (const w of matches) {
+          if ([...w].some(c => STOP_WORDS.has(c))) continue;
+          freq[w] = (freq[w] ?? 0) + 1;
+        }
+      }
+    }
+    const sorted = Object.entries(freq)
+      .filter(([, c]) => c >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 24);
+    if (!sorted.length) return "";
+    const max = sorted[0][1];
+    const words = sorted.map(([w, c]) => {
+      const size = Math.round(11 + (c / max) * 10);
+      const opacity = 0.5 + (c / max) * 0.5;
+      return `<button class="wc-word" style="font-size:${size}px;opacity:${opacity}" data-q="${w}">${w}</button>`;
+    }).join("");
+    return `<div class="word-cloud"><span class="wc-label">热词</span>${words}</div>`;
   }
 
   // ── countUp 动画 ──
@@ -599,12 +715,45 @@ import Base from "../layouts/Base.astro";
   }, { passive: true });
   backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-  // ── 事件委托：展开/折叠卡片 + 折叠板块 ──
+  // ── 事件委托：展开/折叠卡片 + 折叠板块 + 收藏 + 热词云 ──
   document.getElementById("main")!.addEventListener("click", (e) => {
     const t = e.target as HTMLElement;
 
+    // 收藏按钮
+    const faveBtn = t.closest(".fave-btn") as HTMLElement | null;
+    if (faveBtn) {
+      e.stopPropagation();
+      const url = faveBtn.dataset.url!;
+      const now = toggleFave(url);
+      faveBtn.textContent = now ? "★" : "☆";
+      faveBtn.classList.toggle("faved", now);
+      faveBtn.title = now ? "取消收藏" : "收藏";
+      const faveEntry = document.getElementById("faveEntryBtn");
+      if (faveEntry) {
+        const fc = getFaves().size;
+        const old = faveEntry.querySelector(".fave-count");
+        if (fc) {
+          if (old) old.textContent = String(fc);
+          else faveEntry.insertAdjacentHTML("beforeend", `<span class="fave-count">${fc}</span>`);
+        } else { old?.remove(); }
+      }
+      showToast(now ? "⭐ 已收藏" : "取消收藏");
+      return;
+    }
+
+    // 热词云点击 → 触发搜索
+    const wcWord = t.closest(".wc-word") as HTMLElement | null;
+    if (wcWord) {
+      const q = wcWord.dataset.q!;
+      const sinput = document.getElementById("searchInput") as HTMLInputElement;
+      sinput.value = q;
+      sinput.dispatchEvent(new Event("input"));
+      sinput.focus();
+      return;
+    }
+
     // 卡片整行跳转（data-url）
-    const cardEl = t.closest(".card[data-url]") as HTMLElement | null;
+    const cardEl = t.closest(".card[data-url],.hero-card[data-url]") as HTMLElement | null;
     if (cardEl && !(t.closest("a,button"))) {
       window.open(cardEl.dataset.url, "_blank", "noopener");
       return;
@@ -686,6 +835,41 @@ import Base from "../layouts/Base.astro";
       searchInput.focus();
       searchInput.select();
       if (searchKbd) searchKbd.style.display = "none";
+    }
+  });
+
+  // ── 键盘导航 j/k/o/b ──
+  let focusedCardIdx = -1;
+  function getCards(): HTMLElement[] {
+    return Array.from(document.querySelectorAll<HTMLElement>(".card, .hero-card"));
+  }
+  function focusCard(idx: number) {
+    const cards = getCards();
+    if (!cards.length) return;
+    focusedCardIdx = Math.max(0, Math.min(idx, cards.length - 1));
+    cards.forEach((c, i) => c.classList.toggle("card--focused", i === focusedCardIdx));
+    cards[focusedCardIdx].scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  document.addEventListener("keydown", e => {
+    const tag = (document.activeElement as HTMLElement)?.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA") return;
+    const cards = getCards();
+    if (e.key === "j") { e.preventDefault(); focusCard(focusedCardIdx < 0 ? 0 : focusedCardIdx + 1); }
+    else if (e.key === "k") { e.preventDefault(); focusCard(focusedCardIdx <= 0 ? 0 : focusedCardIdx - 1); }
+    else if (e.key === "o" && focusedCardIdx >= 0) {
+      const url = cards[focusedCardIdx]?.dataset.url;
+      if (url) window.open(url, "_blank", "noopener");
+    } else if (e.key === "b" && focusedCardIdx >= 0) {
+      const url = cards[focusedCardIdx]?.dataset.url;
+      if (url) {
+        const now = toggleFave(url);
+        // 更新按钮状态
+        const btn = cards[focusedCardIdx].querySelector<HTMLElement>(".fave-btn");
+        if (btn) { btn.textContent = now ? "★" : "☆"; btn.classList.toggle("faved", now); }
+        showToast(now ? "⭐ 已收藏" : "取消收藏");
+      }
+    } else if (e.key === "?") {
+      showToast("⌨️ j/k 上下浏览 · o 打开原文 · b 收藏 · / 搜索", 5000);
     }
   });
 
@@ -910,17 +1094,9 @@ import Base from "../layouts/Base.astro";
   }
 
   /* ── Cards ── */
-  .card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px 16px;
-    transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
-    display: flex; flex-direction: column;
-  }
-  .card:hover {
-    border-color: var(--accent);
-    background: var(--bg3);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  }
+  /* .card 样式已移至文件末尾（含微放大效果） */
+  /* placeholder */
+  ._card_placeholder { display: none; }
   .card--job { border-left: 3px solid #f39c12; }
   .card--breaking { border-left: 3px solid #e74c3c; background: var(--breaking-bg); position: relative; overflow: hidden; }
   .card--breaking:hover { background: var(--breaking-hover); }
@@ -1078,4 +1254,113 @@ import Base from "../layouts/Base.astro";
   }
   #offlineToast.toast--show { opacity: 1; transform: translateX(-50%) translateY(0); }
   [data-theme="light"] #offlineToast { background: #333; }
+
+  /* ── 英雄卡 ── */
+  .hero-card {
+    position: relative; overflow: hidden;
+    background: var(--summary-bg);
+    border: 1px solid var(--summary-border);
+    border-radius: 14px;
+    padding: 22px 24px 18px;
+    margin-bottom: 12px;
+    cursor: default;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+  .hero-card[data-url]:hover {
+    border-color: var(--accent);
+    box-shadow: 0 6px 28px rgba(231,76,60,0.15);
+    transform: translateY(-2px);
+  }
+  .hero-tag-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .hero-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+    color: var(--accent); text-transform: uppercase;
+    background: rgba(231,76,60,0.1); padding: 2px 8px; border-radius: 4px;
+  }
+  .hero-title {
+    font-size: 20px; font-weight: 800; color: var(--heading);
+    line-height: 1.4; margin-bottom: 10px;
+  }
+  .hero-body { font-size: 14px; color: var(--text); line-height: 1.8; margin-bottom: 14px; }
+  .hero-footer { display: flex; align-items: center; justify-content: space-between; }
+  .hero-source {
+    font-size: 12px; color: var(--text3); text-decoration: none;
+    display: flex; align-items: center; gap: 4px; opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+  .hero-source:hover { opacity: 1; color: var(--link); }
+
+  /* ── 收藏按钮 ── */
+  .fave-btn {
+    font-size: 14px; background: none; border: none; cursor: pointer;
+    color: var(--text3); padding: 0 2px; flex-shrink: 0;
+    opacity: 0.5; transition: opacity 0.15s, color 0.15s, transform 0.15s;
+    line-height: 1;
+  }
+  .fave-btn:hover { opacity: 1; transform: scale(1.2); }
+  .fave-btn.faved { color: #f39c12; opacity: 1; }
+  .fave-entry-btn {
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; padding: 8px 10px 8px 12px;
+    border-radius: 8px; background: none; border: none;
+    color: var(--text2); font-size: 13px; text-align: left;
+    cursor: pointer; transition: background 0.15s, color 0.15s;
+    margin-bottom: 4px;
+  }
+  .fave-entry-btn:hover { background: var(--bg3); color: var(--text); }
+  .fave-entry-btn.active { background: rgba(243,156,18,0.12); color: #f39c12; font-weight: 700; }
+  .fave-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 16px; height: 16px; border-radius: 8px;
+    background: #f39c12; color: #fff;
+    font-size: 10px; font-weight: 700; padding: 0 4px; line-height: 1;
+    margin-left: auto;
+  }
+  .faves-header {
+    font-size: 15px; font-weight: 700; color: var(--heading);
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── 热词云 ── */
+  .word-cloud {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+    margin-top: 10px; padding: 10px 14px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .wc-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--text3); text-transform: uppercase;
+    margin-right: 4px; flex-shrink: 0;
+  }
+  .wc-word {
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); font-family: var(--font);
+    padding: 2px 4px; border-radius: 4px;
+    transition: color 0.15s, background 0.15s, transform 0.15s;
+    line-height: 1.4;
+  }
+  .wc-word:hover { color: var(--accent); background: rgba(231,76,60,0.08); transform: scale(1.1); }
+
+  /* ── 卡片微放大 hover ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s;
+    display: flex; flex-direction: column;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    background: var(--bg3);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+
+  /* ── 键盘导航 focused 卡片 ── */
+  .card--focused {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(231,76,60,0.15) !important;
+  }
 </style>
