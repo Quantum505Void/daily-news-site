@@ -50,10 +50,8 @@ import Base from "../layouts/Base.astro";
     </div>
   </footer>
 
-  <button class="back-top" id="backTop" aria-label="回到顶部" title="回到顶部">↑</button>
-
-  <!-- AI 问答浮窗 -->
   <div class="ai-fab-wrap">
+    <button class="back-top" id="backTop" aria-label="回到顶部" title="回到顶部">↑</button>
     <button class="ai-fab" id="aiFab" title="AI 问答">
       <span class="ai-fab-icon">✦</span>
     </button>
@@ -711,32 +709,21 @@ import Base from "../layouts/Base.astro";
   }
 
   async function injectLocalWeather() {
-    const block = document.querySelector<HTMLElement>(".weather-block");
-    if (!block) return;
     const local = await fetchLocalWeather();
-    if (!local || !local.city) return;
-    // 在卡片列表最前面插入"我的位置"卡
-    const cards = block.querySelector(".weather-cards");
-    if (!cards) return;
-    const emoji = weatherEmoji(local.desc);
+    if (!local?.city) return;
+    // 直接替换主卡内容
+    const emoji = weatherEmoji(local.desc ?? "");
     const fc = (local.forecasts ?? []).slice(0, 3).map((f: any) =>
       `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
     ).join("");
-    const el = document.createElement("div");
-    el.className = "weather-card weather-card--local";
-    el.innerHTML = `
-      <div class="weather-card-top">
-        <span class="weather-icon">${emoji}</span>
-        <span class="weather-city-name">📍 ${local.city}</span>
-        <span class="weather-temp">${local.temp_c}°C</span>
-      </div>
-      <div class="weather-desc">${local.desc}</div>
-      ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}`;
-    cards.prepend(el);
-    // 本地卡插入后，其他卡都变成 extra，更新按钮计数
-    const extras = cards.querySelectorAll(".weather-card--extra").length;
-    const btn = document.getElementById("weatherMoreBtn");
-    if (btn) btn.textContent = `+${extras} 个城市 ▾`;
+    const card = document.getElementById("weatherPrimaryCard");
+    if (!card) return;
+    card.classList.add("weather-card--local");
+    card.querySelector<HTMLElement>(".weather-card-top .weather-icon")!.textContent = emoji;
+    card.querySelector<HTMLElement>("#weatherCityName")!.textContent = `📍 ${local.city}`;
+    card.querySelector<HTMLElement>("#weatherTemp")!.textContent = `${local.temp_c}°C`;
+    card.querySelector<HTMLElement>("#weatherDesc")!.textContent = local.desc ?? "";
+    card.querySelector<HTMLElement>("#weatherForecast")!.innerHTML = fc;
   }
 
   const CITY_CN: Record<string, string> = {
@@ -760,27 +747,26 @@ import Base from "../layouts/Base.astro";
     const parts: string[] = [];
 
     if (weatherArr.length) {
-      const cards = weatherArr.filter(w => !w.error).map((w, i) => {
-        const emoji = weatherEmoji(w.desc ?? "");
-        const cn = CITY_CN[w.city] ?? w.city;
-        const fc = (w.forecasts ?? []).slice(0, 3).map((f: any) =>
-          `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
-        ).join("");
-        return `<div class="weather-card${i > 0 ? " weather-card--extra" : ""}" style="${i > 0 ? "display:none" : ""}">
-          <div class="weather-card-top">
-            <span class="weather-icon">${emoji}</span>
-            <span class="weather-city-name">${cn}</span>
-            <span class="weather-temp">${w.temp_c}°C</span>
+      // 只取第一个城市（北京）作为降级显示
+      const w = weatherArr.find(x => !x.error) ?? weatherArr[0];
+      const emoji = weatherEmoji(w?.desc ?? "");
+      const cn = CITY_CN[w?.city ?? ""] ?? w?.city ?? "";
+      const fc = (w?.forecasts ?? []).slice(0, 3).map((f: any) =>
+        `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
+      ).join("");
+      parts.push(`<div class="weather-block" id="weatherBlock">
+        <div class="weather-cards">
+          <div class="weather-card" id="weatherPrimaryCard">
+            <div class="weather-card-top">
+              <span class="weather-icon">${emoji}</span>
+              <span class="weather-city-name" id="weatherCityName">${cn}</span>
+              <span class="weather-temp" id="weatherTemp">${w?.temp_c ?? ""}°C</span>
+            </div>
+            <div class="weather-desc" id="weatherDesc">${w?.desc ?? ""}</div>
+            <div class="weather-forecast" id="weatherForecast">${fc}</div>
           </div>
-          <div class="weather-desc">${w.desc ?? ""}</div>
-          ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}
-        </div>`;
-      }).join("");
-      const moreCount = weatherArr.filter(w => !w.error).length - 1;
-      const moreBtn = moreCount > 0
-        ? `<button class="weather-more-btn" id="weatherMoreBtn">+${moreCount} 个城市 ▾</button>`
-        : "";
-      parts.push(`<div class="weather-block"><div class="weather-cards">${cards}</div>${moreBtn}</div>`);
+        </div>
+      </div>`);
     }
 
     if (a?.lunar_date) {
@@ -1136,19 +1122,6 @@ import Base from "../layouts/Base.astro";
   // ── 事件委托：展开/折叠卡片 + 折叠板块 + 收藏 + 热词云 ──
   document.getElementById("main")!.addEventListener("click", (e) => {
     const t = e.target as HTMLElement;
-
-    // 天气展开更多城市
-    const weatherBtn = t.closest("#weatherMoreBtn") as HTMLElement | null;
-    if (weatherBtn) {
-      const block = weatherBtn.closest(".weather-block");
-      const extras = block?.querySelectorAll<HTMLElement>(".weather-card--extra");
-      const open = weatherBtn.dataset.open === "1";
-      extras?.forEach(c => { c.style.display = open ? "none" : ""; });
-      weatherBtn.dataset.open = open ? "" : "1";
-      const count = extras?.length ?? 0;
-      weatherBtn.textContent = open ? `+${count} 个城市 ▾` : `收起 ▴`;
-      return;
-    }
 
     // 收藏按钮
     const faveBtn = t.closest(".fave-btn") as HTMLElement | null;
@@ -1819,17 +1792,16 @@ import Base from "../layouts/Base.astro";
 
   /* ── Back to top ── */
   .back-top {
-    position: fixed; bottom: 28px; right: 82px;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: var(--accent); color: #fff;
-    font-size: 18px; font-weight: 700; border: none; cursor: pointer;
-    opacity: 0; transform: translateY(12px) scale(0.9);
-    transition: opacity 0.25s, transform 0.25s;
-    z-index: 300; display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 16px rgba(231,76,60,0.4); line-height: 1;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--bg3); border: 1px solid var(--border); cursor: pointer;
+    font-size: 18px; font-weight: 700; color: var(--text2); line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: scale(0.8);
+    transition: opacity 0.25s, transform 0.25s, background 0.15s;
+    pointer-events: none;
   }
-  .back-top.visible { opacity: 1; transform: translateY(0) scale(1); }
-  .back-top:hover { background: #c0392b; transform: translateY(-2px) scale(1.08); box-shadow: 0 6px 20px rgba(231,76,60,0.5); }
+  .back-top.visible { opacity: 1; transform: scale(1); pointer-events: auto; }
+  .back-top:hover { background: var(--bg4); color: var(--accent); }
 
   /* ── Search ── */
   .search-result-header {
@@ -1959,14 +1931,6 @@ import Base from "../layouts/Base.astro";
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
   }
-  .weather-more-btn {
-    margin-top: 8px; width: 100%;
-    background: none; border: 1px dashed var(--border);
-    border-radius: 8px; padding: 4px 10px;
-    font-size: 11px; color: var(--text3); cursor: pointer;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .weather-more-btn:hover { color: var(--accent); border-color: var(--accent); }
   .weather-card--local {
     border: 1px solid var(--accent);
     background: color-mix(in srgb, var(--accent) 8%, var(--bg2));
@@ -2257,7 +2221,6 @@ import Base from "../layouts/Base.astro";
     .page-footer { margin-bottom: 56px; }
     /* 移动端 FAB 上移 */
     .ai-fab-wrap { bottom: 70px !important; }
-    .back-top { bottom: 70px !important; right: 74px !important; }
   }
   .mob-nav-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center;
