@@ -683,32 +683,47 @@ import Base from "../layouts/Base.astro";
   }, { passive: true });
 
   // ── 天气 + 黄历 ──
+  const CITY_CN: Record<string, string> = {
+    Beijing: "北京", Chengdu: "成都", Shanghai: "上海",
+    Guangzhou: "广州", Shenzhen: "深圳",
+  };
+  function weatherEmoji(desc: string): string {
+    if (!desc) return "🌤️";
+    if (/Sun|Clear/i.test(desc)) return "☀️";
+    if (/Cloud/i.test(desc)) return "⛅";
+    if (/Rain/i.test(desc)) return "🌧️";
+    if (/Snow/i.test(desc)) return "❄️";
+    if (/Thunder/i.test(desc)) return "⛈️";
+    if (/Fog|Mist/i.test(desc)) return "🌫️";
+    return "🌤️";
+  }
   function renderWeatherAlmanac(d: any): string {
-    const w = d.weather;
+    const weatherArr: any[] = Array.isArray(d.weather) ? d.weather : (d.weather ? [d.weather] : []);
     const a = d.almanac;
-    if (!w && !a) return "";
+    if (!weatherArr.length && !a) return "";
     const parts: string[] = [];
 
-    if (w && !w.error) {
-      const desc = w.desc || "";
-      const emoji = desc.includes("Sun") || desc.includes("Clear") ? "☀️"
-        : desc.includes("Cloud") ? "⛅"
-        : desc.includes("Rain") ? "🌧️"
-        : desc.includes("Snow") ? "❄️"
-        : desc.includes("Thunder") ? "⛈️"
-        : desc.includes("Fog") || desc.includes("Mist") ? "🌫️" : "🌤️";
-      const fc = (w.forecasts ?? []).slice(0, 3).map((f: any) =>
-        `<span class="weather-fc">${f.date?.slice(5) ?? ""} ${f.min_c}~${f.max_c}°</span>`
-      ).join("");
-      parts.push(`<div class="weather-block">
-        <span class="weather-icon">${emoji}</span>
-        <span class="weather-main">${w.temp_c}°C · ${desc}</span>
-        <span class="weather-city">${w.city}</span>
-        ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}
-      </div>`);
+    if (weatherArr.length) {
+      const cards = weatherArr.filter(w => !w.error).map(w => {
+        const emoji = weatherEmoji(w.desc ?? "");
+        const cn = CITY_CN[w.city] ?? w.city;
+        const fc = (w.forecasts ?? []).slice(0, 3).map((f: any) =>
+          `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
+        ).join("");
+        return `<div class="weather-card">
+          <div class="weather-card-top">
+            <span class="weather-icon">${emoji}</span>
+            <span class="weather-city-name">${cn}</span>
+            <span class="weather-temp">${w.temp_c}°C</span>
+          </div>
+          <div class="weather-desc">${w.desc ?? ""}</div>
+          ${fc ? `<div class="weather-forecast">${fc}</div>` : ""}
+        </div>`;
+      }).join("");
+      parts.push(`<div class="weather-block"><div class="weather-cards">${cards}</div></div>`);
     }
 
-    if (a && a.lunar_date) {
+    if (a?.lunar_date) {
       const yi = (a.yi ?? []).map((s: string) => `<span class="almanac-yi">宜${s}</span>`).join("");
       const ji = (a.ji ?? []).map((s: string) => `<span class="almanac-ji">忌${s}</span>`).join("");
       parts.push(`<div class="almanac-block">
@@ -1808,20 +1823,33 @@ import Base from "../layouts/Base.astro";
   /* ── 热词云 ── */
   /* ── 天气 + 黄历 ── */
   .weather-almanac-row {
-    display: flex; flex-wrap: wrap; gap: 12px;
-    margin-top: 14px;
+    display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px;
   }
-  .weather-block, .almanac-block {
+  .weather-block {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px; flex: 1; min-width: 240px;
+  }
+  .weather-cards {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .weather-card {
+    display: flex; flex-direction: column; gap: 2px;
+    background: var(--bg2); border-radius: 10px; padding: 8px 10px;
+    min-width: 90px; flex: 1;
+  }
+  .weather-card-top { display: flex; align-items: center; gap: 5px; }
+  .weather-icon { font-size: 18px; }
+  .weather-city-name { font-size: 12px; font-weight: 700; color: var(--heading); }
+  .weather-temp { font-size: 13px; font-weight: 600; color: var(--accent); margin-left: auto; }
+  .weather-desc { font-size: 11px; color: var(--text3); }
+  .weather-forecast { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+  .weather-fc { font-size: 10px; color: var(--text2); background: var(--bg4); border-radius: 5px; padding: 1px 5px; }
+  .almanac-block {
     background: var(--bg3); border: 1px solid var(--border);
     border-radius: 12px; padding: 10px 14px;
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
-    font-size: 13px; flex: 1; min-width: 200px;
+    font-size: 13px; min-width: 200px;
   }
-  .weather-icon { font-size: 22px; }
-  .weather-main { font-weight: 600; color: var(--heading); }
-  .weather-city { color: var(--text3); font-size: 11px; }
-  .weather-forecast { width: 100%; display: flex; gap: 8px; margin-top: 2px; }
-  .weather-fc { font-size: 11px; color: var(--text2); background: var(--bg4); border-radius: 6px; padding: 2px 6px; }
   .almanac-date { font-weight: 600; color: var(--heading); }
   .almanac-color { font-size: 12px; color: var(--text2); }
   .almanac-tags { width: 100%; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
