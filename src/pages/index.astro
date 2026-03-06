@@ -565,6 +565,7 @@ import Base from "../layouts/Base.astro";
 
     return `
       <div class="digest-header">
+        ${renderQuote(d)}
         <div class="digest-top">
           <span class="digest-title">🗞️ 小新<b>日报</b></span>
           <span class="digest-badge">${fmtBadge(d)}</span>
@@ -581,6 +582,7 @@ import Base from "../layouts/Base.astro";
         </div>
         ${wordCloud}
         ${renderWeatherAlmanac(d)}
+        ${renderDayTimeline()}
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
       ${renderHistoryToday(d)}
@@ -624,6 +626,7 @@ import Base from "../layouts/Base.astro";
       restoreDQVotes();
       // 客户端按 IP 注入本地天气（异步，不阻塞渲染）
       injectLocalWeather();
+      startTimelineTick();
       // 预备 AI 推荐问题（当 AI 面板打开时使用）
       if (d.hot_words?.length) {
         (window as any).__hotWords = d.hot_words;
@@ -683,6 +686,77 @@ import Base from "../layouts/Base.astro";
       );
     }
   }, { passive: true });
+
+  // ── 今日名言 ──
+  function renderQuote(d: any): string {
+    const q = d.quote;
+    if (!q?.text || !q?.author) return "";
+    const body = q.zh ? `<span class="quote-zh">${q.zh}</span>` : "";
+    return `<blockquote class="daily-quote">
+      <p class="quote-text">${q.text}</p>
+      ${body}
+      <cite class="quote-author">— ${q.author}</cite>
+    </blockquote>`;
+  }
+
+  // ── 今日时间轴 ──
+  function renderDayTimeline(): string {
+    const slots = [
+      { h: 6,  label: "早晨", icon: "🌅" },
+      { h: 9,  label: "上午", icon: "☀️" },
+      { h: 12, label: "中午", icon: "🌞" },
+      { h: 15, label: "下午", icon: "🌤️" },
+      { h: 18, label: "傍晚", icon: "🌇" },
+      { h: 21, label: "夜间", icon: "🌙" },
+      { h: 24, label: "深夜", icon: "⭐" },
+    ];
+    const now = new Date();
+    const passedMins = now.getHours() * 60 + now.getMinutes();
+    const pct = Math.min(100, Math.round(passedMins / (24 * 60) * 100));
+    const hhmm = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+    const ticks = slots.map(s => {
+      const tickPct = Math.round(s.h / 24 * 100);
+      const passed = passedMins >= s.h * 60;
+      return `<div class="tl-tick${passed ? " tl-tick--passed" : ""}" style="left:${tickPct}%">
+        <span class="tl-tick-icon">${s.icon}</span>
+        <span class="tl-tick-label">${s.label}</span>
+      </div>`;
+    }).join("");
+    return `<div class="day-timeline" id="dayTimeline">
+      <div class="tl-header">
+        <span class="tl-title">今日时间轴</span>
+        <span class="tl-time" id="tlTime">${hhmm}</span>
+        <span class="tl-pct" id="tlPct">${pct}% 已过</span>
+      </div>
+      <div class="tl-track-wrap">
+        <div class="tl-track">
+          <div class="tl-fill" id="tlFill" style="width:${pct}%"></div>
+          <div class="tl-cursor" id="tlCursor" style="left:${pct}%"></div>
+        </div>
+        <div class="tl-ticks">${ticks}</div>
+      </div>
+    </div>`;
+  }
+
+  // 时间轴每分钟更新
+  function startTimelineTick() {
+    function tick() {
+      const now = new Date();
+      const passedMins = now.getHours() * 60 + now.getMinutes();
+      const pct = Math.min(100, Math.round(passedMins / (24 * 60) * 100));
+      const hhmm = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+      const fill = document.getElementById("tlFill");
+      const cursor = document.getElementById("tlCursor");
+      const time = document.getElementById("tlTime");
+      const pctEl = document.getElementById("tlPct");
+      if (fill) fill.style.width = `${pct}%`;
+      if (cursor) cursor.style.left = `${pct}%`;
+      if (time) time.textContent = hhmm;
+      if (pctEl) pctEl.textContent = `${pct}% 已过`;
+    }
+    const msToNextMin = (60 - new Date().getSeconds()) * 1000;
+    setTimeout(() => { tick(); setInterval(tick, 60000); }, msToNextMin);
+  }
 
   // ── 天气（客户端按 IP 自动定位 + 服务端多城市兜底） ──
   async function fetchLocalWeather(): Promise<any | null> {
@@ -2039,6 +2113,65 @@ import Base from "../layouts/Base.astro";
   .almanac-yi { font-size: 11px; background: rgba(34,197,94,0.12); color: #22c55e; border-radius: 6px; padding: 2px 7px; }
   .almanac-ji { font-size: 11px; background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 6px; padding: 2px 7px; }
   .almanac-fortune { width: 100%; font-size: 12px; color: var(--text2); margin-top: 4px; font-style: italic; }
+
+  /* ── 今日名言 ── */
+  .daily-quote {
+    margin: 0 0 16px;
+    padding: 12px 16px 12px 20px;
+    border-left: 3px solid var(--accent);
+    background: var(--bg2); border-radius: 0 12px 12px 0;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .quote-text {
+    font-size: 15px; font-style: italic; color: var(--heading);
+    margin: 0; line-height: 1.6;
+  }
+  .quote-zh {
+    font-size: 13px; color: var(--text2); font-style: normal;
+  }
+  .quote-author {
+    font-size: 12px; color: var(--text3); font-style: normal; margin-top: 2px;
+  }
+
+  /* ── 今日时间轴 ── */
+  .day-timeline {
+    margin-top: 14px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px 14px;
+  }
+  .tl-header {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .tl-title { font-weight: 600; color: var(--heading); }
+  .tl-time { font-size: 15px; font-weight: 700; color: var(--accent); margin-left: 4px; font-variant-numeric: tabular-nums; }
+  .tl-pct { font-size: 12px; color: var(--text3); margin-left: auto; }
+  .tl-track-wrap { position: relative; padding-bottom: 28px; }
+  .tl-track {
+    position: relative; height: 8px;
+    background: var(--bg4); border-radius: 4px; overflow: visible;
+  }
+  .tl-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), #f59e0b);
+    transition: width 0.6s ease;
+  }
+  .tl-cursor {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #f59e0b; border: 2px solid var(--bg);
+    box-shadow: 0 0 6px rgba(245,158,11,0.6);
+    transition: left 0.6s ease;
+  }
+  .tl-ticks { position: absolute; top: 12px; left: 0; right: 0; }
+  .tl-tick {
+    position: absolute; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    opacity: 0.4;
+  }
+  .tl-tick--passed { opacity: 1; }
+  .tl-tick-icon { font-size: 12px; line-height: 1; }
+  .tl-tick-label { font-size: 9px; color: var(--text3); white-space: nowrap; }
 
   /* ── 每日一问 ── */
   .dq-section { margin-bottom: 24px; }
