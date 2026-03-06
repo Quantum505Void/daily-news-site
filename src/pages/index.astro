@@ -558,7 +558,7 @@ import Base from "../layouts/Base.astro";
           <span class="digest-title">🗞️ 小新<b>日报</b></span>
           <span class="digest-badge">${fmtBadge(d)}</span>
         </div>
-        ${d.summary ? `<details class="digest-summary" id="digestSummary">
+        ${d.summary ? `<details class="digest-summary" id="digestSummary" open>
           <summary class="digest-summary-toggle">今日速览 <span class="digest-summary-arrow">▾</span></summary>
           <p class="digest-summary-text">${d.summary}</p>
         </details>` : ""}
