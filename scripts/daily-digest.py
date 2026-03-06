@@ -194,47 +194,6 @@ def web_search(query, count=8, retries=2) -> list:
             return []
     return []
 
-# ── 天气（wttr.in，免费无需 key） ────────────────────────────────────
-def fetch_weather_multi(cities=("Beijing", "Chengdu", "Shanghai", "Guangzhou")) -> list:
-    """获取多城市天气，返回列表"""
-    results = []
-    for city in cities:
-        w = fetch_weather(city)
-        if not w.get("error"):
-            results.append(w)
-        time.sleep(0.5)
-    return results
-
-def fetch_weather(city="Beijing") -> dict:
-    """获取城市今明两天天气，返回结构化数据"""
-    try:
-        url = f"https://wttr.in/{urllib.parse.quote(city)}?format=j1"
-        req = urllib.request.Request(url, headers={"User-Agent": "curl/7.88"})
-        with urllib.request.urlopen(req, timeout=10) as r:
-            data = json.loads(r.read())
-        weather = data.get("current_condition", [{}])[0]
-        # 今明后天预报
-        forecasts = []
-        for day in data.get("weather", [])[:3]:
-            forecasts.append({
-                "date": day.get("date", ""),
-                "max_c": day.get("maxtempC", ""),
-                "min_c": day.get("mintempC", ""),
-                "desc": day.get("hourly", [{}])[4].get("weatherDesc", [{}])[0].get("value", ""),
-            })
-        return {
-            "city": city,
-            "temp_c": weather.get("temp_C", ""),
-            "feels_c": weather.get("FeelsLikeC", ""),
-            "humidity": weather.get("humidity", ""),
-            "desc": weather.get("weatherDesc", [{}])[0].get("value", ""),
-            "wind_kmph": weather.get("windspeedKmph", ""),
-            "forecasts": forecasts,
-        }
-    except Exception as e:
-        print(f"  天气获取失败 [{city}]: {e}", flush=True)
-        return {"city": city, "error": str(e)}
-
 def collect_all() -> dict:
     """每板块执行多条查询并去重合并，间隔 2s，失败的板块标记为空让 LLM 补全"""
     results = {}
@@ -498,7 +457,6 @@ def save(structured, raw_results):
         "almanac":       structured.get("almanac", {}),
         "daily_question": structured.get("daily_question", {}),
         "quote":          structured.get("quote", {}),
-        "weather":       structured.get("_weather", []),
         "generated_at":  NOW.isoformat(),
         "version":       2
     }
@@ -512,11 +470,6 @@ def save(structured, raw_results):
 # ── 主流程 ────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print(f"[{today} {weekday}] 开始生成每日简报 v2...", flush=True)
-
-    print("🌤 获取天气...", flush=True)
-    weather_list = fetch_weather_multi(("Beijing", "Chengdu", "Shanghai", "Guangzhou", "Shenzhen"))
-    for w in weather_list:
-        print(f"  {w['city']}：{w.get('temp_c','?')}°C {w.get('desc','')}", flush=True)
 
     print("📡 并发搜索新闻...", flush=True)
     raw_results = collect_all()
@@ -533,12 +486,7 @@ if __name__ == "__main__":
         print("⚠️  LLM 失败，使用 fallback", flush=True)
         structured = fallback_sections(raw_results)
 
-    # 注入天气数据
-    structured["_weather"] = weather_list
-
     print("💾 保存文件...", flush=True)
     save(structured, raw_results)
 
-    print("🚀 推送到 GitHub Pages...", flush=True)
-    subprocess.run(["bun", "run", "build"], cwd=PROJECT_DIR)
-    print("done")
+    print("✅ 日报生成完成")
