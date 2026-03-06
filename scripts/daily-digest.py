@@ -514,7 +514,8 @@ if __name__ == "__main__":
     print(f"[{today} {weekday}] 开始生成每日简报 v2...", flush=True)
 
     print("🌤 获取天气...", flush=True)
-    weather_list = fetch_weather_multi(("Beijing", "Chengdu", "Shanghai", "Guangzhou", "Shenzhen"))    for w in weather_list:
+    weather_list = fetch_weather_multi(("Beijing", "Chengdu", "Shanghai", "Guangzhou", "Shenzhen"))
+    for w in weather_list:
         print(f"  {w['city']}：{w.get('temp_c','?')}°C {w.get('desc','')}", flush=True)
 
     print("📡 并发搜索新闻...", flush=True)
