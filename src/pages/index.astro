@@ -577,6 +577,9 @@ import Base from "../layouts/Base.astro";
   async function showDate(date: string) {
     renderSidebar(date);
     location.hash = date;
+    hideDateTooltip(); // 切日期立刻隐藏 tooltip
+    // 移动端底部导航：切日期时清空 active 状态
+    document.querySelectorAll(".mob-nav-btn").forEach(b => b.classList.remove("active"));
     const main = document.getElementById("main")!;
     main.classList.remove("main--fadein");
     main.innerHTML = `<div class="skeleton-wrap">
@@ -614,6 +617,8 @@ import Base from "../layouts/Base.astro";
   }
 
   // ── sec-nav 滚动高亮 + 精确滚动 ──
+  let _sectionObs: IntersectionObserver | null = null;
+
   function initSectionObserver() {
     const setActive = (id: string) => {
       document.querySelectorAll<HTMLElement>(".sec-nav-btn").forEach(b =>
@@ -637,24 +642,30 @@ import Base from "../layouts/Base.astro";
       });
     });
 
-    const obs = new IntersectionObserver(entries => {
+    // 断开旧 observer，重新 observe 新 DOM
+    _sectionObs?.disconnect();
+    _sectionObs = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting)
           setActive(e.target.id.replace("sec-", ""));
       });
     }, { rootMargin: "-15% 0px -55% 0px" });
 
-    document.querySelectorAll(".section").forEach(s => obs.observe(s));
-
-    // 滚到底时强制激活最后一个板块
-    window.addEventListener("scroll", () => {
-      const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
-      if (!atBottom) return;
-      const sections = document.querySelectorAll<HTMLElement>(".section");
-      const last = sections[sections.length - 1];
-      if (last) setActive(last.id.replace("sec-", ""));
-    }, { passive: true });
+    document.querySelectorAll(".section").forEach(s => _sectionObs!.observe(s));
   }
+
+  // scroll 只注册一次（放全局，避免每次 showDate 累积）
+  window.addEventListener("scroll", () => {
+    const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 60;
+    if (!atBottom) return;
+    const sections = document.querySelectorAll<HTMLElement>(".section");
+    const last = sections[sections.length - 1];
+    if (last) {
+      document.querySelectorAll<HTMLElement>(".sec-nav-btn").forEach(b =>
+        b.classList.toggle("active", b.dataset.sec === last.id.replace("sec-", ""))
+      );
+    }
+  }, { passive: true });
 
   // 直接渲染服务端已计算好的热词
   function renderWordCloud(hotWords: Array<{word: string, count: number}>): string {
@@ -1200,16 +1211,6 @@ import Base from "../layouts/Base.astro";
     if (btn?.dataset.date) showDateTooltip(btn, btn.dataset.date);
   });
   document.getElementById("sidebar")?.addEventListener("mouseout", () => hideDateTooltip());
-
-  // ── 摘要折叠 ──
-  document.getElementById("main")?.addEventListener("click", e => {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>("#summaryToggle");
-    if (!btn) return;
-    const summary = document.getElementById("digestSummary");
-    if (!summary) return;
-    const collapsed = summary.classList.toggle("digest-summary--collapsed");
-    btn.textContent = collapsed ? "展开 ▾" : "收起 ▴";
-  });
 
   // ── AI 动态推荐问题（基于热词） ──
   function renderAiSuggestions(hotWords: Array<{word: string}>) {
