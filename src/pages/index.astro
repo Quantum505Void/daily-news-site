@@ -466,7 +466,7 @@ import Base from "../layouts/Base.astro";
   // ── 访问计数 ──
   async function trackVisit() {
     try {
-      const r = await fetch("https://counterapi.dev/api/xiaoxin-daily-news/visit", { method: "GET" });
+      const r = await fetch("https://api.counterapi.dev/v1/xiaoxin-daily/visits/up");
       if (!r.ok) return;
       const data = await r.json();
       const el = document.getElementById("visitCount");
