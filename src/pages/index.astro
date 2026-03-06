@@ -882,7 +882,7 @@ import Base from "../layouts/Base.astro";
           accuracy: 3, source: "ipapi.co",
         }) : null).catch(() => null),
 
-      // 2. ip-api.com via HTTPS proxy endpoint (fields only)
+      // 2. ipwho.is
       fetch("https://ipwho.is/", { signal: AbortSignal.timeout(4000) })
         .then(r => r.json()).then(g => g.city ? ({
           city: g.city, lat: +g.latitude, lon: +g.longitude,
@@ -896,11 +896,27 @@ import Base from "../layouts/Base.astro";
           accuracy: 3, source: "freeipapi",
         }) : null).catch(() => null),
 
-      // 4. Cloudflare trace — 只能拿国家，但极稳定，作为兜底
+      // 4. ip.sb — 国内访问友好，含经纬度
+      fetch("https://ip.sb/geoip", {
+        signal: AbortSignal.timeout(4000),
+        headers: { "Accept": "application/json" },
+      }).then(r => r.json()).then(g => g.city ? ({
+          city: g.city, lat: +g.latitude, lon: +g.longitude,
+          accuracy: 3, source: "ip.sb",
+        }) : null).catch(() => null),
+
+      // 5. ipinfo.io — 国内可用，免费 50k/月，有城市+经纬度
+      fetch("https://ipinfo.io/json", { signal: AbortSignal.timeout(4000) })
+        .then(r => r.json()).then(g => {
+          if (!g.city) return null;
+          const [lat, lon] = (g.loc ?? "").split(",");
+          return { city: g.city, lat: +lat, lon: +lon, accuracy: 3, source: "ipinfo.io" };
+        }).catch(() => null),
+
+      // 6. Cloudflare trace — 只能拿国家，但极稳定，作为兜底
       fetch("https://www.cloudflare.com/cdn-cgi/trace", { signal: AbortSignal.timeout(3000) })
         .then(r => r.text()).then(txt => {
           const loc = txt.match(/loc=(\w+)/)?.[1] ?? "";
-          const ip  = txt.match(/ip=([^\n]+)/)?.[1] ?? "";
           return loc ? ({ city: loc, lat: 0, lon: 0, accuracy: 1, source: "cloudflare" }) : null;
         }).catch(() => null),
     ];
