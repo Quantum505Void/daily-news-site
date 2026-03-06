@@ -1420,6 +1420,42 @@ import Base from "../layouts/Base.astro";
     }
   });
 
+  // ── 滑动手势切日期 ──
+  (function initSwipe() {
+    let startX = 0, startY = 0, startTime = 0;
+    const MIN_X = 60, MAX_Y = 80, MAX_MS = 400;
+
+    document.addEventListener("touchstart", e => {
+      const t = e.touches[0];
+      startX = t.clientX; startY = t.clientY; startTime = Date.now();
+    }, { passive: true });
+
+    document.addEventListener("touchend", e => {
+      // 不在 main 区域内忽略（避免与侧边栏/搜索冲突）
+      const main = document.getElementById("main");
+      if (!main?.contains(e.target as Node)) return;
+
+      const t = e.changedTouches[0];
+      const dx = t.clientX - startX;
+      const dy = Math.abs(t.clientY - startY);
+      const dt = Date.now() - startTime;
+
+      if (Math.abs(dx) < MIN_X || dy > MAX_Y || dt > MAX_MS) return;
+
+      const cur = dates.indexOf(location.hash.replace("#", "") || dates[0]);
+      if (cur < 0) return;
+
+      // 左滑 → 更早一天，右滑 → 更新一天
+      if (dx < 0 && cur < dates.length - 1) {
+        showDate(dates[cur + 1]);
+        showToast(`← ${fmtDate(dates[cur + 1])}`);
+      } else if (dx > 0 && cur > 0) {
+        showDate(dates[cur - 1]);
+        showToast(`→ ${fmtDate(dates[cur - 1])}`);
+      }
+    }, { passive: true });
+  })();
+
   init();
 </script>
 
