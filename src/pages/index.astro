@@ -558,10 +558,10 @@ import Base from "../layouts/Base.astro";
           <span class="digest-title">🗞️ 小新<b>日报</b></span>
           <span class="digest-badge">${fmtBadge(d)}</span>
         </div>
-        ${d.summary ? `<div class="digest-summary digest-summary--collapsed" id="digestSummary">
+        ${d.summary ? `<details class="digest-summary" id="digestSummary">
+          <summary class="digest-summary-toggle">今日速览 <span class="digest-summary-arrow">▾</span></summary>
           <p class="digest-summary-text">${d.summary}</p>
-          <button class="summary-toggle" id="summaryToggle">展开 ▾</button>
-        </div>` : ""}
+        </details>` : ""}
         <div class="digest-stats">
           <span data-countup="${sections.length}" class="stats-num">${sections.length}</span> 板块
           <span class="stats-sep">·</span>
@@ -1343,20 +1343,38 @@ import Base from "../layouts/Base.astro";
     position: relative;
     background: var(--summary-bg);
     border: 1px solid var(--summary-border); border-radius: 14px;
-    padding: 20px 22px 20px 26px; overflow: hidden;
+    padding: 0; overflow: hidden;
     margin-bottom: 12px;
+    list-style: none;
   }
   .digest-summary::before {
     content: ''; position: absolute; left: 0; top: 0; bottom: 0;
     width: 4px; background: var(--accent);
     border-radius: 14px 0 0 14px;
+    pointer-events: none;
   }
-  .digest-summary::after {
-    content: '今日速览'; position: absolute; top: 12px; right: 16px;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  /* 隐藏原生 details 三角 */
+  .digest-summary > summary { list-style: none; }
+  .digest-summary > summary::-webkit-details-marker { display: none; }
+
+  .digest-summary-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 14px 26px;
+    cursor: pointer; user-select: none;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
     color: var(--text3); text-transform: uppercase;
+    transition: color 0.15s, background 0.15s;
   }
-  .digest-summary-text { font-size: 15px; font-weight: 500; color: var(--summary-text); line-height: 1.85; }
+  .digest-summary-toggle:hover { color: var(--accent); background: rgba(231,76,60,0.04); }
+  .digest-summary-arrow {
+    font-size: 10px; transition: transform 0.25s ease;
+    display: inline-block;
+  }
+  .digest-summary[open] .digest-summary-arrow { transform: rotate(180deg); }
+  .digest-summary-text {
+    font-size: 15px; font-weight: 500; color: var(--summary-text);
+    line-height: 1.85; padding: 0 22px 18px 26px;
+  }
 
   /* ── Stats bar ── */
   .digest-stats {
@@ -1916,25 +1934,6 @@ import Base from "../layouts/Base.astro";
     font-weight: 600; letter-spacing: 0.05em;
   }
   .card { position: relative; }
-
-  /* ── 摘要折叠 ── */
-  .digest-summary {
-    max-height: none;
-    transition: max-height 0.35s ease;
-  }
-  .digest-summary--collapsed .digest-summary-text {
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .digest-summary-text {
-    overflow: hidden;
-  }
-  .summary-toggle {
-    background: none; border: none; cursor: pointer;
-    font-size: 11px; color: var(--accent); padding: 4px 0 0;
-    opacity: 0.75; transition: opacity 0.15s; display: block;
-  }
-  .summary-toggle:hover { opacity: 1; }
 
   /* ── 侧栏日期 hover 预览 tooltip ── */
   .date-tooltip {
