@@ -567,19 +567,21 @@ import Base from "../layouts/Base.astro";
       <div class="digest-header">
         ${renderQuote(d)}
         <div class="digest-top">
-          <span class="digest-title">🗞️ 小新<b>日报</b></span>
-          <span class="digest-badge">${fmtBadge(d)}</span>
+          <div class="digest-title-row">
+            <span class="digest-title">🗞️ 小新<b>日报</b></span>
+            <span class="digest-badge">${fmtBadge(d)}</span>
+          </div>
+          <div class="digest-stats">
+            <span class="stats-item"><span data-countup="${sections.length}" class="stats-num">${sections.length}</span><span class="stats-label">板块</span></span>
+            <span class="stats-dot">·</span>
+            <span class="stats-item"><span data-countup="${totalItems}" class="stats-num">${totalItems}</span><span class="stats-label">条资讯</span></span>
+            ${genTime ? `<span class="stats-dot">·</span><span class="stats-update">📡 ${genTime}</span>` : ""}
+          </div>
         </div>
         ${d.summary ? `<details class="digest-summary" id="digestSummary" open>
           <summary class="digest-summary-toggle">今日速览 <span class="digest-summary-arrow">▾</span></summary>
           <p class="digest-summary-text">${d.summary}</p>
         </details>` : ""}
-        <div class="digest-stats">
-          <span data-countup="${sections.length}" class="stats-num">${sections.length}</span> 板块
-          <span class="stats-sep">·</span>
-          <span data-countup="${totalItems}" class="stats-num">${totalItems}</span> 条资讯
-          ${genTime ? `<span class="stats-sep">·</span><span>更新于 ${genTime}</span>` : ""}
-        </div>
         ${wordCloud}
         ${renderMarketAlmanac(d)}
         ${renderDayTimeline()}
@@ -1731,15 +1733,37 @@ import Base from "../layouts/Base.astro";
   }
 
   /* ── Digest header ── */
-  .digest-header { margin-bottom: 24px; }
-  .digest-top { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-  .digest-title { font-size: 18px; font-weight: 800; color: var(--accent); }
-  .digest-title b { color: var(--heading); font-weight: 800; }
-  .digest-badge {
-    background: var(--accent); color: #fff;
-    padding: 3px 12px; border-radius: 20px;
-    font-size: 13px; font-weight: 600;
+  .digest-header { margin-bottom: 28px; }
+  .digest-top {
+    display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;
   }
+  .digest-title-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .digest-title {
+    font-size: 22px; font-weight: 900; color: var(--accent);
+    letter-spacing: -0.5px; line-height: 1.2;
+  }
+  .digest-title b { color: var(--heading); font-weight: 900; }
+  .digest-badge {
+    background: linear-gradient(135deg, var(--accent), #f59e0b);
+    color: #fff; padding: 3px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.03em;
+    box-shadow: 0 2px 8px rgba(231,76,60,0.3);
+  }
+  /* ── Stats bar ── */
+  .digest-stats {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text3);
+  }
+  .stats-item { display: flex; align-items: baseline; gap: 3px; }
+  .stats-num {
+    font-size: 18px; font-weight: 800; color: var(--accent);
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .stats-label { font-size: 11px; color: var(--text3); }
+  .stats-dot { opacity: 0.3; font-size: 16px; }
+  .stats-update { font-size: 11px; color: var(--text3); opacity: 0.7; }
 
   /* ── Summary Hero ── */
   .digest-summary {
@@ -1747,72 +1771,56 @@ import Base from "../layouts/Base.astro";
     background: var(--summary-bg);
     border: 1px solid var(--summary-border); border-radius: 14px;
     padding: 0; overflow: hidden;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     list-style: none;
   }
   .digest-summary::before {
     content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-    width: 4px; background: var(--accent);
+    width: 4px; background: linear-gradient(to bottom, var(--accent), #f59e0b);
     border-radius: 14px 0 0 14px;
     pointer-events: none;
   }
-  /* 隐藏原生 details 三角 */
   .digest-summary > summary { list-style: none; }
   .digest-summary > summary::-webkit-details-marker { display: none; }
-
   .digest-summary-toggle {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 18px 14px 26px;
+    padding: 12px 18px 12px 24px;
     cursor: pointer; user-select: none;
-    font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
     color: var(--text3); text-transform: uppercase;
     transition: color 0.15s, background 0.15s;
   }
   .digest-summary-toggle:hover { color: var(--accent); background: rgba(231,76,60,0.04); }
-  .digest-summary-arrow {
-    font-size: 10px; transition: transform 0.25s ease;
-    display: inline-block;
-  }
+  .digest-summary-arrow { font-size: 10px; transition: transform 0.25s ease; display: inline-block; }
   .digest-summary[open] .digest-summary-arrow { transform: rotate(180deg); }
   .digest-summary-text {
-    font-size: 15px; font-weight: 500; color: var(--summary-text);
-    line-height: 1.85; padding: 0 22px 18px 26px;
+    font-size: 14px; font-weight: 400; color: var(--summary-text);
+    line-height: 1.9; padding: 0 20px 16px 24px;
   }
-
-  /* ── Stats bar ── */
-  .digest-stats {
-    display: flex; align-items: center; gap: 8px; margin-top: 8px;
-    font-size: 12px; color: var(--text3);
-  }
-  .stats-sep { opacity: 0.4; font-size: 14px; }
-  .stats-num { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 
   /* ── Section nav ── */
   .sec-nav {
     display: flex; gap: 6px; flex-wrap: wrap;
-    margin-bottom: 24px; position: sticky;
+    margin-bottom: 28px; position: sticky;
     top: 53px; z-index: 100;
     background: var(--bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 8px 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 10px 0 10px;
     border-bottom: 1px solid var(--border);
   }
   @media (max-width: 680px) {
     .sec-nav {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      padding: 8px 12px;
-      gap: 6px;
+      flex-wrap: nowrap; overflow-x: auto;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding: 8px 12px; gap: 6px;
     }
     .sec-nav::-webkit-scrollbar { display: none; }
   }
   .sec-nav-btn {
-    padding: 4px 12px; border-radius: 20px;
+    padding: 5px 14px; border-radius: 20px;
     background: var(--bg3); border: 1px solid var(--border);
-    color: var(--text2); font-size: 12px;
+    color: var(--text2); font-size: 12px; font-weight: 500;
     text-decoration: none; transition: all 0.15s; white-space: nowrap;
     flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
   }
@@ -1820,6 +1828,7 @@ import Base from "../layouts/Base.astro";
   .sec-nav-btn.active {
     background: var(--accent); color: #fff;
     border-color: var(--accent); text-decoration: none;
+    box-shadow: 0 2px 8px rgba(231,76,60,0.3);
   }
   .sec-nav-badge {
     display: inline-flex; align-items: center; justify-content: center;
@@ -1833,27 +1842,33 @@ import Base from "../layouts/Base.astro";
   }
 
   /* ── Section ── */
-  .section { margin-bottom: 32px; scroll-margin-top: 110px; }
+  .section { margin-bottom: 36px; scroll-margin-top: 110px; }
   .section-heading {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 12px; padding: 8px 12px 8px 14px;
-    border-radius: 8px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px; padding: 10px 14px 10px 16px;
+    border-radius: 10px;
     background: var(--bg2);
     border: 1px solid var(--border);
     border-left: 4px solid var(--sec-color, #888);
     cursor: default;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s;
   }
   .section-heading:hover { background: var(--bg3); }
-  .section-icon { font-size: 17px; line-height: 1; }
-  .section-title { font-size: 15px; font-weight: 700; color: var(--heading); }
-  .section-toggle {
-    margin-left: auto;
-    background: none; border: none; cursor: pointer;
-    color: var(--text3); font-size: 12px; padding: 2px 6px;
-    border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0;
+  .section-icon {
+    font-size: 18px; line-height: 1;
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--sec-color, #888) 15%, transparent);
+    flex-shrink: 0;
   }
-  .section-toggle:hover { background: var(--bg3); color: var(--text); }
+  .section-title { font-size: 15px; font-weight: 700; color: var(--heading); }
+  .section-count { font-size: 11px; color: var(--text3); margin-left: 2px; }
+  .section-toggle {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 12px; padding: 3px 8px;
+    border-radius: 6px; transition: color 0.15s, background 0.15s; flex-shrink: 0;
+  }
+  .section-toggle:hover { background: var(--bg4); color: var(--text); }
   .section-toggle--collapsed { color: var(--accent) !important; }
 
   /* ── Main fade-in ── */
@@ -1876,14 +1891,11 @@ import Base from "../layouts/Base.astro";
   .cards--grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 12px;
     align-items: start;
   }
   .cards--hidden { display: none !important; }
-
-  @media (max-width: 900px) {
-    .cards--grid { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 900px) { .cards--grid { grid-template-columns: 1fr; } }
 
   /* ── Cards ── */
   /* .card 样式已移至文件末尾（含微放大效果） */
@@ -2120,43 +2132,50 @@ import Base from "../layouts/Base.astro";
   }
   /* ── 市场快讯 ── */
   .market-block {
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 14px; flex: 1; min-width: 240px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 16px; flex: 2; min-width: 260px;
   }
-  .market-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .market-title { font-size: 13px; font-weight: 700; color: var(--heading); }
+  .market-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .market-title { font-size: 13px; font-weight: 700; color: var(--heading); display: flex; align-items: center; gap: 6px; }
   .market-time { font-size: 10px; color: var(--text3); }
-  .market-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .market-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; }
+  @media (max-width: 680px) { .market-grid { grid-template-columns: repeat(3,1fr); } }
   .market-item {
-    display: flex; flex-direction: column; align-items: center; gap: 1px;
-    background: var(--bg2); border-radius: 8px; padding: 5px 10px;
-    min-width: 70px; flex: 1; border: 1px solid transparent;
-    transition: border-color 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: var(--bg3); border-radius: 10px; padding: 8px 6px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s, transform 0.15s;
   }
-  .market-item--up   { border-color: rgba(34,197,94,0.3); }
-  .market-item--down { border-color: rgba(239,68,68,0.25); }
-  .market-name { font-size: 10px; color: var(--text3); }
-  .market-val  { font-size: 13px; font-weight: 700; color: var(--heading); }
-  .market-chg  { font-size: 11px; }
+  .market-item:hover { transform: translateY(-2px); }
+  .market-item--up   { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.05); }
+  .market-item--down { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.04); }
+  .market-name { font-size: 10px; color: var(--text3); font-weight: 500; }
+  .market-val  { font-size: 14px; font-weight: 800; color: var(--heading); font-variant-numeric: tabular-nums; }
+  .market-chg  { font-size: 11px; font-weight: 600; }
   .market-chg--up   { color: #22c55e; }
   .market-chg--down { color: #ef4444; }
   /* ── 节假日倒计时 ── */
   .holiday-block {
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 14px;
-    display: flex; align-items: center; gap: 10px; min-width: 160px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px; flex: 1; min-width: 150px;
+    position: relative; overflow: hidden;
   }
-  .holiday-icon { font-size: 22px; flex-shrink: 0; }
-  .holiday-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-  .holiday-name { font-size: 13px; font-weight: 700; color: var(--heading); }
+  .holiday-block::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(231,76,60,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .holiday-icon { font-size: 28px; flex-shrink: 0; }
+  .holiday-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .holiday-name { font-size: 14px; font-weight: 700; color: var(--heading); }
   .holiday-days { font-size: 12px; color: var(--text2); }
-  .holiday-days b { color: var(--accent); font-size: 16px; }
+  .holiday-days b { color: var(--accent); font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
   .holiday-bar-wrap {
     position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-    background: var(--bg4); border-radius: 0 0 12px 12px; overflow: hidden;
+    background: var(--bg4); overflow: hidden;
   }
-  .holiday-block { position: relative; overflow: hidden; }
-  .holiday-bar { height: 100%; background: var(--accent); border-radius: 0 2px 2px 0; transition: width 0.5s; }
+  .holiday-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #f59e0b); transition: width 0.8s ease; }
   /* ── 黄历（保留） ── */
   .almanac-block {
     background: var(--bg3); border: 1px solid var(--border);
@@ -2172,22 +2191,19 @@ import Base from "../layouts/Base.astro";
 
   /* ── 今日名言 ── */
   .daily-quote {
-    margin: 0 0 16px;
-    padding: 12px 16px 12px 20px;
-    border-left: 3px solid var(--accent);
-    background: var(--bg2); border-radius: 0 12px 12px 0;
-    display: flex; flex-direction: column; gap: 4px;
+    margin: 0 0 18px;
+    padding: 14px 18px 14px 22px;
+    border-left: 4px solid var(--accent);
+    background: linear-gradient(135deg, var(--bg2), var(--bg3));
+    border-radius: 0 14px 14px 0;
+    display: flex; flex-direction: column; gap: 5px;
   }
   .quote-text {
-    font-size: 15px; font-style: italic; color: var(--heading);
-    margin: 0; line-height: 1.6;
+    font-size: 16px; font-style: italic; color: var(--heading);
+    margin: 0; line-height: 1.7; font-weight: 500;
   }
-  .quote-zh {
-    font-size: 13px; color: var(--text2); font-style: normal;
-  }
-  .quote-author {
-    font-size: 12px; color: var(--text3); font-style: normal; margin-top: 2px;
-  }
+  .quote-zh { font-size: 13px; color: var(--text2); font-style: normal; }
+  .quote-author { font-size: 11px; color: var(--text3); font-style: normal; margin-top: 2px; }
 
   /* ── 今日时间轴 ── */
   .day-timeline {
@@ -2230,47 +2246,49 @@ import Base from "../layouts/Base.astro";
   .tl-tick-label { font-size: 9px; color: var(--text3); white-space: nowrap; }
 
   /* ── 每日一问 ── */
-  .dq-section { margin-bottom: 24px; }
+  .dq-section { margin-bottom: 28px; }
   .dq-card {
     background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 14px; padding: 16px 18px;
+    border-radius: 14px; padding: 18px 20px;
   }
   .dq-question {
     font-size: 16px; font-weight: 700; color: var(--heading);
-    margin: 0 0 14px; line-height: 1.5;
+    margin: 0 0 16px; line-height: 1.6;
   }
-  .dq-options { display: flex; flex-direction: column; gap: 8px; }
+  .dq-options { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+  @media (max-width: 560px) { .dq-options { grid-template-columns: 1fr; } }
   .dq-opt {
-    background: var(--bg3); border: 1px solid var(--border);
+    background: var(--bg3); border: 1.5px solid var(--border);
     border-radius: 10px; padding: 10px 14px;
-    font-size: 14px; color: var(--text); cursor: pointer; text-align: left;
+    font-size: 13px; color: var(--text); cursor: pointer; text-align: left;
     transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    line-height: 1.4;
   }
-  .dq-opt:hover { background: var(--bg4); border-color: #f59e0b; transform: translateX(4px); }
-  .dq-result { display: flex; flex-direction: column; gap: 8px; }
+  .dq-opt:hover { background: rgba(245,158,11,0.08); border-color: #f59e0b; transform: translateY(-1px); }
+  .dq-result { display: flex; flex-direction: column; gap: 10px; }
   .dq-bar-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
   .dq-bar-row--voted .dq-bar-label { color: #f59e0b; font-weight: 600; }
   .dq-bar-label { flex: 1; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 50%; }
-  .dq-bar-track { flex: 2; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  .dq-bar-track { flex: 2; height: 8px; background: var(--bg4); border-radius: 4px; overflow: hidden; }
   .dq-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.6s ease; }
   .dq-bar-row--voted .dq-bar-fill { background: #f59e0b; }
   .dq-bar-pct { width: 34px; text-align: right; color: var(--text3); font-size: 12px; }
 
   /* ── 历史上的今天 ── */
-  .history-section { margin-bottom: 24px; }
-  .history-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 12px; }
+  .history-section { margin-bottom: 28px; }
+  .history-list { display: flex; flex-direction: column; gap: 6px; }
   .history-item {
-    display: flex; align-items: baseline; gap: 12px;
-    padding: 8px 14px; background: var(--bg2); border-radius: 10px;
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 10px 16px; background: var(--bg2); border-radius: 10px;
     border-left: 3px solid #8b5cf6; font-size: 13.5px;
-    transition: background 0.15s;
+    transition: background 0.15s, transform 0.15s;
   }
-  .history-item:hover { background: var(--bg3); }
+  .history-item:hover { background: var(--bg3); transform: translateX(2px); }
   .history-year {
-    font-size: 13px; font-weight: 700; color: #8b5cf6;
-    flex-shrink: 0; min-width: 42px;
+    font-size: 12px; font-weight: 800; color: #8b5cf6;
+    flex-shrink: 0; min-width: 40px; font-variant-numeric: tabular-nums;
   }
-  .history-event { color: var(--text); line-height: 1.5; }
+  .history-event { color: var(--text); line-height: 1.6; }
 
   .word-cloud {
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
@@ -2295,14 +2313,14 @@ import Base from "../layouts/Base.astro";
   /* ── 卡片微放大 hover ── */
   .card {
     background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px 16px;
+    border-radius: var(--radius); padding: 15px 17px;
     transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s;
     display: flex; flex-direction: column;
   }
   .card:hover {
     border-color: var(--accent);
     background: var(--bg3);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
     transform: translateY(-2px);
   }
 
