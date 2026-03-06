@@ -377,6 +377,12 @@ import Base from "../layouts/Base.astro";
   async function fetchManifest(): Promise<string[]> {
     const r = await fetch(`${BASE}manifest.json?t=${Date.now()}`);
     const m: Manifest = await r.json();
+    // Fix #10: 用 manifest.updated 显示真实构建时间
+    const bt = document.getElementById("buildTime");
+    if (bt && m.updated) {
+      const d = new Date(m.updated);
+      bt.textContent = `构建于 ${d.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })}`;
+    }
     return m.dates ?? [];
   }
 
@@ -426,7 +432,7 @@ import Base from "../layouts/Base.astro";
     });
   }
 
-  function cardHtml(item: any, isJob: boolean, idx: number, defCollapsed = "card-body--collapsed"): string {
+  function cardHtml(item: any, isJob: boolean, idx: number, defCollapsed = "card-body--collapsed", favedSet?: Set<string>): string {
     const domain = (() => {
       try { return item.url ? new URL(item.url).hostname.replace(/^www\./, "") : ""; }
       catch { return ""; }
@@ -438,11 +444,10 @@ import Base from "../layouts/Base.astro";
       : item.tag === "突发" ? " card--breaking"
       : item.tag === "重磅" ? " card--major" : "";
     const num = `<span class="card-num">${idx + 1}</span>`;
-    const expandBtn = defCollapsed
-      ? `<button class="card-expand">展开 ▾</button>`
-      : ``;
+    const expandBtn = defCollapsed ? `<button class="card-expand">展开 ▾</button>` : ``;
+    const faved = favedSet ? favedSet.has(item.url) : isFaved(item.url);
     const faveHtml = item.url
-      ? `<button class="fave-btn${isFaved(item.url) ? " faved" : ""}" data-url="${item.url}" title="${isFaved(item.url) ? "取消收藏" : "收藏"}">${isFaved(item.url) ? "★" : "☆"}</button>`
+      ? `<button class="fave-btn${faved ? " faved" : ""}" data-url="${item.url}" title="${faved ? "取消收藏" : "收藏"}">${faved ? "★" : "☆"}</button>`
       : "";
     const urlAttr = item.url ? `data-url="${item.url}"` : "";
     const cursorStyle = item.url ? `style="cursor:pointer"` : "";
@@ -454,10 +459,11 @@ import Base from "../layouts/Base.astro";
   }
 
   // 今日看点英雄卡（第一条）
-  function heroCardHtml(item: any): string {
+  function heroCardHtml(item: any, favedSet?: Set<string>): string {
     const domain = (() => { try { return item.url ? new URL(item.url).hostname.replace(/^www\./,"") : ""; } catch { return ""; } })();
     const src = domain ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" width="14" height="14" loading="lazy" onerror="this.style.display='none'">${domain} ↗</a>` : "";
-    const faveHtml = item.url ? `<button class="fave-btn${isFaved(item.url) ? " faved" : ""}" data-url="${item.url}" title="${isFaved(item.url) ? "取消收藏" : "收藏"}">${isFaved(item.url) ? "★" : "☆"}</button>` : "";
+    const faved = favedSet ? favedSet.has(item.url) : isFaved(item.url);
+    const faveHtml = item.url ? `<button class="fave-btn${faved ? " faved" : ""}" data-url="${item.url}" title="${faved ? "取消收藏" : "收藏"}">${faved ? "★" : "☆"}</button>` : "";
     return `<article class="hero-card${item.tag === "突发" ? " card--breaking" : ""}" data-url="${item.url ?? ""}" ${item.url ? 'style="cursor:pointer"' : ""}>
       <div class="hero-tag-row">${tagHtml(item.tag)}<span class="hero-label">头条</span></div>
       <h2 class="hero-title">${item.title}</h2>
@@ -493,14 +499,14 @@ import Base from "../layouts/Base.astro";
       const isWide = WIDE_SECTIONS.has(s.id);
       const defCollapsed = isWide ? "" : "card-body--collapsed";
       const items = s.items ?? [];
+      const favedSet = getFaves(); // Fix #6: 每板块读一次，不是每张卡
       let cardsHtml: string;
       if (isWide && items.length > 0) {
-        // 今日看点：第一条英雄卡 + 其余普通卡
-        const hero = heroCardHtml(items[0]);
-        const rest = items.slice(1).map((item, idx) => cardHtml(item, false, idx + 1, "")).join("");
+        const hero = heroCardHtml(items[0], favedSet);
+        const rest = items.slice(1).map((item, idx) => cardHtml(item, false, idx + 1, "", favedSet)).join("");
         cardsHtml = `${hero}<div class="cards cards--grid">${rest}</div>`;
       } else {
-        cardsHtml = `<div class="${isWide ? "cards cards--wide" : "cards cards--grid"}">${items.map((item, idx) => cardHtml(item, isJob, idx, defCollapsed)).join("")}</div>`;
+        cardsHtml = `<div class="${isWide ? "cards cards--wide" : "cards cards--grid"}">${items.map((item, idx) => cardHtml(item, isJob, idx, defCollapsed, favedSet)).join("")}</div>`;
       }
       return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}">
         <div class="section-heading" style="--sec-color:${s.color}">
@@ -550,6 +556,9 @@ import Base from "../layouts/Base.astro";
     try {
       const d = await fetchDigest(date);
       main.innerHTML = renderV2(d);
+      focusedCardIdx = -1; // Fix #2: 切换日期重置键盘导航索引
+      aiContext = "";      // Fix #4: 切换日期清空 AI context 缓存
+      aiHistory = [];
       // 清掉 loading 状态
       document.querySelectorAll(".date-btn.loading").forEach(b => b.classList.remove("loading"));
       // countUp 动画
@@ -610,16 +619,24 @@ import Base from "../layouts/Base.astro";
   }
 
   // ── 热词云 ──
-  const STOP_WORDS = new Set("的了在是我有和就不都而及与这的到以在于并其为了之中由从等该对中国美国日本欧洲全球市场公司企业发展相关表示称已将通过".split(""));
+  const STOP_WORDS = new Set([
+    "中国","美国","日本","欧洲","全球","市场","公司","企业","发展","相关",
+    "表示","表明","称已","将通","通过","计划","目前","方面","进行","工作",
+    "推出","实现","提出","提供","建设","加强","支持","合作","增长","增加",
+    "下降","同比","环比","亿元","万元","百分","以上","以下","今年","去年",
+    "国内","国际","政府","部门","官员","记者","报道","消息","据悉","此前",
+    "目前","已经","可以","需要","没有","这个","那么","什么","如何","为何",
+  ]);
   function buildWordCloud(sections: any[]): string {
     const freq: Record<string, number> = {};
     for (const s of sections) {
       for (const item of s.items ?? []) {
         const text = (item.title ?? "") + (item.body ?? "");
-        // 提取2-5字中文词组
-        const matches = text.match(/[\u4e00-\u9fa5]{2,5}/g) ?? [];
+        const matches = text.match(/[\u4e00-\u9fa5]{2,6}/g) ?? [];
         for (const w of matches) {
-          if ([...w].some(c => STOP_WORDS.has(c))) continue;
+          if (STOP_WORDS.has(w)) continue;
+          // 过滤纯方位/数量词
+          if (/^[一二三四五六七八九十百千万亿第]+$/.test(w)) continue;
           freq[w] = (freq[w] ?? 0) + 1;
         }
       }
@@ -658,9 +675,12 @@ import Base from "../layouts/Base.astro";
   function stopTts() {
     window.speechSynthesis.cancel();
     ttsPlaying = false;
+    if (ttsKeepAliveTimer) { clearInterval(ttsKeepAliveTimer); ttsKeepAliveTimer = null; }
     const btn = document.getElementById("ttsFab");
     if (btn) { btn.innerHTML = "<span>🔊</span>"; btn.title = "朗读今日日报"; btn.classList.remove("tts-playing"); }
   }
+
+  let ttsKeepAliveTimer: ReturnType<typeof setInterval> | null = null;
 
   function startTts(text: string) {
     stopTts();
@@ -672,6 +692,13 @@ import Base from "../layouts/Base.astro";
     ttsUtterance.onerror = () => stopTts();
     window.speechSynthesis.speak(ttsUtterance);
     ttsPlaying = true;
+    // Fix #5: Chrome Android keepalive hack（每 10s resume 防止 onend 不触发）
+    ttsKeepAliveTimer = setInterval(() => {
+      if (!ttsPlaying) return;
+      if (!window.speechSynthesis.speaking) { stopTts(); return; }
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    }, 10000);
     const btn = document.getElementById("ttsFab");
     if (btn) { btn.innerHTML = "<span>⏹</span>"; btn.title = "停止朗读"; btn.classList.add("tts-playing"); }
   }
@@ -770,6 +797,7 @@ import Base from "../layouts/Base.astro";
   });
   document.getElementById("aiPanelClose")?.addEventListener("click", () => {
     aiPanel.classList.remove("ai-panel--open");
+    aiPanel.style.transform = ""; // Fix #9: 重置键盘偏移
   });
 
   const aiInput = document.getElementById("aiInput") as HTMLInputElement;
@@ -783,6 +811,20 @@ import Base from "../layouts/Base.astro";
   }
   aiSend.addEventListener("click", submitAi);
   aiInput.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitAi(); } });
+
+  // Fix #9: 移动端虚拟键盘弹出时 AI 面板自动上移
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", () => {
+      const panel = document.getElementById("aiPanel");
+      if (!panel?.classList.contains("ai-panel--open")) return;
+      const vvHeight = window.visualViewport!.height;
+      const winHeight = window.innerHeight;
+      const offset = winHeight - vvHeight;
+      panel.style.transform = offset > 50
+        ? `translateY(-${offset}px)`
+        : "";
+    });
+  }
 
   // ── countUp 动画 ──
   function countUp(el: HTMLElement, target: number, duration = 600) {
@@ -798,8 +840,7 @@ import Base from "../layouts/Base.astro";
 
   async function init() {
     // 显示构建时间
-    const bt = document.getElementById("buildTime");
-    if (bt) bt.textContent = `构建于 ${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit" })}`;
+    // Fix #10: buildTime 已在 fetchManifest 里用 manifest.updated 设置
 
     try {
       dates = await fetchManifest();
@@ -955,10 +996,12 @@ import Base from "../layouts/Base.astro";
     const toggleBtn = t.closest(".section-toggle") as HTMLElement | null;
     if (toggleBtn) {
       const section = toggleBtn.closest(".section")!;
-      const cards = section.querySelector(".cards") as HTMLElement;
-      const collapsed = cards.classList.toggle("cards--hidden");
-      toggleBtn.textContent = collapsed ? "▾" : "▴";
-      toggleBtn.classList.toggle("section-toggle--collapsed", collapsed);
+      // 同时隐藏 .cards 和独立的 .hero-card
+      const targets = section.querySelectorAll<HTMLElement>(".cards, .hero-card");
+      const willCollapse = !targets[0]?.classList.contains("cards--hidden");
+      targets.forEach(c => c.classList.toggle("cards--hidden", willCollapse));
+      toggleBtn.textContent = willCollapse ? "▾" : "▴";
+      toggleBtn.classList.toggle("section-toggle--collapsed", willCollapse);
     }
   });
 
