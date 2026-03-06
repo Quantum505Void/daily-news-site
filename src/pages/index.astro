@@ -949,6 +949,54 @@ import Base from "../layouts/Base.astro";
     return { city: best.city, lat: String(best.lat || ""), lon: String(best.lon || "") };
   }
 
+  async function fetchMetNorway(lat: string, lon: string) {
+    if (!lat || !lon) return null;
+    const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`;
+    const r = await fetch(url, {
+      signal: AbortSignal.timeout(7000),
+      headers: { "User-Agent": "xiaoxin-daily-news/1.0 github.com/Quantum505Void/daily-news-site" },
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const timeseries = d.properties?.timeseries ?? [];
+    if (!timeseries.length) return null;
+    const cur = timeseries[0]?.data;
+    const inst = cur?.instant?.details ?? {};
+    // 天气图标代码 → 描述
+    const sym = cur?.next_1_hours?.summary?.symbol_code
+      ?? cur?.next_6_hours?.summary?.symbol_code ?? "";
+    const SYM: Record<string, string> = {
+      clearsky_day: "Clear sky", clearsky_night: "Clear sky",
+      fair_day: "Mainly clear", fair_night: "Mainly clear",
+      partlycloudy_day: "Partly cloudy", partlycloudy_night: "Partly cloudy",
+      cloudy: "Cloudy", fog: "Fog",
+      lightrain: "Light rain", rain: "Rain", heavyrain: "Heavy rain",
+      lightrainshowers_day: "Light rain", rainshowers_day: "Rain",
+      lightsnow: "Light snow", snow: "Snow", heavysnow: "Heavy snow",
+      thunderstorm: "Thunderstorm",
+    };
+    const desc = SYM[sym] ?? SYM[sym.replace(/_day|_night/,"")] ?? sym.replace(/_/g," ");
+    // 未来 3 天预报：每 24 小时取一个点
+    const forecasts: any[] = [];
+    const seen = new Set<string>();
+    for (const ts of timeseries) {
+      const date = ts.time?.slice(0,10);
+      if (!date || seen.has(date) || seen.size >= 3) continue;
+      seen.add(date);
+      const det = ts.data?.next_6_hours?.details ?? ts.data?.next_12_hours?.details ?? {};
+      forecasts.push({ date, min_c: det.air_temperature_min ?? 0, max_c: det.air_temperature_max ?? 0, desc });
+    }
+    return {
+      source: "MET Norway",
+      temp_c: inst.air_temperature ?? 0,
+      feels_c: inst.air_temperature ?? 0,
+      humidity: inst.relative_humidity ?? 0,
+      wind_kmph: (inst.wind_speed ?? 0) * 3.6,
+      desc,
+      forecasts,
+    };
+  }
+
   async function fetchLocalWeather(): Promise<any | null> {
     // 1. 多源并行定位
     const loc = await resolveLocation();
@@ -956,14 +1004,15 @@ import Base from "../layouts/Base.astro";
     const lat  = loc?.lat  ?? "";
     const lon  = loc?.lon  ?? "";
 
-    // 2. 三源并行
-    const [wttr, meteo, timer7] = await Promise.allSettled([
+    // 2. 四源并行拉取天气
+    const [wttr, meteo, timer7, metno] = await Promise.allSettled([
       fetchWttr(lat, lon),
       fetchOpenMeteo(lat, lon),
       fetchOpenWeatherMap(lat, lon),
+      fetchMetNorway(lat, lon),
     ]);
 
-    const sources = [wttr, meteo, timer7]
+    const sources = [wttr, meteo, timer7, metno]
       .filter(r => r.status === "fulfilled" && r.value)
       .map(r => (r as PromiseFulfilledResult<any>).value);
 
