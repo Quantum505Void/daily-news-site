@@ -989,61 +989,85 @@ import Base from "../layouts/Base.astro";
     if (!local?.city) return;
     applyWeatherToCard(local);
 
-    // ✏️ 按钮：内联输入框 + wttr 验证后保存
+    // ✏️ 按钮：城市选择面板
     document.getElementById("weatherLocateBtn")?.addEventListener("click", () => {
-      const card = document.getElementById("weatherPrimaryCard")!;
-      // 已有输入框时直接 focus
-      if (card.querySelector(".weather-city-input")) {
-        card.querySelector<HTMLInputElement>(".weather-city-input")?.focus();
-        return;
-      }
-      const current = getSavedCity();
-      const bar = document.createElement("div");
-      bar.className = "weather-city-bar";
-      bar.innerHTML = `
-        <input class="weather-city-input" value="${current}" placeholder="City name (e.g. Chengdu)" spellcheck="false" />
-        <button class="weather-city-confirm">✓</button>
-        <button class="weather-city-cancel">✕</button>
-        <span class="weather-city-hint"></span>`;
-      card.appendChild(bar);
-      const inp  = bar.querySelector<HTMLInputElement>(".weather-city-input")!;
-      const hint = bar.querySelector<HTMLSpanElement>(".weather-city-hint")!;
-      const confirmBtn = bar.querySelector<HTMLButtonElement>(".weather-city-confirm")!;
-      inp.focus(); inp.select();
+      if (document.getElementById("weatherCityPicker")) return;
 
-      const tryConfirm = async () => {
-        const val = inp.value.trim();
-        if (!val || val === current) { bar.remove(); return; }
+      const CITIES = [
+        "Beijing","Shanghai","Chengdu","Guangzhou","Shenzhen","Hangzhou",
+        "Wuhan","Nanjing","Xi'an","Chongqing","Tianjin","Suzhou",
+        "Changsha","Zhengzhou","Qingdao","Kunming","Hefei","Fuzhou",
+        "Harbin","Shenyang","Dalian","Jinan","Nanchang","Guiyang",
+        "Urumqi","Lhasa","Hohhot","Nanning","Haikou","Lanzhou",
+        "Tokyo","Seoul","Singapore","London","New York","Paris","Sydney",
+      ];
+
+      const picker = document.createElement("div");
+      picker.id = "weatherCityPicker";
+      picker.innerHTML = `
+        <div class="wcp-header">
+          <input class="wcp-search" placeholder="搜索城市…" autocomplete="off" />
+          <button class="wcp-close">✕</button>
+        </div>
+        <div class="wcp-grid">${CITIES.map(c =>
+          `<button class="wcp-city${c === getSavedCity() ? " wcp-city--active" : ""}">${c}</button>`
+        ).join("")}</div>
+        <div class="wcp-custom">
+          <span class="wcp-custom-label">其他城市：</span>
+          <input class="wcp-custom-input" placeholder="输入英文城市名" />
+          <button class="wcp-custom-confirm">确认</button>
+          <span class="wcp-hint"></span>
+        </div>`;
+
+      document.getElementById("weatherPrimaryCard")!.appendChild(picker);
+
+      const search   = picker.querySelector<HTMLInputElement>(".wcp-search")!;
+      const grid     = picker.querySelector<HTMLElement>(".wcp-grid")!;
+      const hint     = picker.querySelector<HTMLSpanElement>(".wcp-hint")!;
+      const customIn = picker.querySelector<HTMLInputElement>(".wcp-custom-input")!;
+      search.focus();
+
+      // 搜索过滤
+      search.addEventListener("input", () => {
+        const q = search.value.toLowerCase();
+        grid.querySelectorAll<HTMLButtonElement>(".wcp-city").forEach(btn => {
+          btn.style.display = btn.textContent!.toLowerCase().includes(q) ? "" : "none";
+        });
+      });
+
+      const applyCity = async (city: string) => {
         hint.textContent = "验证中…"; hint.style.color = "var(--text3)";
-        confirmBtn.disabled = true;
         try {
-          const r = await fetch(`https://wttr.in/${encodeURIComponent(val)}?format=j1`, { signal: AbortSignal.timeout(6000) });
-          if (!r.ok) throw new Error();
+          const r = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`, { signal: AbortSignal.timeout(6000) });
+          if (!r.ok) throw 0;
           const d = await r.json();
-          // wttr 找不到城市时返回一个特殊响应，nearest_area 为空
           const area = d.nearest_area?.[0];
-          if (!area) throw new Error();
-          const realCity = area.areaName?.[0]?.value || val;
+          if (!area) throw 0;
+          const realCity = area.areaName?.[0]?.value || city;
           saveCity(realCity);
-          hint.textContent = `✓ ${realCity}`;
-          hint.style.color = "var(--accent)";
-          setTimeout(() => bar.remove(), 800);
-          // 用真实城市名重新拉天气
+          picker.remove();
           fetchLocalWeather(realCity).then(w => { if (w) applyWeatherToCard(w); });
         } catch {
           hint.textContent = "❌ 找不到该城市";
           hint.style.color = "#f87171";
-          confirmBtn.disabled = false;
-          inp.focus(); inp.select();
         }
       };
 
-      confirmBtn.addEventListener("click", tryConfirm);
-      bar.querySelector(".weather-city-cancel")!.addEventListener("click", () => bar.remove());
-      inp.addEventListener("keydown", e => {
-        if (e.key === "Enter") tryConfirm();
-        if (e.key === "Escape") bar.remove();
+      // 预设城市点击
+      grid.addEventListener("click", e => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".wcp-city");
+        if (!btn) return;
+        applyCity(btn.textContent!);
       });
+
+      // 自定义输入确认
+      picker.querySelector(".wcp-custom-confirm")!.addEventListener("click", () => {
+        const v = customIn.value.trim();
+        if (v) applyCity(v);
+      });
+      customIn.addEventListener("keydown", e => { if (e.key === "Enter") { const v = customIn.value.trim(); if (v) applyCity(v); } });
+
+      picker.querySelector(".wcp-close")!.addEventListener("click", () => picker.remove());
     });
   }
 
@@ -2331,20 +2355,40 @@ import Base from "../layouts/Base.astro";
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
   }
-  .weather-city-bar {
-    display: flex; align-items: center; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+  /* 城市选择面板 */
+  #weatherCityPicker {
+    margin-top: 8px; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px;
   }
-  .weather-city-input {
-    flex: 1; min-width: 0; padding: 3px 7px; border-radius: 6px; font-size: 12px;
-    border: 1px solid var(--accent); background: var(--bg3); color: var(--text1);
-    outline: none;
+  .wcp-header { display: flex; gap: 6px; align-items: center; }
+  .wcp-search {
+    flex: 1; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg3); color: var(--text1); font-size: 12px; outline: none;
   }
-  .weather-city-confirm, .weather-city-cancel {
-    padding: 2px 7px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px;
+  .wcp-search:focus { border-color: var(--accent); }
+  .wcp-close { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; padding: 2px 5px; }
+  .wcp-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+  .wcp-city {
+    padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--bg3); color: var(--text2); font-size: 12px; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
   }
-  .weather-city-confirm { background: var(--accent); color: #fff; }
-  .weather-city-cancel  { background: var(--bg4); color: var(--text2); }
-  .weather-city-hint    { font-size: 11px; }
+  .wcp-city:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .wcp-city--active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .wcp-custom { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 8px; }
+  .wcp-custom-label { font-size: 11px; color: var(--text3); }
+  .wcp-custom-input {
+    flex: 1; min-width: 80px; padding: 3px 7px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text1); font-size: 12px; outline: none;
+  }
+  .wcp-custom-input:focus { border-color: var(--accent); }
+  .wcp-custom-confirm {
+    padding: 3px 10px; border-radius: 6px; border: none; cursor: pointer;
+    background: var(--accent); color: #fff; font-size: 12px;
+  }
+  .wcp-hint { font-size: 11px; }
+  /* 旧输入框样式保留兼容 */
+  .weather-city-bar { display: none; }
   .weather-locate-btn {
     margin-left: auto; background: none; border: none; cursor: pointer;
     font-size: 14px; padding: 2px 4px; border-radius: 6px; opacity: 0.6;
