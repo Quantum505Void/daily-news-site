@@ -6,10 +6,8 @@ Daily Digest v2 - 结构化新闻简报
 
 import json
 import os
-import sys
 import gzip
 import time
-import subprocess
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
