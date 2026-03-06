@@ -581,7 +581,7 @@ import Base from "../layouts/Base.astro";
           ${genTime ? `<span class="stats-sep">·</span><span>更新于 ${genTime}</span>` : ""}
         </div>
         ${wordCloud}
-        ${renderWeatherAlmanac(d)}
+        ${renderMarketAlmanac(d)}
         ${renderDayTimeline()}
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
@@ -624,8 +624,8 @@ import Base from "../layouts/Base.astro";
       window.scrollTo({ top: 0, behavior: "instant" });
       initSectionObserver();
       restoreDQVotes();
-      // 客户端按 IP 注入本地天气（异步，不阻塞渲染）
-      injectLocalWeather();
+      // 客户端注入实时市场数据（异步，不阻塞渲染）
+      injectMarketData();
       startTimelineTick();
       // 预备 AI 推荐问题（当 AI 面板打开时使用）
       if (d.hot_words?.length) {
@@ -790,327 +790,67 @@ import Base from "../layouts/Base.astro";
     95:"Thunderstorm",96:"Thunderstorm+hail",99:"Thunderstorm+hail",
   };
 
-  async function fetchWttr(lat: string, lon: string) {
-    const query = lat && lon ? `${lat},${lon}` : "";
-    const r = await fetch(`https://wttr.in/${query}?format=j1`, { signal: AbortSignal.timeout(7000) });
-    if (!r.ok) return null;
-    const d = await r.json();
-    const cur = d.current_condition?.[0];
-    const forecasts = (d.weather ?? []).slice(0, 3).map((w: any) => ({
-      date: w.date, min_c: +w.mintempC, max_c: +w.maxtempC,
-      desc: w.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
-    }));
-    return {
-      source: "wttr.in",
-      temp_c: +(cur?.temp_C ?? 0),
-      feels_c: +(cur?.FeelsLikeC ?? 0),
-      humidity: +(cur?.humidity ?? 0),
-      wind_kmph: +(cur?.windspeedKmph ?? 0),
-      desc: cur?.weatherDesc?.[0]?.value ?? "",
-      forecasts,
-    };
+  // ══════════════════════════════════════════════
+  //  市场快讯 + 节假日模块（替换天气）
+  // ══════════════════════════════════════════════
+
+  // ── 节假日数据（国内法定，纯前端） ──
+  function getNextHoliday(): {name:string; date:string; days:number} | null {
+    const HOLIDAYS: {name:string; date:string}[] = [
+      {name:"清明节",   date:"2026-04-05"},
+      {name:"劳动节",   date:"2026-05-01"},
+      {name:"端午节",   date:"2026-06-20"},
+      {name:"中秋节",   date:"2026-10-01"},
+      {name:"国庆节",   date:"2026-10-01"},
+      {name:"元旦",     date:"2027-01-01"},
+      {name:"春节",     date:"2027-01-28"},
+    ];
+    const now = Date.now();
+    for (const h of HOLIDAYS) {
+      const ms = new Date(h.date).getTime() - now;
+      if (ms > 0) return { name: h.name, date: h.date, days: Math.ceil(ms / 86400000) };
+    }
+    return null;
   }
 
-  async function fetchOpenMeteo(lat: string, lon: string) {
-    if (!lat || !lon) return null;
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
-      + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code`
-      + `&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
-    const r = await fetch(url, { signal: AbortSignal.timeout(7000) });
-    if (!r.ok) return null;
-    const d = await r.json();
-    const cur = d.current ?? {};
-    const daily = d.daily ?? {};
-    const forecasts = (daily.time ?? []).map((date: string, i: number) => ({
-      date, min_c: daily.temperature_2m_min?.[i] ?? 0,
-      max_c: daily.temperature_2m_max?.[i] ?? 0,
-      desc: WMO[daily.weather_code?.[i]] ?? "",
-    }));
-    return {
-      source: "Open-Meteo",
-      temp_c: cur.temperature_2m ?? 0,
-      feels_c: cur.apparent_temperature ?? 0,
-      humidity: cur.relative_humidity_2m ?? 0,
-      wind_kmph: cur.wind_speed_10m ?? 0,
-      desc: WMO[cur.weather_code] ?? "",
-      forecasts,
-    };
-  }
-
-  async function fetchOpenWeatherMap(lat: string, lon: string) {
-    // openweathermap.org 的免费无需 key 的 geocode 接口（实际需要 key，改用 weatherapi.com 免费层）
-    // 改为 7timer.info 纯公益气象 API
-    if (!lat || !lon) return null;
-    const url = `https://www.7timer.info/bin/api.pl?lon=${lon}&lat=${lat}&product=civillight&output=json`;
-    const r = await fetch(url, { signal: AbortSignal.timeout(7000) });
-    if (!r.ok) return null;
-    const d = await r.json();
-    const series = d.dataseries ?? [];
-    if (!series.length) return null;
-    const cur = series[0];
-    const PREC: Record<string, string> = {
-      clear:"Clear",pcloudy:"Partly cloudy",mcloudy:"Mostly cloudy",
-      cloudy:"Cloudy",rain:"Rain",snow:"Snow",ts:"Thunderstorm",
-      tsrain:"Thunderstorm+rain",windy:"Windy",fog:"Fog",
-    };
-    const forecasts = series.slice(0, 3).map((s: any) => {
-      const ds = String(s.date);
-      const date = `${ds.slice(0,4)}-${ds.slice(4,6)}-${ds.slice(6,8)}`;
-      return { date, min_c: s.temp2m?.min ?? 0, max_c: s.temp2m?.max ?? 0, desc: PREC[s.weather] ?? s.weather };
-    });
-    return {
-      source: "7Timer",
-      temp_c: (cur.temp2m?.min + cur.temp2m?.max) / 2,
-      feels_c: (cur.temp2m?.min + cur.temp2m?.max) / 2,
-      humidity: 0,
-      wind_kmph: (cur.wind10m?.speed ?? 0) * 3.6,
-      desc: PREC[cur.weather] ?? cur.weather ?? "",
-      forecasts,
-    };
-  }
-
-
-  // ── 城市设置（localStorage，默认 Beijing） ──
-  const WEATHER_CITY_KEY = "xiaoxin_weather_city";
-  function getSavedCity(): string {
-    return localStorage.getItem(WEATHER_CITY_KEY) || "Beijing";
-  }
-  function saveCity(city: string) {
-    localStorage.setItem(WEATHER_CITY_KEY, city.trim());
-  }
-
-  async function fetchLocalWeather(cityOverride?: string): Promise<any | null> {
-    const city = cityOverride ?? getSavedCity();
-
-    // wttr 支持城市名，同时从响应里提取经纬度给其他源用
-    let lat = "", lon = "";
-    const wttrData = await (async () => {
-      try {
-        const r = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`, { signal: AbortSignal.timeout(7000) });
-        if (!r.ok) return null;
-        const d = await r.json();
-        // 提取经纬度
-        const area = d.nearest_area?.[0];
-        lat = area?.latitude ?? "";
-        lon = area?.longitude ?? "";
-        const cur = d.current_condition?.[0];
-        const forecasts = (d.weather ?? []).slice(0, 3).map((w: any) => ({
-          date: w.date, min_c: +w.mintempC, max_c: +w.maxtempC,
-          desc: w.hourly?.[4]?.weatherDesc?.[0]?.value ?? "",
-        }));
-        return { source: "wttr.in", temp_c: +(cur?.temp_C ?? 0), feels_c: +(cur?.FeelsLikeC ?? 0),
-          humidity: +(cur?.humidity ?? 0), wind_kmph: +(cur?.windspeedKmph ?? 0),
-          desc: cur?.weatherDesc?.[0]?.value ?? "", forecasts };
-      } catch { return null; }
-    })();
-
-    // 用坐标并行其他三源
-    const [meteo, timer7, metno] = await Promise.allSettled([
-      fetchOpenMeteo(lat, lon),
-      fetchOpenWeatherMap(lat, lon),
-      fetchMetNorway(lat, lon),
-    ]);
-
-    const sources = [wttrData, ...[meteo, timer7, metno]
-      .filter(r => r.status === "fulfilled" && r.value)
-      .map(r => (r as PromiseFulfilledResult<any>).value)]
-      .filter(Boolean);
-
-    if (!sources.length) return null;
-
-    // 3. 综合：温度取均值，天气描述取票数最多的，预报合并
-    const avg = (arr: number[]) => Math.round(arr.reduce((a, b) => a + b, 0) / arr.length * 10) / 10;
-    const mode = (arr: string[]) => {
-      const freq: Record<string, number> = {};
-      arr.forEach(s => { freq[s] = (freq[s] ?? 0) + 1; });
-      return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? arr[0];
-    };
-
-    const temp_c  = avg(sources.map(s => +s.temp_c).filter(Boolean));
-    const feels_c = avg(sources.map(s => +s.feels_c).filter(Boolean));
-    const humidity= avg(sources.map(s => +s.humidity).filter(n => n > 0));
-    const wind    = avg(sources.map(s => +s.wind_kmph).filter(Boolean));
-    const desc    = mode(sources.map(s => s.desc).filter(Boolean));
-
-    // 预报：以天为键合并，min 取最小，max 取最大
-    const fcMap: Record<string, {min: number[], max: number[], desc: string[]}> = {};
-    sources.forEach(s => (s.forecasts ?? []).forEach((f: any) => {
-      if (!f.date) return;
-      fcMap[f.date] ??= { min: [], max: [], desc: [] };
-      if (f.min_c !== undefined) fcMap[f.date].min.push(+f.min_c);
-      if (f.max_c !== undefined) fcMap[f.date].max.push(+f.max_c);
-      if (f.desc) fcMap[f.date].desc.push(f.desc);
-    }));
-    const forecasts = Object.entries(fcMap).slice(0, 3).map(([date, v]) => ({
-      date,
-      min_c: Math.round(Math.min(...v.min)),
-      max_c: Math.round(Math.max(...v.max)),
-      desc: mode(v.desc),
-    }));
-
-    return {
-      city, temp_c, feels_c, humidity, wind_kmph: wind, desc, forecasts,
-      sources: sources.map(s => s.source),
-      _local: true,
-    };
-  }
-
-  function applyWeatherToCard(local: any) {
-    const emoji = weatherEmoji(local.desc ?? "");
-    const fc = (local.forecasts ?? []).slice(0, 3).map((f: any) =>
-      `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
-    ).join("");
-    const srcBadges = (local.sources ?? []).map((s: string) =>
-      `<span class="weather-src-badge">${s}</span>`
-    ).join("");
-    const extra = [
-      local.feels_c ? `体感 ${local.feels_c}°` : "",
-      local.humidity ? `湿度 ${local.humidity}%` : "",
-      local.wind_kmph ? `风速 ${local.wind_kmph} km/h` : "",
-    ].filter(Boolean).join(" · ");
-    const locIcon = "📍";
-    const card = document.getElementById("weatherPrimaryCard");
-    if (!card) return;
-    card.classList.add("weather-card--local");
-    card.querySelector<HTMLElement>(".weather-card-top .weather-icon")!.textContent = emoji;
-    card.querySelector<HTMLElement>("#weatherCityName")!.textContent = `${locIcon} ${local.city}`;
-    card.querySelector<HTMLElement>("#weatherTemp")!.textContent = `${local.temp_c}°C`;
-    card.querySelector<HTMLElement>("#weatherDesc")!.innerHTML =
-      `${local.desc ?? ""}${extra ? `<span class="weather-extra"> · ${extra}</span>` : ""}`;
-    card.querySelector<HTMLElement>("#weatherForecast")!.innerHTML =
-      fc + (srcBadges ? `<div class="weather-sources">${srcBadges}</div>` : "");
-    // 按钮状态
-    const btn = document.getElementById("weatherLocateBtn");
-    if (btn) btn.title = local._gps ? "已用 GPS 定位" : "点击用 GPS 精确定位";
-  }
-
-  async function injectLocalWeather() {
-    const local = await fetchLocalWeather();
-    if (!local?.city) return;
-    applyWeatherToCard(local);
-
-    // ✏️ 按钮：城市选择面板
-    document.getElementById("weatherLocateBtn")?.addEventListener("click", () => {
-      if (document.getElementById("weatherCityPicker")) return;
-
-      const CITIES = [
-        "Beijing","Shanghai","Chengdu","Guangzhou","Shenzhen","Hangzhou",
-        "Wuhan","Nanjing","Xi'an","Chongqing","Tianjin","Suzhou",
-        "Changsha","Zhengzhou","Qingdao","Kunming","Hefei","Fuzhou",
-        "Harbin","Shenyang","Dalian","Jinan","Nanchang","Guiyang",
-        "Urumqi","Lhasa","Hohhot","Nanning","Haikou","Lanzhou",
-        "Tokyo","Seoul","Singapore","London","New York","Paris","Sydney",
-      ];
-
-      const picker = document.createElement("div");
-      picker.id = "weatherCityPicker";
-      picker.innerHTML = `
-        <div class="wcp-header">
-          <input class="wcp-search" placeholder="搜索城市…" autocomplete="off" />
-          <button class="wcp-close">✕</button>
-        </div>
-        <div class="wcp-grid">${CITIES.map(c =>
-          `<button class="wcp-city${c === getSavedCity() ? " wcp-city--active" : ""}">${c}</button>`
-        ).join("")}</div>
-        <div class="wcp-custom">
-          <span class="wcp-custom-label">其他城市：</span>
-          <input class="wcp-custom-input" placeholder="输入英文城市名" />
-          <button class="wcp-custom-confirm">确认</button>
-          <span class="wcp-hint"></span>
-        </div>`;
-
-      document.getElementById("weatherPrimaryCard")!.appendChild(picker);
-
-      const search   = picker.querySelector<HTMLInputElement>(".wcp-search")!;
-      const grid     = picker.querySelector<HTMLElement>(".wcp-grid")!;
-      const hint     = picker.querySelector<HTMLSpanElement>(".wcp-hint")!;
-      const customIn = picker.querySelector<HTMLInputElement>(".wcp-custom-input")!;
-      search.focus();
-
-      // 搜索过滤
-      search.addEventListener("input", () => {
-        const q = search.value.toLowerCase();
-        grid.querySelectorAll<HTMLButtonElement>(".wcp-city").forEach(btn => {
-          btn.style.display = btn.textContent!.toLowerCase().includes(q) ? "" : "none";
-        });
-      });
-
-      const applyCity = async (city: string) => {
-        hint.textContent = "验证中…"; hint.style.color = "var(--text3)";
-        try {
-          const r = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`, { signal: AbortSignal.timeout(6000) });
-          if (!r.ok) throw 0;
-          const d = await r.json();
-          const area = d.nearest_area?.[0];
-          if (!area) throw 0;
-          const realCity = area.areaName?.[0]?.value || city;
-          saveCity(realCity);
-          picker.remove();
-          fetchLocalWeather(realCity).then(w => { if (w) applyWeatherToCard(w); });
-        } catch {
-          hint.textContent = "❌ 找不到该城市";
-          hint.style.color = "#f87171";
-        }
-      };
-
-      // 预设城市点击
-      grid.addEventListener("click", e => {
-        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".wcp-city");
-        if (!btn) return;
-        applyCity(btn.textContent!);
-      });
-
-      // 自定义输入确认
-      picker.querySelector(".wcp-custom-confirm")!.addEventListener("click", () => {
-        const v = customIn.value.trim();
-        if (v) applyCity(v);
-      });
-      customIn.addEventListener("keydown", e => { if (e.key === "Enter") { const v = customIn.value.trim(); if (v) applyCity(v); } });
-
-      picker.querySelector(".wcp-close")!.addEventListener("click", () => picker.remove());
-    });
-  }
-
-  function weatherEmoji(desc: string): string {
-    if (!desc) return "🌤️";
-    if (/Sun|Clear/i.test(desc)) return "☀️";
-    if (/Cloud/i.test(desc)) return "⛅";
-    if (/Rain/i.test(desc)) return "🌧️";
-    if (/Snow/i.test(desc)) return "❄️";
-    if (/Thunder/i.test(desc)) return "⛈️";
-    if (/Fog|Mist/i.test(desc)) return "🌫️";
-    return "🌤️";
-  }
-  function renderWeatherAlmanac(d: any): string {
-    const weatherArr: any[] = Array.isArray(d.weather) ? d.weather : (d.weather ? [d.weather] : []);
+  // ── 渲染服务端占位（客户端注入前的骨架） ──
+  function renderMarketAlmanac(d: any): string {
     const a = d.almanac;
-    if (!weatherArr.length && !a) return "";
     const parts: string[] = [];
 
-    if (weatherArr.length) {
-      // 只取第一个城市（北京）作为降级显示
-      const w = weatherArr.find(x => !x.error) ?? weatherArr[0];
-      const emoji = weatherEmoji(w?.desc ?? "");
-      const cn = w?.city ?? "";
-      const fc = (w?.forecasts ?? []).slice(0, 3).map((f: any) =>
-        `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
-      ).join("");
-      parts.push(`<div class="weather-block" id="weatherBlock">
-        <div class="weather-cards">
-          <div class="weather-card" id="weatherPrimaryCard">
-            <div class="weather-card-top">
-              <span class="weather-icon">${emoji}</span>
-              <span class="weather-city-name" id="weatherCityName">${cn}</span>
-              <span class="weather-temp" id="weatherTemp">${w?.temp_c ?? ""}°C</span>
-              <button class="weather-locate-btn" id="weatherLocateBtn" title="切换城市">✏️</button>
-            </div>
-            <div class="weather-desc" id="weatherDesc">${w?.desc ?? ""}</div>
-            <div class="weather-forecast" id="weatherForecast">${fc}</div>
-          </div>
+    // 市场快讯骨架
+    parts.push(`<div class="market-block" id="marketBlock">
+      <div class="market-header">
+        <span class="market-title">💹 市场快讯</span>
+        <span class="market-time" id="marketTime">加载中…</span>
+      </div>
+      <div class="market-grid" id="marketGrid">
+        ${["沪指","深指","纳指","恒生","USD/CNY"].map(n =>
+          `<div class="market-item" data-name="${n}">
+            <span class="market-name">${n}</span>
+            <span class="market-val">–</span>
+            <span class="market-chg">–</span>
+          </div>`
+        ).join("")}
+      </div>
+    </div>`);
+
+    // 节假日骨架
+    const holiday = getNextHoliday();
+    if (holiday) {
+      parts.push(`<div class="holiday-block">
+        <span class="holiday-icon">🎉</span>
+        <div class="holiday-info">
+          <span class="holiday-name">${holiday.name}</span>
+          <span class="holiday-days">还有 <b>${holiday.days}</b> 天</span>
+        </div>
+        <div class="holiday-bar-wrap">
+          <div class="holiday-bar" style="width:${Math.max(4,100-Math.min(holiday.days,100))}%"></div>
         </div>
       </div>`);
     }
 
+    // 黄历（保留）
     if (a?.lunar_date) {
       const yi = (a.yi ?? []).map((s: string) => `<span class="almanac-yi">宜${s}</span>`).join("");
       const ji = (a.ji ?? []).map((s: string) => `<span class="almanac-ji">忌${s}</span>`).join("");
@@ -1123,6 +863,54 @@ import Base from "../layouts/Base.astro";
     }
 
     return parts.length ? `<div class="weather-almanac-row">${parts.join("")}</div>` : "";
+  }
+
+  // ── 客户端拉取实时行情 ──
+  async function injectMarketData() {
+    // Yahoo Finance query2 API（CORS 友好）
+    const SYMBOLS: {id:string; name:string; sym:string; type:string}[] = [
+      {id:"沪指", name:"沪指", sym:"000001.SS", type:"index"},
+      {id:"深指", name:"深指", sym:"399001.SZ", type:"index"},
+      {id:"纳指", name:"纳指", sym:"^IXIC",     type:"index"},
+      {id:"恒生", name:"恒生", sym:"^HSI",      type:"index"},
+      {id:"USD/CNY", name:"USD/CNY", sym:"CNY=X", type:"fx"},
+    ];
+
+    const grid = document.getElementById("marketGrid");
+    const timeEl = document.getElementById("marketTime");
+    if (!grid) return;
+
+    try {
+      const syms = SYMBOLS.map(s => s.sym).join(",");
+      const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(syms)}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
+      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok) throw 0;
+      const data = await r.json();
+      const quotes: any[] = data.quoteResponse?.result ?? [];
+
+      quotes.forEach(q => {
+        const sym = SYMBOLS.find(s => s.sym === q.symbol);
+        if (!sym) return;
+        const item = grid.querySelector<HTMLElement>(`.market-item[data-name="${sym.id}"]`);
+        if (!item) return;
+        const price = q.regularMarketPrice ?? 0;
+        const chg   = q.regularMarketChangePercent ?? 0;
+        const up    = chg >= 0;
+        item.querySelector<HTMLElement>(".market-val")!.textContent =
+          sym.type === "fx" ? price.toFixed(4) : price.toFixed(2);
+        const chgEl = item.querySelector<HTMLElement>(".market-chg")!;
+        chgEl.textContent = `${up ? "▲" : "▼"} ${Math.abs(chg).toFixed(2)}%`;
+        chgEl.className = `market-chg ${up ? "market-chg--up" : "market-chg--down"}`;
+        item.classList.add(up ? "market-item--up" : "market-item--down");
+      });
+
+      if (timeEl) {
+        const now = new Date();
+        timeEl.textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,"0")} 更新`;
+      }
+    } catch {
+      if (timeEl) timeEl.textContent = "行情暂不可用";
+    }
   }
 
   // ── 历史上的今天 ──
@@ -2330,80 +2118,51 @@ import Base from "../layouts/Base.astro";
   .weather-almanac-row {
     display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px;
   }
-  .weather-block {
+  /* ── 市场快讯 ── */
+  .market-block {
     background: var(--bg3); border: 1px solid var(--border);
     border-radius: 12px; padding: 10px 14px; flex: 1; min-width: 240px;
   }
-  .weather-cards {
-    display: flex; flex-wrap: wrap; gap: 10px;
+  .market-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .market-title { font-size: 13px; font-weight: 700; color: var(--heading); }
+  .market-time { font-size: 10px; color: var(--text3); }
+  .market-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .market-item {
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    background: var(--bg2); border-radius: 8px; padding: 5px 10px;
+    min-width: 70px; flex: 1; border: 1px solid transparent;
+    transition: border-color 0.2s;
   }
-  .weather-card {
-    display: flex; flex-direction: column; gap: 2px;
-    background: var(--bg2); border-radius: 10px; padding: 8px 10px;
-    min-width: 90px; flex: 1;
+  .market-item--up   { border-color: rgba(34,197,94,0.3); }
+  .market-item--down { border-color: rgba(239,68,68,0.25); }
+  .market-name { font-size: 10px; color: var(--text3); }
+  .market-val  { font-size: 13px; font-weight: 700; color: var(--heading); }
+  .market-chg  { font-size: 11px; }
+  .market-chg--up   { color: #22c55e; }
+  .market-chg--down { color: #ef4444; }
+  /* ── 节假日倒计时 ── */
+  .holiday-block {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px; min-width: 160px;
   }
-  .weather-card-top { display: flex; align-items: center; gap: 5px; }
-  .weather-icon { font-size: 18px; }
-  .weather-city-name { font-size: 12px; font-weight: 700; color: var(--heading); }
-  .weather-temp { font-size: 13px; font-weight: 600; color: var(--accent); margin-left: auto; }
-  .weather-desc { font-size: 11px; color: var(--text3); }
-  .weather-forecast { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
-  .weather-fc { font-size: 10px; color: var(--text2); background: var(--bg4); border-radius: 5px; padding: 1px 5px; }
+  .holiday-icon { font-size: 22px; flex-shrink: 0; }
+  .holiday-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .holiday-name { font-size: 13px; font-weight: 700; color: var(--heading); }
+  .holiday-days { font-size: 12px; color: var(--text2); }
+  .holiday-days b { color: var(--accent); font-size: 16px; }
+  .holiday-bar-wrap {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: var(--bg4); border-radius: 0 0 12px 12px; overflow: hidden;
+  }
+  .holiday-block { position: relative; overflow: hidden; }
+  .holiday-bar { height: 100%; background: var(--accent); border-radius: 0 2px 2px 0; transition: width 0.5s; }
+  /* ── 黄历（保留） ── */
   .almanac-block {
     background: var(--bg3); border: 1px solid var(--border);
     border-radius: 12px; padding: 10px 14px;
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
-  }
-  /* 城市选择面板 */
-  #weatherCityPicker {
-    margin-top: 8px; background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px;
-  }
-  .wcp-header { display: flex; gap: 6px; align-items: center; }
-  .wcp-search {
-    flex: 1; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border);
-    background: var(--bg3); color: var(--text1); font-size: 12px; outline: none;
-  }
-  .wcp-search:focus { border-color: var(--accent); }
-  .wcp-close { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; padding: 2px 5px; }
-  .wcp-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-  .wcp-city {
-    padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border);
-    background: var(--bg3); color: var(--text2); font-size: 12px; cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-  .wcp-city:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .wcp-city--active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .wcp-custom { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 8px; }
-  .wcp-custom-label { font-size: 11px; color: var(--text3); }
-  .wcp-custom-input {
-    flex: 1; min-width: 80px; padding: 3px 7px; border-radius: 6px;
-    border: 1px solid var(--border); background: var(--bg3); color: var(--text1); font-size: 12px; outline: none;
-  }
-  .wcp-custom-input:focus { border-color: var(--accent); }
-  .wcp-custom-confirm {
-    padding: 3px 10px; border-radius: 6px; border: none; cursor: pointer;
-    background: var(--accent); color: #fff; font-size: 12px;
-  }
-  .wcp-hint { font-size: 11px; }
-  /* 旧输入框样式保留兼容 */
-  .weather-city-bar { display: none; }
-  .weather-locate-btn {
-    margin-left: auto; background: none; border: none; cursor: pointer;
-    font-size: 14px; padding: 2px 4px; border-radius: 6px; opacity: 0.6;
-    transition: opacity 0.15s, transform 0.15s;
-  }
-  .weather-locate-btn:hover { opacity: 1; transform: scale(1.2); }
-  .weather-extra { color: var(--text3); font-size: 11px; }
-  .weather-sources { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
-  .weather-src-badge {
-    font-size: 10px; padding: 1px 6px; border-radius: 4px;
-    background: var(--bg4); color: var(--text3); border: 1px solid var(--border);
-  }
-  .weather-card--local {
-    border: 1px solid var(--accent);
-    background: color-mix(in srgb, var(--accent) 8%, var(--bg2));
   }
   .almanac-color { font-size: 12px; color: var(--text2); }
   .almanac-tags { width: 100%; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
