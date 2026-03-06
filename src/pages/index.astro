@@ -70,6 +70,18 @@ import Base from "../layouts/Base.astro";
     <button class="mob-nav-btn" data-sec="china">🇨🇳<span>国内</span></button>
     <button class="mob-nav-btn mob-nav-more" id="mobNavMore">☰<span>更多</span></button>
   </nav>
+  <!-- 移动端更多板块弹出菜单 -->
+  <div class="mob-more-sheet" id="mobMoreSheet">
+    <div class="mob-more-grid">
+      <button class="mob-more-btn" data-sec="world">🌍<span>国际</span></button>
+      <button class="mob-more-btn" data-sec="military">🛡️<span>军事</span></button>
+      <button class="mob-more-btn" data-sec="entertainment">🎬<span>娱乐</span></button>
+      <button class="mob-more-btn" data-sec="sports">⚽<span>体育</span></button>
+      <button class="mob-more-btn" data-sec="auto">🚗<span>汽车</span></button>
+      <button class="mob-more-btn" data-sec="travel">✈️<span>旅游</span></button>
+      <button class="mob-more-btn" data-sec="jobs_hot">💼<span>职场</span></button>
+    </div>
+  </div>
 
   <div class="ai-panel" id="aiPanel">
     <div class="ai-panel-header">
@@ -1235,25 +1247,52 @@ import Base from "../layouts/Base.astro";
   }
 
   // ── 移动端底部导航 ──
-  document.getElementById("mobileBottomNav")?.addEventListener("click", e => {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>(".mob-nav-btn");
-    if (!btn) return;
-    if (btn.id === "mobNavMore") {
-      // 滚到页面顶部显示 sec-nav
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    const sec = btn.dataset.sec;
-    if (!sec) return;
+  const moreSheet = document.getElementById("mobMoreSheet")!;
+
+  function scrollToSection(sec: string) {
     const target = document.getElementById(`sec-${sec}`);
     if (!target) return;
     const header = document.querySelector(".site-header") as HTMLElement;
     const secNav = document.getElementById("secNav") as HTMLElement;
     const offset = (header?.offsetHeight ?? 53) + (secNav?.offsetHeight ?? 45) + 8;
     window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
-    // 高亮
+  }
+
+  document.getElementById("mobileBottomNav")?.addEventListener("click", e => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>(".mob-nav-btn");
+    if (!btn) return;
+    if (btn.id === "mobNavMore") {
+      moreSheet.classList.toggle("mob-more-sheet--open");
+      btn.classList.toggle("active", moreSheet.classList.contains("mob-more-sheet--open"));
+      return;
+    }
+    moreSheet.classList.remove("mob-more-sheet--open");
+    document.getElementById("mobNavMore")?.classList.remove("active");
+    const sec = btn.dataset.sec;
+    if (!sec) return;
+    scrollToSection(sec);
     document.querySelectorAll(".mob-nav-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
+  });
+
+  moreSheet.addEventListener("click", e => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>(".mob-more-btn");
+    if (!btn) return;
+    const sec = btn.dataset.sec;
+    if (!sec) return;
+    moreSheet.classList.remove("mob-more-sheet--open");
+    document.getElementById("mobNavMore")?.classList.remove("active");
+    scrollToSection(sec);
+  });
+
+  // 点击其他区域关闭更多菜单
+  document.addEventListener("click", e => {
+    if (!moreSheet.classList.contains("mob-more-sheet--open")) return;
+    const nav = document.getElementById("mobileBottomNav");
+    if (!nav?.contains(e.target as Node) && !moreSheet.contains(e.target as Node)) {
+      moreSheet.classList.remove("mob-more-sheet--open");
+      document.getElementById("mobNavMore")?.classList.remove("active");
+    }
   });
 
   init();
@@ -1968,8 +2007,9 @@ import Base from "../layouts/Base.astro";
   }
   @media (max-width: 680px) {
     .mobile-bottom-nav { display: flex; }
-    /* 底部导航占位，防止内容被遮挡 */
+    /* 底部导航占位，防止内容/footer 被遮挡 */
     .layout { padding-bottom: 56px; }
+    .page-footer { padding-bottom: calc(56px + 20px); }
     /* 移动端 FAB 上移 */
     .ai-fab-wrap { bottom: 70px !important; }
     .back-top { bottom: 70px !important; right: 74px !important; }
@@ -1985,6 +2025,36 @@ import Base from "../layouts/Base.astro";
   .mob-nav-btn span { font-size: 10px; font-weight: 600; line-height: 1; }
   .mob-nav-btn:hover, .mob-nav-btn.active { color: var(--accent); }
   .mob-nav-more { font-size: 16px; }
+
+  /* 更多板块弹出菜单 */
+  .mob-more-sheet {
+    display: none;
+    position: fixed; bottom: 56px; left: 0; right: 0;
+    background: var(--bg2); border-top: 1px solid var(--border);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    z-index: 499; padding: 12px 8px 8px;
+    transform: translateY(100%);
+    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  .mob-more-sheet.mob-more-sheet--open {
+    transform: translateY(0);
+  }
+  @media (max-width: 680px) {
+    .mob-more-sheet { display: block; }
+  }
+  .mob-more-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  }
+  .mob-more-btn {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer;
+    color: var(--text2); font-size: 20px;
+    padding: 10px 4px 8px; transition: color 0.15s, background 0.15s;
+  }
+  .mob-more-btn span { font-size: 11px; font-weight: 600; line-height: 1; }
+  .mob-more-btn:active { background: var(--bg4); color: var(--accent); }
 
   /* ── header-blur-bg CSS var ── */
   :root {
