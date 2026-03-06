@@ -473,6 +473,7 @@ import Base from "../layouts/Base.astro";
     const num = `<span class="card-num">${idx + 1}</span>`;
     const expandBtn = defCollapsed ? `<button class="card-expand">展开 ▾</button>` : ``;
     const faved = favedSet ? favedSet.has(item.url) : isFaved(item.url);
+    const read  = item.url ? isRead(item.url) : false;
     const faveHtml = item.url
       ? `<button class="fave-btn${faved ? " faved" : ""}" data-url="${item.url}" title="${faved ? "取消收藏" : "收藏"}">${faved ? "★" : "☆"}</button>`
       : "";
