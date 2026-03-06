@@ -17,6 +17,7 @@ import Base from "../layouts/Base.astro";
         spellcheck="false"
       />
       <span class="search-icon">⌕</span>
+      <kbd class="search-kbd" id="searchKbd">⌘K</kbd>
       <button id="searchClear" class="search-clear" style="display:none" aria-label="清空">✕</button>
     </div>
     <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
@@ -32,10 +33,18 @@ import Base from "../layouts/Base.astro";
   </div>
 
   <footer class="page-footer">
-    由小新 🔧 自动生成 ·
-    <a href="https://github.com/Quantum505Void/daily-news-site" target="_blank" rel="noopener">GitHub</a>
-    · <span id="buildTime"></span>
-    · 👁 <span id="vercount_value_site_pv">--</span> 次
+    <div class="footer-inner">
+      <span>由小新 🔧 自动生成</span>
+      <span class="footer-sep">·</span>
+      <a href="https://github.com/Quantum505Void/daily-news-site" target="_blank" rel="noopener">GitHub</a>
+      <span class="footer-sep">·</span>
+      <span id="buildTime"></span>
+    </div>
+    <div class="footer-stats">
+      <span class="footer-stat">👁 <span id="vercount_value_site_pv" class="footer-stat-val">--</span> 次浏览</span>
+      <span class="footer-sep">·</span>
+      <span class="footer-stat">👤 <span id="vercount_value_site_uv" class="footer-stat-val">--</span> 位访客</span>
+    </div>
   </footer>
 
   <button class="back-top" id="backTop" aria-label="回到顶部" title="回到顶部">↑</button>
@@ -79,6 +88,16 @@ import Base from "../layouts/Base.astro";
     transition: background 0.15s, color 0.15s;
   }
   .search-clear:hover { background: var(--bg4); color: var(--text); }
+  .search-kbd {
+    position: absolute; right: 10px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px; color: var(--text3);
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 5px;
+    pointer-events: none; font-family: var(--font);
+    transition: opacity 0.15s;
+  }
+  #searchInput:focus ~ .search-kbd { opacity: 0; }
   #searchInput {
     background: var(--search-bg);
     border: 1px solid var(--search-border);
@@ -149,10 +168,16 @@ import Base from "../layouts/Base.astro";
 
   /* ── Footer ── */
   .page-footer {
-    text-align: center; padding: 18px;
+    text-align: center; padding: 20px 18px;
     color: var(--text3); font-size: 12px;
     border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 6px; align-items: center;
   }
+  .footer-inner { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .footer-sep { opacity: 0.35; }
+  .footer-stats { display: flex; align-items: center; gap: 8px; }
+  .footer-stat { display: flex; align-items: center; gap: 3px; }
+  .footer-stat-val { font-weight: 600; color: var(--text2); transition: color 0.3s; }
 
   /* ── Mobile ── */
   @media (max-width: 680px) {
@@ -336,7 +361,7 @@ import Base from "../layouts/Base.astro";
     const cursorStyle = item.url ? `style="cursor:pointer"` : "";
     return `<article class="card${extraClass}" ${urlAttr} ${cursorStyle}>
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
-      <p class="card-body ${defCollapsed}">${item.body}</p>
+      <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed" : ""}"><p class="card-body">${item.body}</p></div>
       <div class="card-footer">${sourceHtml}${expandBtn}</div>
     </article>`;
   }
@@ -356,7 +381,11 @@ import Base from "../layouts/Base.astro";
     const totalItems = sections.reduce((n, s) => n + (s.items?.length ?? 0), 0);
 
     const navHtml = sections
-      .map(s => `<a class="sec-nav-btn" data-sec="${s.id}" href="#sec-${s.id}">${s.icon} ${s.title}</a>`)
+      .map(s => {
+        const count = s.items?.length ?? 0;
+        const badge = count ? `<span class="sec-nav-badge">${count}</span>` : "";
+        return `<a class="sec-nav-btn" data-sec="${s.id}" href="#sec-${s.id}">${s.icon} ${s.title}${badge}</a>`;
+      })
       .join("");
 
     const sectionsHtml = sections.map(s => {
@@ -383,9 +412,9 @@ import Base from "../layouts/Base.astro";
         </div>
         ${d.summary ? `<div class="digest-summary"><p class="digest-summary-text">${d.summary}</p></div>` : ""}
         <div class="digest-stats">
-          <span>${sections.length} 板块</span>
+          <span data-countup="${sections.length}" class="stats-num">${sections.length}</span> 板块
           <span class="stats-sep">·</span>
-          <span>${totalItems} 条资讯</span>
+          <span data-countup="${totalItems}" class="stats-num">${totalItems}</span> 条资讯
           ${genTime ? `<span class="stats-sep">·</span><span>更新于 ${genTime}</span>` : ""}
         </div>
       </div>
@@ -411,6 +440,11 @@ import Base from "../layouts/Base.astro";
       main.innerHTML = renderV2(d);
       // 清掉 loading 状态
       document.querySelectorAll(".date-btn.loading").forEach(b => b.classList.remove("loading"));
+      // countUp 动画
+      main.querySelectorAll<HTMLElement>("[data-countup]").forEach(el => {
+        const target = parseInt(el.dataset.countup ?? "0");
+        if (target > 1) countUp(el, target);
+      });
       // fade-in
       requestAnimationFrame(() => { main.classList.add("main--fadein"); });
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -461,6 +495,18 @@ import Base from "../layouts/Base.astro";
       const last = sections[sections.length - 1];
       if (last) setActive(last.id.replace("sec-", ""));
     }, { passive: true });
+  }
+
+  // ── countUp 动画 ──
+  function countUp(el: HTMLElement, target: number, duration = 600) {
+    const start = performance.now();
+    const update = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      el.textContent = String(Math.round(eased * target));
+      if (p < 1) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
   }
 
   async function init() {
@@ -527,12 +573,24 @@ import Base from "../layouts/Base.astro";
       return;
     }
 
-    // 展开卡片
+    // 展开卡片（平滑动画）
     const expandBtn = t.closest(".card-expand") as HTMLElement | null;
     if (expandBtn) {
-      const body = expandBtn.closest(".card")!.querySelector(".card-body") as HTMLElement;
-      const collapsed = body.classList.toggle("card-body--collapsed");
-      expandBtn.textContent = collapsed ? "展开 ▾" : "收起 ▴";
+      const wrap = expandBtn.closest(".card")!.querySelector(".card-body-wrap") as HTMLElement;
+      const collapsed = wrap.classList.contains("card-body-wrap--collapsed");
+      if (collapsed) {
+        wrap.classList.remove("card-body-wrap--collapsed");
+        wrap.style.maxHeight = wrap.scrollHeight + "px";
+        setTimeout(() => { wrap.style.maxHeight = ""; }, 350);
+      } else {
+        wrap.style.maxHeight = wrap.scrollHeight + "px";
+        requestAnimationFrame(() => {
+          wrap.style.maxHeight = "3em";
+          wrap.classList.add("card-body-wrap--collapsed");
+        });
+        setTimeout(() => { wrap.style.maxHeight = ""; }, 350);
+      }
+      expandBtn.textContent = collapsed ? "收起 ▴" : "展开 ▾";
       return;
     }
 
@@ -581,12 +639,16 @@ import Base from "../layouts/Base.astro";
     searchInput.focus();
   });
 
-  // `/` 键聚焦搜索框
+  // ── 搜索快捷键 `/` 或 ⌘K/Ctrl+K ──
+  const searchKbd = document.getElementById("searchKbd");
   document.addEventListener("keydown", e => {
-    if (e.key === "/" && document.activeElement !== searchInput) {
+    const isSearchFocus = document.activeElement === searchInput;
+    if ((e.key === "/" && !isSearchFocus) ||
+        ((e.metaKey || e.ctrlKey) && e.key === "k")) {
       e.preventDefault();
       searchInput.focus();
       searchInput.select();
+      if (searchKbd) searchKbd.style.display = "none";
     }
   });
 
@@ -702,6 +764,7 @@ import Base from "../layouts/Base.astro";
     font-size: 12px; color: var(--text3);
   }
   .stats-sep { opacity: 0.4; font-size: 14px; }
+  .stats-num { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 
   /* ── Section nav ── */
   .sec-nav {
@@ -730,12 +793,22 @@ import Base from "../layouts/Base.astro";
     background: var(--bg3); border: 1px solid var(--border);
     color: var(--text2); font-size: 12px;
     text-decoration: none; transition: all 0.15s; white-space: nowrap;
-    flex-shrink: 0;
+    flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
   }
   .sec-nav-btn:hover { background: var(--bg4); color: var(--text); border-color: var(--text3); text-decoration: none; }
   .sec-nav-btn.active {
     background: var(--accent); color: #fff;
     border-color: var(--accent); text-decoration: none;
+  }
+  .sec-nav-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 16px; height: 16px; border-radius: 8px;
+    background: rgba(255,255,255,0.15); color: inherit;
+    font-size: 10px; font-weight: 700; padding: 0 4px;
+    line-height: 1;
+  }
+  .sec-nav-btn:not(.active) .sec-nav-badge {
+    background: var(--bg4); color: var(--text3);
   }
 
   /* ── Section ── */
@@ -803,8 +876,18 @@ import Base from "../layouts/Base.astro";
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   }
   .card--job { border-left: 3px solid #f39c12; }
-  .card--breaking { border-left: 3px solid #e74c3c; background: var(--breaking-bg); }
+  .card--breaking { border-left: 3px solid #e74c3c; background: var(--breaking-bg); position: relative; overflow: hidden; }
   .card--breaking:hover { background: var(--breaking-hover); }
+  .card--breaking::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: #e74c3c;
+    animation: breakingPulse 2s ease-in-out infinite;
+  }
+  @keyframes breakingPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 4px #e74c3c; }
+    50% { opacity: 0.4; box-shadow: none; }
+  }
   .card--major { border-left: 3px solid #e67e22; background: var(--major-bg); }
   .card--major:hover { background: var(--major-hover); }
   .card-title {
@@ -823,6 +906,18 @@ import Base from "../layouts/Base.astro";
   .card-title a:hover { color: var(--link); }
   .card-title-text { flex: 1; min-width: 0; }  /* 防止长标题溢出挤压 tag */
   .card-body { font-size: 13px; color: var(--text); line-height: 1.75; flex: 1; }
+  /* 平滑折叠包裹层 */
+  .card-body-wrap {
+    overflow: hidden;
+    max-height: none;
+    transition: max-height 0.35s ease;
+  }
+  .card-body-wrap--collapsed {
+    max-height: 3em;
+    -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+  }
+  /* 旧版搜索结果仍用旧方式 */
   .card-body--collapsed {
     display: -webkit-box; -webkit-line-clamp: 2;
     -webkit-box-orient: vertical; overflow: hidden;
