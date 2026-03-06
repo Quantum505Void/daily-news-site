@@ -466,7 +466,9 @@ import Base from "../layouts/Base.astro";
   // ── 访问计数 ──
   async function trackVisit() {
     try {
-      const r = await fetch("https://api.counterapi.dev/v1/xiaoxin-daily/visits/up");
+      const r = await fetch("https://api.counterapi.dev/v1/xiaoxin-daily/visits/up", {
+        headers: { "Authorization": "Bearer ut_tIQKJP2jBsCuwbrrChVk4eiqblYaxgaMl0A9o8sL" }
+      });
       if (!r.ok) return;
       const data = await r.json();
       const el = document.getElementById("visitCount");
