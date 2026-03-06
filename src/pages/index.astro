@@ -868,34 +868,30 @@ import Base from "../layouts/Base.astro";
 
   // ── 客户端拉取实时行情 ──
   async function injectMarketData() {
-    // Yahoo Finance query2 API（CORS 友好）
-    const SYMBOLS: {id:string; name:string; sym:string; type:string}[] = [
-      {id:"沪指", name:"沪指", sym:"000001.SS", type:"index"},
-      {id:"深指", name:"深指", sym:"399001.SZ", type:"index"},
-      {id:"纳指", name:"纳指", sym:"^IXIC",     type:"index"},
-      {id:"恒生", name:"恒生", sym:"^HSI",      type:"index"},
-      {id:"USD/CNY", name:"USD/CNY", sym:"CNY=X", type:"fx"},
+    const SYMBOLS: {id:string; sym:string; type:string}[] = [
+      {id:"沪指",    sym:"000001.SS", type:"index"},
+      {id:"深指",    sym:"399001.SZ", type:"index"},
+      {id:"纳指",    sym:"^IXIC",    type:"index"},
+      {id:"恒生",    sym:"^HSI",     type:"index"},
+      {id:"USD/CNY", sym:"CNY=X",    type:"fx"},
     ];
 
-    const grid = document.getElementById("marketGrid");
+    const grid   = document.getElementById("marketGrid");
     const timeEl = document.getElementById("marketTime");
     if (!grid) return;
 
-    try {
-      const syms = SYMBOLS.map(s => s.sym).join(",");
-      const url = `https://xiaoxin-ai-proxy.moke521-wang.workers.dev/quote?symbols=${encodeURIComponent(syms)}`;
-      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (!r.ok) throw 0;
-      const data = await r.json();
-      // spark 返回 { "^IXIC": { close:[价格], chartPreviousClose: 昨收 }, ... }
+    const applyData = (data: Record<string, any>, source: string) => {
+      let hit = 0;
       SYMBOLS.forEach(sym => {
         const entry = data[sym.sym];
         if (!entry) return;
-        const price = entry.close?.[entry.close.length - 1] ?? 0;
-        const prev  = entry.chartPreviousClose ?? price;
-        const chg   = prev ? ((price - prev) / prev) * 100 : 0;
-        const up    = chg >= 0;
-        const item = grid.querySelector<HTMLElement>(`.market-item[data-name="${sym.id}"]`);
+        const closes = entry.close ?? [];
+        const price  = closes[closes.length - 1] ?? 0;
+        if (!price) return;
+        const prev = entry.chartPreviousClose ?? price;
+        const chg  = prev ? ((price - prev) / prev) * 100 : 0;
+        const up   = chg >= 0;
+        const item = grid!.querySelector<HTMLElement>(`.market-item[data-name="${sym.id}"]`);
         if (!item) return;
         item.querySelector<HTMLElement>(".market-val")!.textContent =
           sym.type === "fx" ? price.toFixed(4) : price >= 10000 ? (price/10000).toFixed(2)+"w" : price.toFixed(2);
@@ -904,11 +900,64 @@ import Base from "../layouts/Base.astro";
         chgEl.className = `market-chg ${up ? "market-chg--up" : "market-chg--down"}`;
         item.classList.remove("market-item--up","market-item--down");
         item.classList.add(up ? "market-item--up" : "market-item--down");
+        hit++;
       });
-
-      if (timeEl) {
+      if (timeEl && hit > 0) {
         const now = new Date();
-        timeEl.textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,"0")} 更新`;
+        timeEl.textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,"0")} · ${source}`;
+      }
+      return hit > 0;
+    };
+
+    // 来源1：Cloudflare Worker → Yahoo Finance spark
+    const tryWorker = async () => {
+      const syms = SYMBOLS.map(s => s.sym).join(",");
+      const r = await fetch(
+        `https://xiaoxin-ai-proxy.moke521-wang.workers.dev/quote?symbols=${encodeURIComponent(syms)}`,
+        { signal: AbortSignal.timeout(7000) }
+      );
+      if (!r.ok) throw new Error(`worker ${r.status}`);
+      return applyData(await r.json(), "Yahoo");
+    };
+
+    // 来源2：AllOrigins 代理 + Yahoo spark（无需自己的 Worker）
+    const tryCorsProxy = async () => {
+      const syms = SYMBOLS.map(s => s.sym).join(",");
+      const target = `https://query2.finance.yahoo.com/v8/finance/spark?symbols=${encodeURIComponent(syms)}&range=1d&interval=1d`;
+      const r = await fetch(
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
+        { signal: AbortSignal.timeout(9000) }
+      );
+      if (!r.ok) throw new Error(`proxy ${r.status}`);
+      return applyData(await r.json(), "Yahoo↗");
+    };
+
+    // 来源3：exchangerate.host 只获取汇率兜底展示
+    const tryExchangeRate = async () => {
+      const r = await fetch(
+        "https://api.exchangerate.host/live?access_key=free&currencies=CNY&source=USD",
+        { signal: AbortSignal.timeout(6000) }
+      );
+      if (!r.ok) throw new Error(`er ${r.status}`);
+      const d = await r.json();
+      const cny = d?.quotes?.USDCNY;
+      if (!cny) return false;
+      const item = grid!.querySelector<HTMLElement>('.market-item[data-name="USD/CNY"]');
+      if (!item) return false;
+      item.querySelector<HTMLElement>(".market-val")!.textContent = Number(cny).toFixed(4);
+      item.querySelector<HTMLElement>(".market-chg")!.textContent = "汇率";
+      if (timeEl) timeEl.textContent = "指数暂不可用";
+      return true;
+    };
+
+    try {
+      const ok = await tryWorker().catch(() => false);
+      if (!ok) {
+        const ok2 = await tryCorsProxy().catch(() => false);
+        if (!ok2) {
+          await tryExchangeRate().catch(() => null);
+          if (timeEl) timeEl.textContent = "行情暂不可用";
+        }
       }
     } catch {
       if (timeEl) timeEl.textContent = "行情暂不可用";
@@ -2132,7 +2181,7 @@ import Base from "../layouts/Base.astro";
     display: grid;
     grid-template-columns: 1fr auto auto;
     gap: 10px; margin-top: 14px;
-    align-items: start;
+    align-items: stretch;
   }
   @media (max-width: 800px) {
     .weather-almanac-row { grid-template-columns: 1fr 1fr; }
@@ -2169,22 +2218,22 @@ import Base from "../layouts/Base.astro";
   /* ── 节假日倒计时 ── */
   .holiday-block {
     background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 14px; padding: 14px 14px 20px;
-    display: flex; align-items: center; gap: 10px;
-    position: relative; overflow: hidden; min-width: 130px;
+    border-radius: 14px; padding: 14px 14px 18px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    position: relative; overflow: hidden;
   }
   .holiday-block::after {
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(135deg, rgba(231,76,60,0.05) 0%, transparent 60%);
     pointer-events: none;
   }
-  .holiday-icon { font-size: 26px; flex-shrink: 0; }
-  .holiday-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-  .holiday-name { font-size: 13px; font-weight: 700; color: var(--heading); }
-  .holiday-days { font-size: 12px; color: var(--text2); }
-  .holiday-days b { color: var(--accent); font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .holiday-icon { font-size: 24px; flex-shrink: 0; }
+  .holiday-info { display: flex; flex-direction: column; gap: 3px; }
+  .holiday-name { font-size: 13px; font-weight: 700; color: var(--heading); white-space: nowrap; }
+  .holiday-days { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .holiday-days b { color: var(--accent); font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
   .holiday-bar-wrap {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
     background: var(--bg4); overflow: hidden;
   }
   .holiday-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #f59e0b); transition: width 0.8s ease; }
