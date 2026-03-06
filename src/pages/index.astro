@@ -873,7 +873,32 @@ import Base from "../layouts/Base.astro";
   async function resolveLocation(): Promise<{city: string, lat: string, lon: string} | null> {
     type GeoResult = { city: string; lat: number; lon: number; accuracy: number; source: string };
 
-    const sources: Promise<GeoResult | null>[] = [
+    // 0. 优先用浏览器 Geolocation（GPS/WiFi，精度最高）
+    const browserGeo = (): Promise<GeoResult | null> => new Promise(resolve => {
+      if (!navigator.geolocation) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          // 反向地理编码：用 Nominatim（OpenStreetMap，免费无 key）
+          try {
+            const r = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,
+              { signal: AbortSignal.timeout(5000), headers: { "User-Agent": "xiaoxin-daily-news/1.0" } }
+            );
+            const d = await r.json();
+            const city = d.address?.city || d.address?.town || d.address?.county || d.address?.state || "";
+            resolve({ city, lat, lon, accuracy: 10, source: "GPS" });
+          } catch {
+            resolve({ city: "", lat, lon, accuracy: 9, source: "GPS" });
+          }
+        },
+        () => resolve(null),
+        { timeout: 6000, maximumAge: 300000 }
+      );
+    });
+
+    // IP 源并行（作为兜底）
+    const ipSources: Promise<GeoResult | null>[] = [
 
       // 1. ipapi.co — 免费 HTTPS CORS
       fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) })
@@ -921,11 +946,16 @@ import Base from "../layouts/Base.astro";
         }).catch(() => null),
     ];
 
-    const results = await Promise.allSettled(sources);
-    const valid = results
-      .filter(r => r.status === "fulfilled" && r.value)
-      .map(r => (r as PromiseFulfilledResult<GeoResult>).value)
-      .sort((a, b) => b.accuracy - a.accuracy);
+    // GPS 与 IP 源并行，GPS 一旦有结果且精度够高直接用
+    const [gpsResult, ...ipResults] = await Promise.all([browserGeo(), ...ipSources]);
+
+    if (gpsResult && gpsResult.accuracy >= 9) {
+      return { city: gpsResult.city, lat: String(gpsResult.lat), lon: String(gpsResult.lon), _gps: true } as any;
+    }
+
+    const valid = [gpsResult, ...ipResults]
+      .filter(Boolean)
+      .sort((a: any, b: any) => b.accuracy - a.accuracy);
 
     if (!valid.length) return null;
 
@@ -1051,13 +1081,12 @@ import Base from "../layouts/Base.astro";
     return {
       city, temp_c, feels_c, humidity, wind_kmph: wind, desc, forecasts,
       sources: sources.map(s => s.source),
+      _gps: !!(loc && (loc as any)._gps),
       _local: true,
     };
   }
 
-  async function injectLocalWeather() {
-    const local = await fetchLocalWeather();
-    if (!local?.city) return;
+  function applyWeatherToCard(local: any) {
     const emoji = weatherEmoji(local.desc ?? "");
     const fc = (local.forecasts ?? []).slice(0, 3).map((f: any) =>
       `<span class="weather-fc">${(f.date ?? "").slice(5)} ${f.min_c}~${f.max_c}°</span>`
@@ -1070,17 +1099,82 @@ import Base from "../layouts/Base.astro";
       local.humidity ? `湿度 ${local.humidity}%` : "",
       local.wind_kmph ? `风速 ${local.wind_kmph} km/h` : "",
     ].filter(Boolean).join(" · ");
-
+    const locIcon = local._gps ? "🛰️" : "📍";
     const card = document.getElementById("weatherPrimaryCard");
     if (!card) return;
     card.classList.add("weather-card--local");
     card.querySelector<HTMLElement>(".weather-card-top .weather-icon")!.textContent = emoji;
-    card.querySelector<HTMLElement>("#weatherCityName")!.textContent = `📍 ${local.city}`;
+    card.querySelector<HTMLElement>("#weatherCityName")!.textContent = `${locIcon} ${local.city}`;
     card.querySelector<HTMLElement>("#weatherTemp")!.textContent = `${local.temp_c}°C`;
     card.querySelector<HTMLElement>("#weatherDesc")!.innerHTML =
       `${local.desc ?? ""}${extra ? `<span class="weather-extra"> · ${extra}</span>` : ""}`;
     card.querySelector<HTMLElement>("#weatherForecast")!.innerHTML =
       fc + (srcBadges ? `<div class="weather-sources">${srcBadges}</div>` : "");
+    // 按钮状态
+    const btn = document.getElementById("weatherLocateBtn");
+    if (btn) btn.title = local._gps ? "已用 GPS 定位" : "点击用 GPS 精确定位";
+  }
+
+  async function injectLocalWeather() {
+    const local = await fetchLocalWeather();
+    if (!local?.city) return;
+    applyWeatherToCard(local);
+
+    // GPS 按钮：点击后强制用浏览器 GPS 重新定位
+    document.getElementById("weatherLocateBtn")?.addEventListener("click", async () => {
+      const btn = document.getElementById("weatherLocateBtn")!;
+      btn.textContent = "⏳"; btn.style.pointerEvents = "none";
+      try {
+        await new Promise<void>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(async pos => {
+            const { latitude: lat, longitude: lon } = pos.coords;
+            let city = "";
+            try {
+              const r = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,
+                { signal: AbortSignal.timeout(5000), headers: { "User-Agent": "xiaoxin-daily-news/1.0" } }
+              );
+              const d = await r.json();
+              city = d.address?.city || d.address?.town || d.address?.county || d.address?.state || "";
+            } catch {}
+            // 用精确坐标重新拉天气
+            const [wttr, meteo, timer7, metno] = await Promise.allSettled([
+              fetchWttr(String(lat), String(lon)),
+              fetchOpenMeteo(String(lat), String(lon)),
+              fetchOpenWeatherMap(String(lat), String(lon)),
+              fetchMetNorway(String(lat), String(lon)),
+            ]);
+            const sources = [wttr, meteo, timer7, metno]
+              .filter(r => r.status === "fulfilled" && (r as any).value)
+              .map(r => (r as any).value);
+            if (!sources.length) { reject(); return; }
+            const avg = (arr: number[]) => Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*10)/10;
+            const mode = (arr: string[]) => {
+              const f: Record<string,number>={};
+              arr.forEach(s=>{f[s]=(f[s]??0)+1;});
+              return Object.entries(f).sort((a,b)=>b[1]-a[1])[0]?.[0]??arr[0];
+            };
+            applyWeatherToCard({
+              city, _gps: true,
+              temp_c: avg(sources.map((s:any)=>+s.temp_c).filter(Boolean)),
+              feels_c: avg(sources.map((s:any)=>+s.feels_c).filter(Boolean)),
+              humidity: avg(sources.map((s:any)=>+s.humidity).filter(n=>n>0)),
+              wind_kmph: avg(sources.map((s:any)=>+s.wind_kmph).filter(Boolean)),
+              desc: mode(sources.map((s:any)=>s.desc).filter(Boolean)),
+              forecasts: sources[0]?.forecasts ?? [],
+              sources: sources.map((s:any)=>s.source),
+            });
+            resolve();
+          }, reject, { timeout: 8000, enableHighAccuracy: true });
+        });
+      } catch {
+        btn.textContent = "❌";
+        setTimeout(() => { btn.textContent = "📍"; btn.style.pointerEvents = ""; }, 2000);
+        return;
+      }
+      btn.textContent = "✅"; btn.style.pointerEvents = "";
+      setTimeout(() => { btn.textContent = "🛰️"; }, 1500);
+    });
   }
 
   function weatherEmoji(desc: string): string {
@@ -1114,6 +1208,7 @@ import Base from "../layouts/Base.astro";
               <span class="weather-icon">${emoji}</span>
               <span class="weather-city-name" id="weatherCityName">${cn}</span>
               <span class="weather-temp" id="weatherTemp">${w?.temp_c ?? ""}°C</span>
+              <button class="weather-locate-btn" id="weatherLocateBtn" title="用 GPS 精确定位">📍</button>
             </div>
             <div class="weather-desc" id="weatherDesc">${w?.desc ?? ""}</div>
             <div class="weather-forecast" id="weatherForecast">${fc}</div>
@@ -2366,6 +2461,12 @@ import Base from "../layouts/Base.astro";
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
     font-size: 13px; min-width: 200px;
   }
+  .weather-locate-btn {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    font-size: 14px; padding: 2px 4px; border-radius: 6px; opacity: 0.6;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .weather-locate-btn:hover { opacity: 1; transform: scale(1.2); }
   .weather-extra { color: var(--text3); font-size: 11px; }
   .weather-sources { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
   .weather-src-badge {
