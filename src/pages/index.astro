@@ -3,6 +3,9 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base title="小新日报">
+  <!-- 阅读进度条 -->
+  <div class="read-progress" id="readProgress"></div>
+
   <header class="site-header">
     <div class="logo-block">
       <div class="logo">🗞️ 小新<span>日报</span></div>
@@ -59,6 +62,15 @@ import Base from "../layouts/Base.astro";
     </button>
   </div>
 
+  <!-- 移动端底部导航 -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav">
+    <button class="mob-nav-btn" data-sec="highlight">⚡<span>看点</span></button>
+    <button class="mob-nav-btn" data-sec="tech">🤖<span>科技</span></button>
+    <button class="mob-nav-btn" data-sec="economy">📈<span>财经</span></button>
+    <button class="mob-nav-btn" data-sec="china">🇨🇳<span>国内</span></button>
+    <button class="mob-nav-btn mob-nav-more" id="mobNavMore">☰<span>更多</span></button>
+  </nav>
+
   <div class="ai-panel" id="aiPanel">
     <div class="ai-panel-header">
       <span class="ai-panel-title">✦ AI 问答</span>
@@ -66,7 +78,8 @@ import Base from "../layouts/Base.astro";
       <button class="ai-panel-close" id="aiPanelClose">✕</button>
     </div>
     <div class="ai-messages" id="aiMessages">
-      <div class="ai-msg ai-msg--hint">你好！我已读完今日日报，有什么想聊的？<br><span class="ai-hint-examples">试试：今天最重要的新闻是什么？科技领域有什么大事？</span></div>
+      <div class="ai-msg ai-msg--hint" id="aiHintMsg">你好！我已读完今日日报，有什么想聊的？<br><span class="ai-hint-examples">试试：今天最重要的新闻是什么？科技领域有什么大事？</span></div>
+      <div class="ai-suggestions" id="aiSuggestions"></div>
     </div>
     <div class="ai-input-row">
       <input class="ai-input" id="aiInput" placeholder="问我任何关于今日日报的问题..." autocomplete="off" />
@@ -236,6 +249,7 @@ import Base from "../layouts/Base.astro";
 
   // ── 收藏夹（localStorage） ──
   const FAVE_KEY = "xiaoxin_faves";
+  const READ_KEY = "xiaoxin_read";
   function getFaves(): Set<string> {
     try { return new Set(JSON.parse(localStorage.getItem(FAVE_KEY) ?? "[]")); }
     catch { return new Set(); }
@@ -248,6 +262,19 @@ import Base from "../layouts/Base.astro";
     had ? s.delete(url) : s.add(url); saveFaves(s); return !had;
   }
   function isFaved(url: string): boolean { return getFaves().has(url); }
+
+  // ── 已读（localStorage） ──
+  function getReads(): Set<string> {
+    try { return new Set(JSON.parse(localStorage.getItem(READ_KEY) ?? "[]")); }
+    catch { return new Set(); }
+  }
+  function markRead(url: string) {
+    const s = getReads(); s.add(url);
+    // 最多保留 500 条，防止无限增长
+    const arr = [...s].slice(-500);
+    localStorage.setItem(READ_KEY, JSON.stringify(arr));
+  }
+  function isRead(url: string): boolean { return getReads().has(url); }
 
   // 渲染收藏页
   function renderFavesPage() {
@@ -451,7 +478,8 @@ import Base from "../layouts/Base.astro";
       : "";
     const urlAttr = item.url ? `data-url="${item.url}"` : "";
     const cursorStyle = item.url ? `style="cursor:pointer"` : "";
-    return `<article class="card${extraClass}" ${urlAttr} ${cursorStyle}>
+    const readClass = read ? " card--read" : "";
+    return `<article class="card${extraClass}${readClass}" ${urlAttr} ${cursorStyle}>
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed" : ""}"><p class="card-body">${item.body}</p></div>
       <div class="card-footer">${sourceHtml}${expandBtn}${faveHtml}</div>
@@ -529,7 +557,10 @@ import Base from "../layouts/Base.astro";
           <span class="digest-title">🗞️ 小新<b>日报</b></span>
           <span class="digest-badge">${fmtBadge(d)}</span>
         </div>
-        ${d.summary ? `<div class="digest-summary"><p class="digest-summary-text">${d.summary}</p></div>` : ""}
+        ${d.summary ? `<div class="digest-summary digest-summary--collapsed" id="digestSummary">
+          <p class="digest-summary-text">${d.summary}</p>
+          <button class="summary-toggle" id="summaryToggle">展开 ▾</button>
+        </div>` : ""}
         <div class="digest-stats">
           <span data-countup="${sections.length}" class="stats-num">${sections.length}</span> 板块
           <span class="stats-sep">·</span>
@@ -572,6 +603,10 @@ import Base from "../layouts/Base.astro";
       requestAnimationFrame(() => { main.classList.add("main--fadein"); });
       window.scrollTo({ top: 0, behavior: "instant" });
       initSectionObserver();
+      // 预备 AI 推荐问题（当 AI 面板打开时使用）
+      if (d.hot_words?.length) {
+        (window as any).__hotWords = d.hot_words;
+      }
     } catch {
       main.innerHTML = '<div class="state-msg"><div class="icon">⚠️</div><p>加载失败，请稍后重试</p></div>';
     }
@@ -800,12 +835,14 @@ import Base from "../layouts/Base.astro";
   document.getElementById("aiFab")?.addEventListener("click", () => {
     const open = aiPanel.classList.toggle("ai-panel--open");
     if (open) {
-      // 重置上下文到当前日期
       aiContext = "";
       aiHistory = [];
       const date = location.hash.replace("#","") || dates[0];
       const sub = document.getElementById("aiPanelSub");
       if (sub) sub.textContent = `基于 ${date} 日报`;
+      // 渲染动态推荐问题
+      const hw = (window as any).__hotWords;
+      if (hw?.length) renderAiSuggestions(hw);
       document.getElementById("aiInput")?.focus();
     }
   });
@@ -934,11 +971,8 @@ import Base from "../layouts/Base.astro";
     applyTheme(document.documentElement.getAttribute("data-theme") !== "light", cx, cy);
   });
 
-  // ── 回到顶部 ──
+  // ── 回到顶部（进度条 scroll 已包含 visible 逻辑，此处只注册点击） ──
   const backTop = document.getElementById("backTop")!;
-  window.addEventListener("scroll", () => {
-    backTop.classList.toggle("visible", window.scrollY > 300);
-  }, { passive: true });
   backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
   // ── 事件委托：展开/折叠卡片 + 折叠板块 + 收藏 + 热词云 ──
@@ -981,7 +1015,10 @@ import Base from "../layouts/Base.astro";
     // 卡片整行跳转（data-url）
     const cardEl = t.closest(".card[data-url],.hero-card[data-url]") as HTMLElement | null;
     if (cardEl && !(t.closest("a,button"))) {
-      window.open(cardEl.dataset.url, "_blank", "noopener");
+      const url = cardEl.dataset.url!;
+      markRead(url);
+      cardEl.classList.add("card--read");
+      window.open(url, "_blank", "noopener");
       return;
     }
 
@@ -1115,6 +1152,100 @@ import Base from "../layouts/Base.astro";
   }
   window.addEventListener("offline", () => showToast("📡 已离线，显示缓存内容"));
   window.addEventListener("online",  () => showToast("✅ 网络已恢复"));
+
+  // ── 阅读进度条 ──
+  const progressBar = document.getElementById("readProgress");
+  window.addEventListener("scroll", () => {
+    if (!progressBar) return;
+    const doc = document.documentElement;
+    const scrolled = doc.scrollTop / (doc.scrollHeight - doc.clientHeight);
+    progressBar.style.width = `${Math.min(100, scrolled * 100)}%`;
+    // 同时驱动回到顶部按钮
+    backTop.classList.toggle("visible", window.scrollY > 300);
+  }, { passive: true });
+
+  // ── 侧栏日期 hover 预览（tooltip） ──
+  let tooltipEl: HTMLElement | null = null;
+  function showDateTooltip(btn: HTMLElement, date: string) {
+    const digest = cache[date];
+    if (!digest?.summary) return;
+    if (!tooltipEl) {
+      tooltipEl = document.createElement("div");
+      tooltipEl.className = "date-tooltip";
+      document.body.appendChild(tooltipEl);
+    }
+    tooltipEl.textContent = digest.summary.slice(0, 80) + (digest.summary.length > 80 ? "…" : "");
+    const rect = btn.getBoundingClientRect();
+    tooltipEl.style.left = `${rect.right + 8}px`;
+    tooltipEl.style.top  = `${rect.top}px`;
+    tooltipEl.classList.add("date-tooltip--show");
+  }
+  function hideDateTooltip() {
+    tooltipEl?.classList.remove("date-tooltip--show");
+  }
+  document.getElementById("sidebar")?.addEventListener("mouseover", e => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>(".date-btn");
+    if (btn?.dataset.date) showDateTooltip(btn, btn.dataset.date);
+  });
+  document.getElementById("sidebar")?.addEventListener("mouseout", () => hideDateTooltip());
+
+  // ── 摘要折叠 ──
+  document.getElementById("main")?.addEventListener("click", e => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>("#summaryToggle");
+    if (!btn) return;
+    const summary = document.getElementById("digestSummary");
+    if (!summary) return;
+    const collapsed = summary.classList.toggle("digest-summary--collapsed");
+    btn.textContent = collapsed ? "展开 ▾" : "收起 ▴";
+  });
+
+  // ── AI 动态推荐问题（基于热词） ──
+  function renderAiSuggestions(hotWords: Array<{word: string}>) {
+    const box = document.getElementById("aiSuggestions");
+    if (!box) return;
+    const templates = [
+      (w: string) => `${w}有什么最新进展？`,
+      (w: string) => `${w}对我们有什么影响？`,
+      (w: string) => `简单解释一下${w}`,
+    ];
+    const words = hotWords.slice(0, 3).map(h => h.word);
+    const suggestions = words.map((w, i) => templates[i % templates.length](w));
+    box.innerHTML = suggestions.map(s =>
+      `<button class="ai-suggest-btn">${s}</button>`
+    ).join("");
+    box.querySelectorAll<HTMLElement>(".ai-suggest-btn").forEach(b => {
+      b.addEventListener("click", () => {
+        const aiInput = document.getElementById("aiInput") as HTMLInputElement;
+        aiInput.value = b.textContent ?? "";
+        submitAi();
+        // 隐藏推荐
+        box.style.display = "none";
+        document.getElementById("aiHintMsg")?.remove();
+      });
+    });
+  }
+
+  // ── 移动端底部导航 ──
+  document.getElementById("mobileBottomNav")?.addEventListener("click", e => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>(".mob-nav-btn");
+    if (!btn) return;
+    if (btn.id === "mobNavMore") {
+      // 滚到页面顶部显示 sec-nav
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const sec = btn.dataset.sec;
+    if (!sec) return;
+    const target = document.getElementById(`sec-${sec}`);
+    if (!target) return;
+    const header = document.querySelector(".site-header") as HTMLElement;
+    const secNav = document.getElementById("secNav") as HTMLElement;
+    const offset = (header?.offsetHeight ?? 53) + (secNav?.offsetHeight ?? 45) + 8;
+    window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
+    // 高亮
+    document.querySelectorAll(".mob-nav-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  });
 
   init();
 </script>
@@ -1707,5 +1838,150 @@ import Base from "../layouts/Base.astro";
     padding: 7px 16px; font-size: 13px; font-weight: 600;
     cursor: pointer; flex-shrink: 0; transition: opacity 0.15s;
   }
+  /* ── 阅读进度条 ── */
+  .read-progress {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 3px; background: linear-gradient(90deg, var(--accent), #f39c12);
+    width: 0%; z-index: 9999;
+    transition: width 0.1s linear;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── Header 毛玻璃 ── */
+  .site-header {
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    background: var(--header-blur-bg) !important;
+  }
+
+  /* ── 卡片 glow hover ── */
+  .card:hover {
+    border-color: var(--accent);
+    background: var(--bg3);
+    box-shadow: 0 4px 20px rgba(231,76,60,0.12), 0 0 0 1px rgba(231,76,60,0.08);
+    transform: translateY(-2px);
+  }
+
+  /* ── 板块 icon 彩色圆圈 ── */
+  .section-icon {
+    font-size: 16px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(128,128,128,0.12);
+    flex-shrink: 0;
+  }
+
+  /* ── 英雄卡渐变背景 ── */
+  .hero-card {
+    background: linear-gradient(135deg, var(--summary-bg) 60%, rgba(231,76,60,0.05)) !important;
+  }
+  .hero-card.card--breaking {
+    background: linear-gradient(135deg, var(--breaking-bg) 60%, rgba(231,76,60,0.08)) !important;
+  }
+
+  /* ── 突发 tag 闪烁 dot ── */
+  .tag-breaking::before {
+    content: '●';
+    margin-right: 4px;
+    animation: breakingDot 1s ease-in-out infinite;
+    display: inline;
+  }
+  @keyframes breakingDot { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+  /* ── 已读卡片 ── */
+  .card--read .card-title-text,
+  .card--read .card-num {
+    opacity: 0.45;
+  }
+  .card--read {
+    border-color: var(--border) !important;
+    box-shadow: none !important;
+  }
+  .card--read::after {
+    content: '✓ 已读';
+    position: absolute; top: 8px; right: 10px;
+    font-size: 9px; color: var(--text3); opacity: 0.5;
+    font-weight: 600; letter-spacing: 0.05em;
+  }
+  .card { position: relative; }
+
+  /* ── 摘要折叠 ── */
+  .digest-summary {
+    max-height: none;
+    transition: max-height 0.35s ease;
+  }
+  .digest-summary--collapsed .digest-summary-text {
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .summary-toggle {
+    background: none; border: none; cursor: pointer;
+    font-size: 11px; color: var(--accent); padding: 4px 0 0;
+    opacity: 0.75; transition: opacity 0.15s; display: block;
+  }
+  .summary-toggle:hover { opacity: 1; }
+
+  /* ── 侧栏日期 hover 预览 tooltip ── */
+  .date-tooltip {
+    position: fixed; z-index: 9998;
+    max-width: 220px; padding: 8px 12px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; font-size: 12px; color: var(--text2);
+    line-height: 1.6; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    pointer-events: none; opacity: 0; transform: translateX(-6px);
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .date-tooltip--show { opacity: 1; transform: translateX(0); }
+
+  /* ── AI 推荐问题 ── */
+  .ai-suggestions {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 4px;
+  }
+  .ai-suggest-btn {
+    background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 10px; padding: 7px 12px;
+    font-size: 12px; color: #818cf8; text-align: left; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .ai-suggest-btn:hover { background: rgba(99,102,241,0.16); border-color: rgba(99,102,241,0.4); }
+
+  /* ── 移动端底部导航 ── */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 56px; background: var(--bg2);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    z-index: 500;
+    align-items: stretch; justify-content: space-around;
+  }
+  @media (max-width: 680px) {
+    .mobile-bottom-nav { display: flex; }
+    /* 底部导航占位，防止内容被遮挡 */
+    .layout { padding-bottom: 56px; }
+    /* 移动端 FAB 上移 */
+    .ai-fab-wrap { bottom: 70px !important; }
+    .back-top { bottom: 70px !important; }
+  }
+  .mob-nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 2px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 18px;
+    transition: color 0.15s;
+    padding: 6px 0;
+  }
+  .mob-nav-btn span { font-size: 10px; font-weight: 600; line-height: 1; }
+  .mob-nav-btn:hover, .mob-nav-btn.active { color: var(--accent); }
+  .mob-nav-more { font-size: 16px; }
+
+  /* ── header-blur-bg CSS var ── */
+  :root {
+    --header-blur-bg: rgba(18, 18, 18, 0.75);
+  }
+  [data-theme="light"] {
+    --header-blur-bg: rgba(248, 248, 248, 0.8);
+  }
+
   .ai-send:hover { opacity: 0.85; }
 </style>
