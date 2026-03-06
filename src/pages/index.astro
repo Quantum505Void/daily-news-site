@@ -62,7 +62,7 @@ import Base from "../layouts/Base.astro";
   <div class="ai-panel" id="aiPanel">
     <div class="ai-panel-header">
       <span class="ai-panel-title">✦ AI 问答</span>
-      <span class="ai-panel-sub" id="aiPanelSub">本地 qwen2.5 · 基于今日日报</span>
+      <span class="ai-panel-sub" id="aiPanelSub">GPT-5-mini · 基于今日日报</span>
       <button class="ai-panel-close" id="aiPanelClose">✕</button>
     </div>
     <div class="ai-messages" id="aiMessages">
@@ -729,19 +729,14 @@ import Base from "../layouts/Base.astro";
         { role: "system", content: systemPrompt },
         ...aiHistory.slice(-6)
       ];
-      const res = await fetch("http://localhost:11434/v1/chat/completions", {
+      const res = await fetch("http://localhost:7799/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "qwen2.5:7b",
-          messages,
-          max_tokens: 400,
-          stream: false,
-        }),
+        body: JSON.stringify({ messages, max_tokens: 400 }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const answer = data.choices?.[0]?.message?.content ?? "抱歉，未能获取回答";
+      const answer = data.answer ?? data.error ?? "未能获取回答";
       loadEl.remove();
       const el = appendAiMsg("ai", answer);
       aiHistory.push({ role: "assistant", content: answer });
@@ -755,7 +750,7 @@ import Base from "../layouts/Base.astro";
       }, 18);
     } catch {
       loadEl.remove();
-      appendAiMsg("ai", "连接本地模型失败，请确认 Ollama 正在运行（ollama serve）");
+      appendAiMsg("ai", "连接 AI 代理失败，请确认 ai-proxy.py 正在运行（python3 ai-proxy.py）");
     }
   }
 
