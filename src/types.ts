@@ -13,12 +13,18 @@ export interface DigestSection {
   items: DigestItem[];
 }
 
+export interface HotWord {
+  word: string;
+  count: number;
+}
+
 export interface Digest {
   date: string;
   weekday: string;
   title: string;
   summary?: string;
   sections: DigestSection[];
+  hot_words?: HotWord[];
   generated_at?: string;
   version: 2;
 }

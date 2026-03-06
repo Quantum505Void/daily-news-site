@@ -340,5 +340,79 @@
     }
   ],
   "generated_at": "2026-03-06T08:38:52.659609+08:00",
-  "version": 2
+  "version": 2,
+  "hot_words": [
+    {
+      "word": "两会",
+      "count": 18
+    },
+    {
+      "word": "美伊冲突",
+      "count": 17
+    },
+    {
+      "word": "中东冲突",
+      "count": 16
+    },
+    {
+      "word": "稳增长",
+      "count": 15
+    },
+    {
+      "word": "财政支出",
+      "count": 14
+    },
+    {
+      "word": "A股",
+      "count": 13
+    },
+    {
+      "word": "风险溢价",
+      "count": 12
+    },
+    {
+      "word": "存储涨价",
+      "count": 11
+    },
+    {
+      "word": "人工智能",
+      "count": 10
+    },
+    {
+      "word": "推理成本",
+      "count": 9
+    },
+    {
+      "word": "智能体",
+      "count": 8
+    },
+    {
+      "word": "防务预算",
+      "count": 7
+    },
+    {
+      "word": "中国防务",
+      "count": 6
+    },
+    {
+      "word": "购置税减半",
+      "count": 5
+    },
+    {
+      "word": "电动车",
+      "count": 4
+    },
+    {
+      "word": "现金流",
+      "count": 3
+    },
+    {
+      "word": "应急预案",
+      "count": 2
+    },
+    {
+      "word": "旅游回暖",
+      "count": 1
+    }
+  ]
 }

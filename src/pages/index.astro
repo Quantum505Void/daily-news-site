@@ -518,8 +518,10 @@ import Base from "../layouts/Base.astro";
       </section>`;
     }).join("");
 
-    // 热词云
-    const wordCloud = buildWordCloud(sections);
+        // 热词云：优先用 JSON 里服务端生成的 hot_words，降级到前端提取
+    const wordCloud = d.hot_words?.length
+      ? renderWordCloud(d.hot_words)
+      : buildWordCloud(sections);
 
     return `
       <div class="digest-header">
@@ -618,7 +620,19 @@ import Base from "../layouts/Base.astro";
     }, { passive: true });
   }
 
-  // ── 热词云 ──
+  // 直接渲染服务端已计算好的热词
+  function renderWordCloud(hotWords: Array<{word: string, count: number}>): string {
+    if (!hotWords?.length) return "";
+    const max = hotWords[0].count;
+    const words = hotWords.map(({ word, count }) => {
+      const size = Math.round(11 + (count / max) * 10);
+      const opacity = 0.5 + (count / max) * 0.5;
+      return `<button class="wc-word" style="font-size:${size}px;opacity:${opacity}" data-q="${word}">${word}</button>`;
+    }).join("");
+    return `<div class="word-cloud"><span class="wc-label">热词</span>${words}</div>`;
+  }
+
+  // ── 热词云（前端降级版，当 JSON 无 hot_words 时使用） ──
   const STOP_WORDS = new Set([
     "中国","美国","日本","欧洲","全球","市场","公司","企业","发展","相关",
     "表示","表明","称已","将通","通过","计划","目前","方面","进行","工作",
