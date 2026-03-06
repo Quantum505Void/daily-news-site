@@ -863,7 +863,7 @@ import Base from "../layouts/Base.astro";
       </div>`);
     }
 
-    return parts.length ? `<div class="weather-almanac-row">${parts.join("")}</div>` : "";
+    return parts.length ? `<div class="weather-almanac-row">${parts[0]}<div class="weather-almanac-row-2">${parts.slice(1).join("")}</div></div>` : "";
   }
 
   // ── 客户端拉取实时行情 ──
@@ -2179,16 +2179,16 @@ import Base from "../layouts/Base.astro";
   /* ── 市场 + 节假日 + 黄历 容器 ── */
   .weather-almanac-row {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr;
     gap: 10px; margin-top: 14px;
-    align-items: stretch;
   }
-  @media (max-width: 800px) {
-    .weather-almanac-row { grid-template-columns: 1fr 1fr; }
-    .market-block { grid-column: 1 / -1; }
+  .weather-almanac-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
   @media (max-width: 500px) {
-    .weather-almanac-row { grid-template-columns: 1fr; }
+    .weather-almanac-row-2 { grid-template-columns: 1fr; }
   }
   /* ── 市场快讯 ── */
   .market-block {
