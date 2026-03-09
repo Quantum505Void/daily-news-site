@@ -34,9 +34,12 @@ import Base from "../layouts/Base.astro";
     <nav class="sidebar" id="sidebar">
       <span class="sidebar-label">历史</span>
     </nav>
-    <main class="main" id="main">
-      <div class="state-msg"><div class="icon">⏳</div><p>加载中...</p></div>
-    </main>
+    <div id="contentCol">
+      <div id="sharedPanel"></div>
+      <main class="main" id="main">
+        <div class="state-msg"><div class="icon">⏳</div><p>加载中...</p></div>
+      </main>
+    </div>
   </div>
 
   <footer class="page-footer">
@@ -604,8 +607,6 @@ import Base from "../layouts/Base.astro";
           <p class="digest-summary-text">${d.summary}</p>
         </details>` : ""}
         ${wordCloud}
-        ${renderMarketAlmanac(d)}
-        ${renderDayTimeline()}
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
       ${renderHistoryToday(d)}
@@ -647,9 +648,6 @@ import Base from "../layouts/Base.astro";
       window.scrollTo({ top: 0, behavior: "instant" });
       initSectionObserver();
       restoreDQVotes();
-      // 客户端注入实时市场数据（异步，不阻塞渲染）
-      injectMarketData();
-      startTimelineTick();
       // 预备 AI 推荐问题（当 AI 面板打开时使用）
       if (d.hot_words?.length) {
         (window as any).__hotWords = d.hot_words;
@@ -762,6 +760,16 @@ import Base from "../layouts/Base.astro";
   }
 
   // 时间轴每分钟更新
+  // ── 共享模块：只初始化一次，切日期不重复渲染 ──
+  function initSharedPanel() {
+    const panel = document.getElementById("sharedPanel");
+    if (!panel || panel.dataset.initialized) return;
+    panel.dataset.initialized = "1";
+    panel.innerHTML = renderMarketAlmanac({almanac: null}) + renderDayTimeline();
+    injectMarketData();
+    startTimelineTick();
+  }
+
   function startTimelineTick() {
     function tick() {
       const now = new Date();
@@ -1328,6 +1336,8 @@ import Base from "../layouts/Base.astro";
           '<div class="state-msg"><div class="icon">📭</div><p>还没有日报</p></div>';
         return;
       }
+      // 初始化共享模块（只执行一次，切日期不重复渲染）
+      initSharedPanel();
       const hash = location.hash.replace("#", "");
       // 并行加载搜索索引和首屏数据
       await Promise.all([
@@ -1951,6 +1961,9 @@ import Base from "../layouts/Base.astro";
   /* ── Main fade-in ── */
   .main { flex: 1; min-width: 0; padding: 24px 28px 60px; transition: opacity 0.25s ease; }
   @media (max-width: 680px) { .main { padding: 14px 12px 40px; } }
+  #contentCol { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  #sharedPanel { padding: 24px 28px 0; }
+  @media (max-width: 680px) { #sharedPanel { padding: 14px 12px 0; } }
   .main--fadein { animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   /* prefers-reduced-motion */
