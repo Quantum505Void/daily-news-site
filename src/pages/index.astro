@@ -1991,7 +1991,7 @@ import Base from "../layouts/Base.astro";
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    align-items: start;
+    align-items: stretch;
   }
   .cards--hidden { display: none !important; }
   @media (max-width: 900px) { .cards--grid { grid-template-columns: 1fr; } }
@@ -2036,6 +2036,7 @@ import Base from "../layouts/Base.astro";
     overflow: hidden;
     max-height: none;
     transition: max-height 0.35s ease;
+    flex: 1;
   }
   .card-body-wrap--collapsed {
     max-height: 3em;
