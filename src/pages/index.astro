@@ -1258,8 +1258,9 @@ import Base from "../layouts/Base.astro";
   }
 
   // ── 语音播报（Web Speech API） ──
-  let ttsUtterance: SpeechSynthesisUtterance | null = null;
   let ttsPlaying = false;
+  let ttsQueue: string[] = [];
+  let ttsKeepAliveTimer: ReturnType<typeof setInterval> | null = null;
 
   function buildTtsScript(digest: any): string {
     if (!digest) return "今日日报暂无内容。";
@@ -1274,33 +1275,65 @@ import Base from "../layouts/Base.astro";
     return lines.join(" ");
   }
 
+  // 把文本按句子切成 ≤100 字的小块，避免 Chrome 长文本静默停止 bug
+  function chunkText(text: string): string[] {
+    const sentences = text.split(/(?<=[。！？；.!?;])\s*/);
+    const chunks: string[] = [];
+    let cur = "";
+    for (const s of sentences) {
+      if (!s.trim()) continue;
+      if (cur.length + s.length > 100) {
+        if (cur) chunks.push(cur.trim());
+        cur = s;
+      } else {
+        cur += s;
+      }
+    }
+    if (cur.trim()) chunks.push(cur.trim());
+    return chunks;
+  }
+
+  function speakNext() {
+    if (!ttsPlaying || !ttsQueue.length) {
+      stopTts();
+      return;
+    }
+    const chunk = ttsQueue.shift()!;
+    const utt = new SpeechSynthesisUtterance(chunk);
+    utt.lang = "zh-CN";
+    utt.rate = 1.05;
+    utt.pitch = 1;
+    utt.onend = () => {
+      if (ttsPlaying) speakNext();
+    };
+    utt.onerror = (e) => {
+      // interrupted = 手动停止，不报错；其他错误跳过继续
+      if ((e as SpeechSynthesisErrorEvent).error !== "interrupted") speakNext();
+    };
+    window.speechSynthesis.cancel(); // 清掉上一句残留
+    window.speechSynthesis.speak(utt);
+  }
+
   function stopTts() {
-    window.speechSynthesis.cancel();
     ttsPlaying = false;
+    ttsQueue = [];
     if (ttsKeepAliveTimer) { clearInterval(ttsKeepAliveTimer); ttsKeepAliveTimer = null; }
+    window.speechSynthesis.cancel();
     const btn = document.getElementById("ttsFab");
     if (btn) { btn.innerHTML = "<span>🔊</span>"; btn.title = "朗读今日日报"; btn.classList.remove("tts-playing"); }
   }
 
-  let ttsKeepAliveTimer: ReturnType<typeof setInterval> | null = null;
-
   function startTts(text: string) {
     stopTts();
-    ttsUtterance = new SpeechSynthesisUtterance(text);
-    ttsUtterance.lang = "zh-CN";
-    ttsUtterance.rate = 1.05;
-    ttsUtterance.pitch = 1;
-    ttsUtterance.onend = () => stopTts();
-    ttsUtterance.onerror = () => stopTts();
-    window.speechSynthesis.speak(ttsUtterance);
+    ttsQueue = chunkText(text);
+    if (!ttsQueue.length) return;
     ttsPlaying = true;
-    // Fix #5: Chrome Android keepalive hack（每 10s resume 防止 onend 不触发）
+    // Chrome 额外保险：每 10s 检查是否卡住，卡住则强制播下一段
     ttsKeepAliveTimer = setInterval(() => {
       if (!ttsPlaying) return;
-      if (!window.speechSynthesis.speaking) { stopTts(); return; }
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
+      if (!window.speechSynthesis.speaking && ttsQueue.length) speakNext();
     }, 10000);
+    speakNext();
     const btn = document.getElementById("ttsFab");
     if (btn) { btn.innerHTML = "<span>⏹</span>"; btn.title = "停止朗读"; btn.classList.add("tts-playing"); }
   }
