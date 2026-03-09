@@ -1171,22 +1171,40 @@ import Base from "../layouts/Base.astro";
   }
 
   // 每日一问投票逻辑（事件委托，挂在 main 上）
-  function handleDailyQuestion(btn: HTMLElement) {
-    const key = btn.dataset.key!;
+  const WORKER = "https://xiaoxin-ai-proxy.moke521-wang.workers.dev";
+
+  async function handleDailyQuestion(btn: HTMLElement) {
+    const key = btn.dataset.key!;           // e.g. dq_2026-03-09
     const idx = parseInt(btn.dataset.idx!);
     if (localStorage.getItem(key) !== null) return; // 已投过
     localStorage.setItem(key, String(idx));
 
-    // 读取/更新票数
-    const tallyKey = `${key}_tally`;
-    const tally: number[] = JSON.parse(localStorage.getItem(tallyKey) ?? "null") 
-      ?? btn.closest(".dq-options")!.querySelectorAll(".dq-opt").length > 0
-        ? Array(btn.closest(".dq-options")!.querySelectorAll(".dq-opt").length).fill(0)
-        : [];
-    tally[idx] = (tally[idx] ?? 0) + 1;
-    localStorage.setItem(tallyKey, JSON.stringify(tally));
+    const optsEl = btn.closest(".dq-options")!;
+    const total = optsEl.querySelectorAll(".dq-opt").length;
+    const card = btn.closest(".dq-card")!;
 
-    showDQResult(btn.closest(".dq-card")!, idx, tally, key);
+    // 乐观显示 loading 态
+    (optsEl as HTMLElement).style.opacity = "0.5";
+
+    try {
+      const date = key.replace("dq_", "");
+      const res = await fetch(`${WORKER}/vote?date=${date}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idx, total }),
+      });
+      const data = await res.json();
+      const tally: number[] = data.tally ?? Array(total).fill(0);
+      // 同步到 localStorage（供昨日结果使用）
+      localStorage.setItem(`${key}_tally`, JSON.stringify(tally));
+      showDQResult(card, idx, tally, key);
+    } catch {
+      // 网络失败降级到纯本地
+      const tally = Array(total).fill(0);
+      tally[idx] = 1;
+      localStorage.setItem(`${key}_tally`, JSON.stringify(tally));
+      showDQResult(card, idx, tally, key);
+    }
   }
 
   function showDQResult(card: Element, voted: number, tally: number[], key: string) {
@@ -1208,10 +1226,10 @@ import Base from "../layouts/Base.astro";
     }).join("");
     optsEl.style.display = "none";
     resultEl.style.display = "";
-    resultEl.innerHTML = bars;
+    resultEl.innerHTML = `<div class="dq-total">${total} 人参与</div>` + bars;
   }
 
-  // 初始化时恢复已投票状态
+  // 初始化时恢复已投票状态（已投过则从服务端拉最新结果）
   function restoreDQVotes() {
     document.querySelectorAll<HTMLElement>(".dq-options").forEach(optsEl => {
       const btn0 = optsEl.querySelector<HTMLElement>(".dq-opt");
@@ -1219,10 +1237,20 @@ import Base from "../layouts/Base.astro";
       const key = btn0.dataset.key!;
       const voted = localStorage.getItem(key);
       if (voted === null) return;
-      const tallyKey = `${key}_tally`;
-      const tally: number[] = JSON.parse(localStorage.getItem(tallyKey) ?? "[]");
+      const date = key.replace("dq_", "");
       const card = optsEl.closest(".dq-card")!;
-      showDQResult(card, parseInt(voted), tally, key);
+      // 先用本地 tally 快速渲染，再从服务端刷新
+      const localTally: number[] = JSON.parse(localStorage.getItem(`${key}_tally`) ?? "[]");
+      if (localTally.length) showDQResult(card, parseInt(voted), localTally, key);
+      // 后台刷新服务端最新数据
+      fetch(`${WORKER}/vote?date=${date}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.tally?.length) {
+            localStorage.setItem(`${key}_tally`, JSON.stringify(data.tally));
+            showDQResult(card, parseInt(voted), data.tally, key);
+          }
+        }).catch(() => {});
     });
   }
 
@@ -2567,6 +2595,7 @@ import Base from "../layouts/Base.astro";
   }
   .dq-opt:hover { background: rgba(245,158,11,0.08); border-color: #f59e0b; transform: translateY(-1px); }
   .dq-result { display: flex; flex-direction: column; gap: 10px; }
+  .dq-total { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
   .dq-bar-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
   .dq-bar-row--voted .dq-bar-label { color: #f59e0b; font-weight: 600; }
   .dq-bar-label { flex: 1; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 50%; }

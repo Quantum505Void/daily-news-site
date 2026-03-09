@@ -6,12 +6,40 @@ export default {
 
     const url = new URL(request.url);
 
+    // ── /vote — 每日一问投票 ──
+    if (url.pathname === "/vote") {
+      const date = url.searchParams.get("date");
+      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return json({ error: "invalid date" }, 400);
+      }
+      const kvKey = `vote_${date}`;
+
+      if (request.method === "GET") {
+        const raw = await env.VOTE_KV.get(kvKey);
+        const tally = raw ? JSON.parse(raw) : null;
+        return json({ date, tally });
+      }
+
+      if (request.method === "POST") {
+        const body = await request.json();
+        const idx = parseInt(body.idx);
+        const total = parseInt(body.total);
+        if (isNaN(idx) || isNaN(total) || idx < 0 || idx >= total) {
+          return json({ error: "invalid idx/total" }, 400);
+        }
+        const raw = await env.VOTE_KV.get(kvKey);
+        const tally = raw ? JSON.parse(raw) : Array(total).fill(0);
+        tally[idx] = (tally[idx] ?? 0) + 1;
+        await env.VOTE_KV.put(kvKey, JSON.stringify(tally), { expirationTtl: 60 * 60 * 24 * 90 });
+        return json({ date, tally });
+      }
+    }
+
     // ── /quote — 行情代理 (GET) ──
     if (url.pathname === "/quote") {
       const syms = url.searchParams.get("symbols") ?? "";
       if (!syms) return json({ error: "missing symbols" }, 400);
       try {
-        // 用 spark v8 接口，无需 crumb/cookie，稳定可用
         const upstream = `https://query2.finance.yahoo.com/v8/finance/spark?symbols=${encodeURIComponent(syms)}&range=1d&interval=1d`;
         const r = await fetch(upstream, {
           headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" },

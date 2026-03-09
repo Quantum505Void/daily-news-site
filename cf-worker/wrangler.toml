@@ -1,3 +1,7 @@
 name = "xiaoxin-ai-proxy"
 main = "index.js"
 compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "VOTE_KV"
+id = "e5b3d7c61c9e49f1be2a5a4536f903e0"
