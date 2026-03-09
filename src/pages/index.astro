@@ -206,9 +206,14 @@ import Base from "../layouts/Base.astro";
 
   /* ── 阅读进度圆环 ── */
   .read-ring {
-    width: 16px; height: 16px; flex-shrink: 0;
+    width: 16px; height: 16px;
+    min-width: 16px; min-height: 16px;
+    max-width: 16px; max-height: 16px;
+    flex-shrink: 0;
+    grid-column: 2; grid-row: 1 / 3;
+    align-self: center;
     transform: rotate(-90deg);
-    opacity: 0.7;
+    opacity: 0.8;
   }
   .read-ring-bg   { fill: none; stroke: var(--bg4); stroke-width: 2.5; }
   .read-ring-fill {
@@ -1928,12 +1933,15 @@ import Base from "../layouts/Base.astro";
     transition-property: background, border-color, color, opacity, transform, box-shadow;
   }
   .date-btn {
-    display: flex; flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 20px;
+    grid-template-rows: auto auto;
+    align-items: center;
     width: 100%; padding: 8px 10px 8px 12px;
     border-radius: 8px; background: none; border: none;
     color: var(--text2); font-size: 13px;
     text-align: left; cursor: pointer;
-    transition: background 0.15s, color 0.15s; gap: 1px;
+    transition: background 0.15s, color 0.15s; gap: 1px 4px;
     position: relative;
   }
   .date-btn:hover { background: var(--bg3); color: var(--text); }
@@ -1957,7 +1965,7 @@ import Base from "../layouts/Base.astro";
     margin-left: auto;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .date-sub { font-size: 10px; opacity: 0.6; font-weight: 400; }
+  .date-sub { font-size: 10px; opacity: 0.6; font-weight: 400; grid-column: 1; }
 
   /* 返回今日 */
   .back-today-btn {
