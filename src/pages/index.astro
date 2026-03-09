@@ -26,6 +26,7 @@ import Base from "../layouts/Base.astro";
           <button id="searchClear" class="search-clear" style="display:none" aria-label="清空">✕</button>
         </div>
         <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+        <button class="share-btn" id="shareBtn" title="分享今日日报">🔗</button>
       </div>
     </div>
   </header>
@@ -190,7 +191,7 @@ import Base from "../layouts/Base.astro";
     color: var(--text3); font-size: 16px; pointer-events: none;
   }
 
-  .theme-toggle {
+  .theme-toggle, .share-btn {
     background: var(--search-bg);
     border: 1px solid var(--search-border);
     border-radius: 8px;
@@ -201,7 +202,32 @@ import Base from "../layouts/Base.astro";
     transition: background 0.15s;
     line-height: 1;
   }
-  .theme-toggle:hover { background: var(--bg3); }
+  .theme-toggle:hover, .share-btn:hover { background: var(--bg3); }
+
+  /* ── 阅读进度圆环 ── */
+  .read-ring {
+    width: 16px; height: 16px; flex-shrink: 0;
+    transform: rotate(-90deg);
+    opacity: 0.7;
+  }
+  .read-ring-bg   { fill: none; stroke: var(--bg4); stroke-width: 2.5; }
+  .read-ring-fill {
+    fill: none; stroke: var(--accent); stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 50.3; stroke-dashoffset: 50.3;
+    transition: stroke-dashoffset 0.5s ease;
+  }
+  .date-btn[data-allread="1"] .read-ring-fill { stroke: #4ade80; }
+
+  /* ── details 速览动画 ── */
+  .digest-summary { overflow: hidden; }
+  .digest-summary[open] .digest-summary-text {
+    animation: slideDown 0.25s ease;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
   /* ── Layout ── */
   .layout {
@@ -490,7 +516,7 @@ import Base from "../layouts/Base.astro";
         const [y, mo, day] = d.split("-").map(Number);
         const dow = ["日","一","二","三","四","五","六"][new Date(y, mo-1, day).getDay()];
         const sub = `<span class="date-sub">周${dow}</span>`;
-        return `<button class="date-btn ${active}" data-date="${d}">${label}${sub}</button>`;
+        return `<button class="date-btn ${active}" data-date="${d}">${label}${sub}<svg class="read-ring" viewBox="0 0 20 20"><circle class="read-ring-bg" cx="10" cy="10" r="8"/><circle class="read-ring-fill" cx="10" cy="10" r="8" data-date="${d}"/></svg></button>`;
       }).join("");
     nav.querySelectorAll(".date-btn,.back-today-btn").forEach(btn =>
       btn.addEventListener("click", () => {
@@ -667,6 +693,8 @@ import Base from "../layouts/Base.astro";
       if (d.hot_words?.length) {
         (window as any).__hotWords = d.hot_words;
       }
+      // 更新阅读进度圆环
+      updateReadRings();
     } catch {
       main.innerHTML = '<div class="state-msg"><div class="icon">⚠️</div><p>加载失败，请稍后重试</p></div>';
     }
@@ -674,6 +702,49 @@ import Base from "../layouts/Base.astro";
 
   // ── sec-nav 滚动高亮 + 精确滚动 ──
   let _sectionObs: IntersectionObserver | null = null;
+
+  // ── 阅读进度圆环 ──
+  function updateReadRings() {
+    const reads = getReads();
+    document.querySelectorAll<HTMLElement>(".date-btn").forEach(btn => {
+      const date = btn.dataset.date!;
+      const fill = btn.querySelector<SVGCircleElement>(".read-ring-fill");
+      if (!fill) return;
+      // 统计当天所有卡片 url
+      const cards = Array.from(document.querySelectorAll<HTMLElement>(".card[data-url], .hero-card[data-url]"));
+      const total = cards.filter(c => {
+        // 只统计当前加载的 date（其他 date 的卡片不在 DOM 里）
+        return true;
+      }).length;
+      if (!total) { fill.style.strokeDashoffset = "50.3"; return; }
+      const readCount = cards.filter(c => reads.has(c.dataset.url!)).length;
+      const pct = readCount / total;
+      const circumference = 2 * Math.PI * 8; // r=8 → ~50.3
+      fill.style.strokeDasharray = `${circumference}`;
+      fill.style.strokeDashoffset = `${circumference * (1 - pct)}`;
+      if (pct >= 1) { btn.dataset.allread = "1"; }
+    });
+  }
+
+  // markRead 后也更新圆环（hook 进点击事件）
+  const _origMarkRead = markRead;
+
+  // ── 分享 ──
+  function initShareBtn() {
+    const btn = document.getElementById("shareBtn");
+    if (!btn) return;
+    btn.addEventListener("click", async () => {
+      const url = location.href;
+      const title = `小新日报 ${currentDate}`;
+      if (navigator.share) {
+        try { await navigator.share({ title, url }); return; } catch {}
+      }
+      await navigator.clipboard.writeText(url);
+      const orig = btn.textContent;
+      btn.textContent = "✅";
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
 
   function initSectionObserver() {
     const setActive = (id: string) => {
@@ -1441,6 +1512,7 @@ import Base from "../layouts/Base.astro";
       }
       // 初始化共享模块（只执行一次，切日期不重复渲染）
       initSharedPanel();
+      initShareBtn();
       const hash = location.hash.replace("#", "");
       // 并行加载搜索索引和首屏数据
       await Promise.all([
@@ -1587,6 +1659,7 @@ import Base from "../layouts/Base.astro";
     if (cardEl && !(t.closest("a,button"))) {
       const url = cardEl.dataset.url!;
       markRead(url);
+      updateReadRings();
       cardEl.classList.add("card--read");
       window.open(url, "_blank", "noopener");
       return;
