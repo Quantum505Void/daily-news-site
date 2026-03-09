@@ -792,14 +792,15 @@ import Base from "../layouts/Base.astro";
     startWorldClockTick();
   }
 
+  const WORLD_CLOCK_ZONES = [
+    { city: "北京", tz: "Asia/Shanghai",    flag: "🇨🇳" },
+    { city: "纽约", tz: "America/New_York", flag: "🇺🇸" },
+    { city: "伦敦", tz: "Europe/London",    flag: "🇬🇧" },
+    { city: "东京", tz: "Asia/Tokyo",       flag: "🇯🇵" },
+  ];
+
   function renderWorldClocks(): string {
-    const zones = [
-      { city: "北京", tz: "Asia/Shanghai", flag: "🇨🇳" },
-      { city: "纽约", tz: "America/New_York", flag: "🇺🇸" },
-      { city: "伦敦", tz: "Europe/London", flag: "🇬🇧" },
-      { city: "东京", tz: "Asia/Tokyo", flag: "🇯🇵" },
-    ];
-    const clocks = zones.map(z => {
+    const clocks = WORLD_CLOCK_ZONES.map(z => {
       const t = new Date().toLocaleTimeString("zh-CN", { timeZone: z.tz, hour: "2-digit", minute: "2-digit", hour12: false });
       const d = new Date().toLocaleDateString("zh-CN", { timeZone: z.tz, month: "numeric", day: "numeric", weekday: "short" });
       return `<div class="wc-item" data-tz="${z.tz}">
@@ -815,10 +816,9 @@ import Base from "../layouts/Base.astro";
   }
 
   function startWorldClockTick() {
-    const zones = ["Asia/Shanghai","America/New_York","Europe/London","Asia/Tokyo"];
     function tick() {
-      document.querySelectorAll<HTMLElement>(".wc-item").forEach((el, i) => {
-        const tz = zones[i];
+      document.querySelectorAll<HTMLElement>("#worldClocks .wc-item").forEach(el => {
+        const tz = el.dataset.tz!;
         const t = new Date().toLocaleTimeString("zh-CN", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
         const d = new Date().toLocaleDateString("zh-CN", { timeZone: tz, month: "numeric", day: "numeric", weekday: "short" });
         const timeEl = el.querySelector(".wc-time");
