@@ -607,6 +607,7 @@ import Base from "../layouts/Base.astro";
           <p class="digest-summary-text">${d.summary}</p>
         </details>` : ""}
         ${wordCloud}
+        ${renderAlmanac(d)}
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
       ${renderHistoryToday(d)}
@@ -845,9 +846,7 @@ import Base from "../layouts/Base.astro";
   }
 
   // ── 渲染服务端占位（客户端注入前的骨架） ──
-  function renderMarketAlmanac(d: any): string {
-    const a = d.almanac;
-
+  function renderMarketAlmanac(_d: any): string {
     // 节假日倒计时（内嵌到市场卡片 header）
     const holiday = getNextHoliday();
     const holidayHtml = holiday
@@ -874,20 +873,20 @@ import Base from "../layouts/Base.astro";
       </div>
     </div>`;
 
-    // 黄历（有数据时单独一行，跟随日报）
-    let almanacHtml = "";
-    if (a?.lunar_date) {
-      const yi = (a.yi ?? []).map((s: string) => `<span class="almanac-yi">宜${s}</span>`).join("");
-      const ji = (a.ji ?? []).map((s: string) => `<span class="almanac-ji">忌${s}</span>`).join("");
-      almanacHtml = `<div class="almanac-block">
-        <span class="almanac-date">🗓 ${a.lunar_date}</span>
-        ${a.lucky_color ? `<span class="almanac-color">🎨 ${a.lucky_color}</span>` : ""}
-        <div class="almanac-tags">${yi}${ji}</div>
-        ${a.fortune ? `<div class="almanac-fortune">${a.fortune}</div>` : ""}
-      </div>`;
-    }
+    return `<div class="weather-almanac-row">${marketHtml}</div>`;
+  }
 
-    return `<div class="weather-almanac-row">${marketHtml}${almanacHtml}</div>`;
+  function renderAlmanac(d: any): string {
+    const a = d.almanac;
+    if (!a?.lunar_date) return "";
+    const yi = (a.yi ?? []).map((s: string) => `<span class="almanac-yi">宜${s}</span>`).join("");
+    const ji = (a.ji ?? []).map((s: string) => `<span class="almanac-ji">忌${s}</span>`).join("");
+    return `<div class="almanac-block">
+      <span class="almanac-date">🗓 ${a.lunar_date}</span>
+      ${a.lucky_color ? `<span class="almanac-color">🎨 ${a.lucky_color}</span>` : ""}
+      <div class="almanac-tags">${yi}${ji}</div>
+      ${a.fortune ? `<div class="almanac-fortune">${a.fortune}</div>` : ""}
+    </div>`;
   }
 
   // ── 客户端拉取实时行情 ──
