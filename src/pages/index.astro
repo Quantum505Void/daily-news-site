@@ -847,13 +847,21 @@ import Base from "../layouts/Base.astro";
   // ── 渲染服务端占位（客户端注入前的骨架） ──
   function renderMarketAlmanac(d: any): string {
     const a = d.almanac;
-    const parts: string[] = [];
 
-    // 市场快讯骨架
-    parts.push(`<div class="market-block" id="marketBlock">
+    // 节假日倒计时（内嵌到市场卡片 header）
+    const holiday = getNextHoliday();
+    const holidayHtml = holiday
+      ? `<span class="market-holiday">🎉 ${holiday.name} <b>${holiday.days}</b>天</span>`
+      : "";
+
+    // 市场快讯
+    let marketHtml = `<div class="market-block" id="marketBlock">
       <div class="market-header">
         <span class="market-title">💹 市场快讯</span>
-        <span class="market-time" id="marketTime">加载中…</span>
+        <div class="market-header-right">
+          ${holidayHtml}
+          <span class="market-time" id="marketTime">加载中…</span>
+        </div>
       </div>
       <div class="market-grid" id="marketGrid">
         ${["沪指","深指","纳指","恒生","USD/CNY"].map(n =>
@@ -864,35 +872,22 @@ import Base from "../layouts/Base.astro";
           </div>`
         ).join("")}
       </div>
-    </div>`);
+    </div>`;
 
-    // 节假日骨架
-    const holiday = getNextHoliday();
-    if (holiday) {
-      parts.push(`<div class="holiday-block">
-        <span class="holiday-icon">🎉</span>
-        <div class="holiday-info">
-          <span class="holiday-name">${holiday.name}</span>
-          <span class="holiday-days">还有 <b>${holiday.days}</b> 天</span>
-        </div>
-        <div class="holiday-bar-wrap">
-          <div class="holiday-bar" style="width:${Math.max(4,100-Math.min(holiday.days,100))}%"></div>
-        </div>
-      </div>`);
-    }
-
-    // 黄历（保留）
+    // 黄历（有数据时单独一行，跟随日报）
+    let almanacHtml = "";
     if (a?.lunar_date) {
       const yi = (a.yi ?? []).map((s: string) => `<span class="almanac-yi">宜${s}</span>`).join("");
       const ji = (a.ji ?? []).map((s: string) => `<span class="almanac-ji">忌${s}</span>`).join("");
-      parts.push(`<div class="almanac-block">
+      almanacHtml = `<div class="almanac-block">
         <span class="almanac-date">🗓 ${a.lunar_date}</span>
-        ${a.lucky_color ? `<span class="almanac-color">🎨 ${a.lucky_color}</span>` : ""}        <div class="almanac-tags">${yi}${ji}</div>
+        ${a.lucky_color ? `<span class="almanac-color">🎨 ${a.lucky_color}</span>` : ""}
+        <div class="almanac-tags">${yi}${ji}</div>
         ${a.fortune ? `<div class="almanac-fortune">${a.fortune}</div>` : ""}
-      </div>`);
+      </div>`;
     }
 
-    return parts.length ? `<div class="weather-almanac-row">${parts[0]}<div class="weather-almanac-row-2">${parts.slice(1).join("")}</div></div>` : "";
+    return `<div class="weather-almanac-row">${marketHtml}${almanacHtml}</div>`;
   }
 
   // ── 客户端拉取实时行情 ──
@@ -2237,8 +2232,11 @@ import Base from "../layouts/Base.astro";
     border-radius: 14px; padding: 14px 16px;
   }
   .market-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .market-header-right { display: flex; align-items: center; gap: 10px; }
   .market-title { font-size: 13px; font-weight: 700; color: var(--heading); }
   .market-time { font-size: 10px; color: var(--text3); }
+  .market-holiday { font-size: 11px; color: var(--text2); white-space: nowrap; }
+  .market-holiday b { color: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; }
   .market-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; }
   @media (max-width: 680px) { .market-grid { grid-template-columns: repeat(3,1fr); } }
   .market-item {
@@ -2256,29 +2254,7 @@ import Base from "../layouts/Base.astro";
   .market-chg  { font-size: 11px; font-weight: 600; }
   .market-chg--up   { color: #22c55e; }
   .market-chg--down { color: #ef4444; }
-  /* ── 节假日倒计时 ── */
-  .holiday-block {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 14px; padding: 14px 14px 18px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    position: relative; overflow: hidden;
-  }
-  .holiday-block::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(231,76,60,0.05) 0%, transparent 60%);
-    pointer-events: none;
-  }
-  .holiday-icon { font-size: 24px; flex-shrink: 0; }
-  .holiday-info { display: flex; flex-direction: column; gap: 3px; }
-  .holiday-name { font-size: 13px; font-weight: 700; color: var(--heading); white-space: nowrap; }
-  .holiday-days { font-size: 12px; color: var(--text2); white-space: nowrap; }
-  .holiday-days b { color: var(--accent); font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
-  .holiday-bar-wrap {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-    background: var(--bg4); overflow: hidden;
-  }
-  .holiday-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #f59e0b); transition: width 0.8s ease; }
-  /* ── 黄历（保留） ── */
+  /* ── 黄历 ── */
   .almanac-block {
     background: var(--bg2); border: 1px solid var(--border);
     border-radius: 14px; padding: 14px;
