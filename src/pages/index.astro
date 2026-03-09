@@ -540,7 +540,7 @@ import Base from "../layouts/Base.astro";
     const readClass = read ? " card--read" : "";
     return `<article class="card${extraClass}${readClass}" ${urlAttr} ${cursorStyle}>
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
-      <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed" : ""}"><p class="card-body">${item.body}</p></div>
+      <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed card-body-wrap--clickable" : ""}"><p class="card-body">${item.body}</p></div>
       <div class="card-footer">${sourceHtml}${expandBtn}${faveHtml}</div>
     </article>`;
   }
@@ -1643,10 +1643,16 @@ import Base from "../layouts/Base.astro";
 
     // 展开卡片（平滑动画）
     const expandBtn = t.closest(".card-expand") as HTMLElement | null;
-    if (expandBtn) {
-      const wrap = expandBtn.closest(".card")!.querySelector(".card-body-wrap") as HTMLElement | null;
+    // 点折叠区域本身也能展开
+    const bodyWrap = t.closest(".card-body-wrap--clickable") as HTMLElement | null;
+    const expandTrigger = expandBtn ?? (bodyWrap?.classList.contains("card-body-wrap--collapsed") ? bodyWrap : null);
+    if (expandTrigger) {
+      const wrap = (expandBtn
+        ? expandBtn.closest(".card")!.querySelector(".card-body-wrap")
+        : bodyWrap) as HTMLElement | null;
       if (!wrap) return;
       const collapsed = wrap.classList.contains("card-body-wrap--collapsed");
+      const btn = wrap.closest(".card")!.querySelector<HTMLElement>(".card-expand");
       if (collapsed) {
         wrap.classList.remove("card-body-wrap--collapsed");
         const h = wrap.scrollHeight || 200;
@@ -1660,7 +1666,7 @@ import Base from "../layouts/Base.astro";
         });
         setTimeout(() => { wrap.style.maxHeight = ""; }, 350);
       }
-      expandBtn.textContent = collapsed ? "收起 ▴" : "展开 ▾";
+      if (btn) btn.textContent = collapsed ? "收起 ▴" : "展开 ▾";
       return;
     }
 
@@ -2238,6 +2244,8 @@ import Base from "../layouts/Base.astro";
     opacity: 0.55; transition: opacity 0.15s;
   }
   .card-expand:hover { opacity: 1; color: var(--accent); }
+  .card-body-wrap--clickable { cursor: pointer; }
+  .card-body-wrap--clickable:hover { opacity: 0.85; }
 
   /* ── Tags ── */
   .tag {
