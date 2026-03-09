@@ -463,6 +463,23 @@ def save(structured, raw_results):
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     print(f"✅ JSON 已保存 → {json_path}")
+
+    # 更新 manifest.json（前端靠它发现可用日期列表）
+    manifest_path = os.path.join(PROJECT_DIR, "public", "manifest.json")
+    existing_dates = []
+    if os.path.exists(manifest_path):
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            try:
+                existing_dates = json.load(f).get("dates", [])
+            except Exception:
+                existing_dates = []
+    # 合并当前日期，去重排序（最新在前）
+    all_dates = sorted(set(existing_dates + [date_str]), reverse=True)
+    manifest = {"dates": all_dates, "updated": datetime.utcnow().isoformat() + "Z"}
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+    print(f"✅ manifest.json 已更新 → {all_dates[:5]}...")
+
     return json_path
 
 # ── 主流程 ────────────────────────────────────────────────────────────
