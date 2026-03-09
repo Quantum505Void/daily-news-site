@@ -728,10 +728,16 @@ import Base from "../layouts/Base.astro";
     const q = d.quote;
     if (!q?.text || !q?.author) return "";
     const body = q.zh ? `<span class="quote-zh">${q.zh}</span>` : "";
+    const copyText = q.zh
+      ? `${q.zh} —— ${q.author}`
+      : `${q.text} —— ${q.author}`;
     return `<blockquote class="daily-quote">
       <p class="quote-text">${q.text}</p>
       ${body}
-      <cite class="quote-author">— ${q.author}</cite>
+      <div class="quote-footer">
+        <cite class="quote-author">— ${q.author}</cite>
+        <button class="quote-copy" data-text="${copyText.replace(/"/g,'&quot;')}" title="复制名言">📋 复制</button>
+      </div>
     </blockquote>`;
   }
 
@@ -1089,9 +1095,34 @@ import Base from "../layouts/Base.astro";
     if (!q?.question || !q?.options?.length) return "";
     const key = `dq_${d.date}`;
     const opts = (q.options as string[]).map((opt, i) => {
-      const letter = String.fromCharCode(65 + i); // A B C D
+      const letter = String.fromCharCode(65 + i);
       return `<button class="dq-opt" data-idx="${i}" data-key="${key}">${letter}. ${opt}</button>`;
     }).join("");
+
+    // 昨天的题目结果
+    const yesterday = (() => {
+      const dt = new Date(d.date); dt.setDate(dt.getDate() - 1);
+      return dt.toISOString().slice(0, 10);
+    })();
+    const prevKey = `dq_${yesterday}`;
+    const prevTally: number[] | null = JSON.parse(localStorage.getItem(`${prevKey}_tally`) ?? "null");
+    const prevVoted = localStorage.getItem(prevKey);
+    let prevHtml = "";
+    if (prevTally && prevVoted !== null) {
+      const total = prevTally.reduce((a, b) => a + b, 0) || 1;
+      const bars = prevTally.map((v, i) => {
+        const pct = Math.round(v / total * 100);
+        const letter = String.fromCharCode(65 + i);
+        const isVoted = i === parseInt(prevVoted);
+        return `<div class="dq-bar-row${isVoted ? " dq-bar-row--voted" : ""}">
+          <span class="dq-bar-label">${letter}</span>
+          <div class="dq-bar-track"><div class="dq-bar-fill" style="width:${pct}%"></div></div>
+          <span class="dq-bar-pct">${pct}%</span>
+        </div>`;
+      }).join("");
+      prevHtml = `<details class="dq-prev"><summary>昨日投票结果</summary><div class="dq-prev-bars">${bars}</div></details>`;
+    }
+
     return `<section class="section dq-section" id="sec-dq">
       <div class="section-heading" style="--sec-color:#f59e0b">
         <span class="section-icon">🗳️</span>
@@ -1101,6 +1132,7 @@ import Base from "../layouts/Base.astro";
         <p class="dq-question">${q.question}</p>
         <div class="dq-options" id="dqOptions-${d.date}">${opts}</div>
         <div class="dq-result" id="dqResult-${d.date}" style="display:none"></div>
+        ${prevHtml}
       </div>
     </section>`;
   }
@@ -1487,6 +1519,18 @@ import Base from "../layouts/Base.astro";
   document.getElementById("main")!.addEventListener("click", (e) => {
     const t = e.target as HTMLElement;
 
+    // 名言复制
+    const copyBtn = t.closest(".quote-copy") as HTMLElement | null;
+    if (copyBtn) {
+      const text = copyBtn.dataset.text ?? "";
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = copyBtn.textContent;
+        copyBtn.textContent = "✅ 已复制";
+        setTimeout(() => { copyBtn.textContent = orig; }, 2000);
+      });
+      return;
+    }
+
     // 每日一问投票
     const dqBtn = t.closest(".dq-opt") as HTMLElement | null;
     if (dqBtn) { handleDailyQuestion(dqBtn); return; }
@@ -1513,14 +1557,28 @@ import Base from "../layouts/Base.astro";
       return;
     }
 
-    // 热词云点击 → 触发搜索
+    // 热词云点击 → 高亮卡片（优先），降级触发搜索
     const wcWord = t.closest(".wc-word") as HTMLElement | null;
     if (wcWord) {
       const q = wcWord.dataset.q!;
-      const sinput = document.getElementById("searchInput") as HTMLInputElement;
-      sinput.value = q;
-      sinput.dispatchEvent(new Event("input"));
-      sinput.focus();
+      // 找所有卡片里含该词的
+      const allCards = Array.from(document.querySelectorAll<HTMLElement>(".card, .hero-card"));
+      const matched = allCards.filter(c => (c.textContent ?? "").includes(q));
+      if (matched.length) {
+        // 清除旧高亮
+        allCards.forEach(c => c.classList.remove("card--highlighted"));
+        matched.forEach(c => c.classList.add("card--highlighted"));
+        // 滚动到第一个
+        matched[0].scrollIntoView({ behavior: "smooth", block: "center" });
+        // 3秒后清除高亮
+        setTimeout(() => matched.forEach(c => c.classList.remove("card--highlighted")), 3000);
+      } else {
+        // 没匹配到则降级搜索
+        const sinput = document.getElementById("searchInput") as HTMLInputElement;
+        sinput.value = q;
+        sinput.dispatchEvent(new Event("input"));
+        sinput.focus();
+      }
       return;
     }
 
@@ -2371,8 +2429,39 @@ import Base from "../layouts/Base.astro";
     font-size: 16px; font-style: italic; color: var(--heading);
     margin: 0; line-height: 1.7; font-weight: 500;
   }
-  .quote-zh { font-size: 13px; color: var(--text2); font-style: normal; }
-  .quote-author { font-size: 11px; color: var(--text3); font-style: normal; margin-top: 2px; }
+  .quote-zh     { font-size: 13px; color: var(--text2); font-style: normal; display: block; margin-top: 4px; }
+  .quote-author { font-size: 11px; color: var(--text3); font-style: normal; }
+  .quote-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .quote-copy {
+    font-size: 11px; color: var(--text3); background: none; border: 1px solid var(--border);
+    border-radius: 6px; padding: 2px 8px; cursor: pointer; transition: all 0.15s;
+  }
+  .quote-copy:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* 热词高亮动画 */
+  .card--highlighted {
+    outline: 2px solid var(--accent) !important;
+    box-shadow: 0 0 0 4px rgba(231,76,60,0.15), 0 6px 20px rgba(0,0,0,0.15) !important;
+    animation: highlightPulse 0.4s ease;
+  }
+  @keyframes highlightPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+
+  /* 每日一问上期结果 */
+  .dq-prev {
+    margin-top: 12px; font-size: 12px; color: var(--text3);
+    border-top: 1px solid var(--border); padding-top: 10px;
+  }
+  .dq-prev summary {
+    cursor: pointer; user-select: none; color: var(--text2);
+    list-style: none; display: flex; align-items: center; gap: 6px;
+  }
+  .dq-prev summary::before { content: '▶'; font-size: 9px; transition: transform 0.2s; }
+  .dq-prev[open] summary::before { transform: rotate(90deg); }
+  .dq-prev-bars { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
 
   /* ── 今日时间轴 ── */
   .day-timeline {
