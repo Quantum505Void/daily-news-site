@@ -480,6 +480,20 @@ def save(structured, raw_results):
         json.dump(manifest, f, ensure_ascii=False, indent=2)
     print(f"✅ manifest.json 已更新 → {all_dates[:5]}...")
 
+    # 更新 README.md 状态表
+    readme_path = os.path.join(PROJECT_DIR, "README.md")
+    if os.path.exists(readme_path):
+        import re
+        with open(readme_path, "r", encoding="utf-8") as f:
+            readme = f.read()
+        cst_time = datetime.now(timezone(timedelta(hours=8))).strftime("%Y/%m/%d %H:%M (CST)")
+        readme = re.sub(r"(\| 最新一期 \| ).*", f"\\g<1>{date_str} |", readme)
+        readme = re.sub(r"(\| 累计期数 \| ).*", f"\\g<1>{len(all_dates)} 期 |", readme)
+        readme = re.sub(r"(\| 最后构建 \| ).*", f"\\g<1>{cst_time} |", readme)
+        with open(readme_path, "w", encoding="utf-8") as f:
+            f.write(readme)
+        print(f"✅ README.md 已更新")
+
     return json_path
 
 # ── 主流程 ────────────────────────────────────────────────────────────
