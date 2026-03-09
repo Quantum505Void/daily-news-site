@@ -786,7 +786,7 @@ import Base from "../layouts/Base.astro";
     const panel = document.getElementById("sharedPanel");
     if (!panel || panel.dataset.initialized) return;
     panel.dataset.initialized = "1";
-    panel.innerHTML = renderMarketAlmanac({almanac: null}) + renderWorldClocks() + renderDayTimeline();
+    panel.innerHTML = renderMarketAlmanac({almanac: null}) + renderDayTimeline();
     injectMarketData();
     startTimelineTick();
     startWorldClockTick();
