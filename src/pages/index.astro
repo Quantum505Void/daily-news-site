@@ -694,6 +694,7 @@ import Base from "../layouts/Base.astro";
         (window as any).__hotWords = d.hot_words;
       }
       // 更新阅读进度圆环
+      cacheCardUrls(date);
       updateReadRings();
     } catch {
       main.innerHTML = '<div class="state-msg"><div class="icon">⚠️</div><p>加载失败，请稍后重试</p></div>';
@@ -704,30 +705,29 @@ import Base from "../layouts/Base.astro";
   let _sectionObs: IntersectionObserver | null = null;
 
   // ── 阅读进度圆环 ──
+  // 缓存各日期的总卡片数（在 showDate 完成后调用 cacheCardUrls 写入）
+  function cacheCardUrls(date: string) {
+    const urls = Array.from(document.querySelectorAll<HTMLElement>(".card[data-url],.hero-card[data-url]"))
+      .map(c => c.dataset.url!).filter(Boolean);
+    if (urls.length) localStorage.setItem(`card_urls_${date}`, JSON.stringify(urls));
+  }
+
   function updateReadRings() {
     const reads = getReads();
+    const circumference = 2 * Math.PI * 8; // r=8 → ~50.3
     document.querySelectorAll<HTMLElement>(".date-btn").forEach(btn => {
       const date = btn.dataset.date!;
       const fill = btn.querySelector<SVGCircleElement>(".read-ring-fill");
       if (!fill) return;
-      // 统计当天所有卡片 url
-      const cards = Array.from(document.querySelectorAll<HTMLElement>(".card[data-url], .hero-card[data-url]"));
-      const total = cards.filter(c => {
-        // 只统计当前加载的 date（其他 date 的卡片不在 DOM 里）
-        return true;
-      }).length;
-      if (!total) { fill.style.strokeDashoffset = "50.3"; return; }
-      const readCount = cards.filter(c => reads.has(c.dataset.url!)).length;
-      const pct = readCount / total;
-      const circumference = 2 * Math.PI * 8; // r=8 → ~50.3
-      fill.style.strokeDasharray = `${circumference}`;
-      fill.style.strokeDashoffset = `${circumference * (1 - pct)}`;
-      if (pct >= 1) { btn.dataset.allread = "1"; }
+      const cached: string[] = JSON.parse(localStorage.getItem(`card_urls_${date}`) ?? "[]");
+      if (!cached.length) { fill.style.strokeDashoffset = String(circumference); return; }
+      const readCount = cached.filter(u => reads.has(u)).length;
+      const pct = readCount / cached.length;
+      fill.style.strokeDasharray = String(circumference);
+      fill.style.strokeDashoffset = String(circumference * (1 - pct));
+      btn.dataset.allread = pct >= 1 ? "1" : "";
     });
   }
-
-  // markRead 后也更新圆环（hook 进点击事件）
-  const _origMarkRead = markRead;
 
   // ── 分享 ──
   function initShareBtn() {
@@ -860,46 +860,6 @@ import Base from "../layouts/Base.astro";
     panel.innerHTML = renderMarketAlmanac({almanac: null}) + renderDayTimeline();
     injectMarketData();
     startTimelineTick();
-    startWorldClockTick();
-  }
-
-  const WORLD_CLOCK_ZONES = [
-    { city: "北京", tz: "Asia/Shanghai",    flag: "🇨🇳" },
-    { city: "纽约", tz: "America/New_York", flag: "🇺🇸" },
-    { city: "伦敦", tz: "Europe/London",    flag: "🇬🇧" },
-    { city: "东京", tz: "Asia/Tokyo",       flag: "🇯🇵" },
-  ];
-
-  function renderWorldClocks(): string {
-    const clocks = WORLD_CLOCK_ZONES.map(z => {
-      const t = new Date().toLocaleTimeString("zh-CN", { timeZone: z.tz, hour: "2-digit", minute: "2-digit", hour12: false });
-      const d = new Date().toLocaleDateString("zh-CN", { timeZone: z.tz, month: "numeric", day: "numeric", weekday: "short" });
-      return `<div class="wc-item" data-tz="${z.tz}">
-        <span class="wc-flag">${z.flag}</span>
-        <div class="wc-info">
-          <span class="wc-city">${z.city}</span>
-          <span class="wc-date">${d}</span>
-        </div>
-        <span class="wc-time">${t}</span>
-      </div>`;
-    }).join("");
-    return `<div class="world-clocks" id="worldClocks">${clocks}</div>`;
-  }
-
-  function startWorldClockTick() {
-    function tick() {
-      document.querySelectorAll<HTMLElement>("#worldClocks .wc-item").forEach(el => {
-        const tz = el.dataset.tz!;
-        const t = new Date().toLocaleTimeString("zh-CN", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
-        const d = new Date().toLocaleDateString("zh-CN", { timeZone: tz, month: "numeric", day: "numeric", weekday: "short" });
-        const timeEl = el.querySelector(".wc-time");
-        const dateEl = el.querySelector(".wc-date");
-        if (timeEl) timeEl.textContent = t;
-        if (dateEl) dateEl.textContent = d;
-      });
-    }
-    const msToNextMin = (60 - new Date().getSeconds()) * 1000;
-    setTimeout(() => { tick(); setInterval(tick, 60000); }, msToNextMin);
   }
 
   function startTimelineTick() {
@@ -1135,7 +1095,6 @@ import Base from "../layouts/Base.astro";
     return `<div class="key-numbers">${cards}</div>`;
   }
 
-  // ── 历史上的今天（时间轴版）──
   function renderHistoryTimeline(d: any): string {
     const items: Array<{year: string; event: string}> = d.history_today ?? [];
     if (!items.length) return "";
@@ -1157,8 +1116,6 @@ import Base from "../layouts/Base.astro";
       <div class="htl-track">${rows}</div>
     </section>`;
   }
-
-  function renderHistoryToday(d: any): string { return renderHistoryTimeline(d); }
 
   // ── 每日一问 ──
   function renderDailyQuestion(d: any): string {
@@ -2239,7 +2196,6 @@ import Base from "../layouts/Base.astro";
     -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
     mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
   }
-  /* 旧版搜索结果仍用旧方式 */
   .card-body--collapsed {
     display: -webkit-box; -webkit-line-clamp: 2;
     -webkit-box-orient: vertical; overflow: hidden;
@@ -2634,24 +2590,7 @@ import Base from "../layouts/Base.astro";
   .kn-label   { font-size: 12px; font-weight: 600; color: var(--heading); }
   .kn-context { font-size: 11px; color: var(--text3); line-height: 1.4; margin-top: 2px; }
 
-  /* ── 全球时区 ── */
-  .world-clocks {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 8px; margin-top: 8px;
-  }
-  @media (max-width: 680px) { .world-clocks { grid-template-columns: repeat(2, 1fr); } }
-  .wc-item {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .wc-flag  { font-size: 20px; flex-shrink: 0; }
-  .wc-info  { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
-  .wc-city  { font-size: 11px; font-weight: 700; color: var(--heading); }
-  .wc-date  { font-size: 10px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .wc-time  { font-size: 16px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; flex-shrink: 0; }
-
-  /* ── 历史上的今天（时间轴版）── */
+  /* ── 历史上的今天（时间轴）── */
   .htl-track {
     display: flex; flex-direction: column; gap: 0;
     padding-left: 16px;
@@ -2674,22 +2613,6 @@ import Base from "../layouts/Base.astro";
   .htl-dot--last { background: #8b5cf6; }
   .htl-year  { font-size: 12px; font-weight: 800; color: #8b5cf6; font-variant-numeric: tabular-nums; }
   .htl-event { font-size: 13px; color: var(--text); line-height: 1.6; }
-
-  /* ── 历史上的今天（旧版兼容）── */
-  .history-section { margin-bottom: 28px; }
-  .history-list { display: flex; flex-direction: column; gap: 6px; }
-  .history-item {
-    display: flex; align-items: baseline; gap: 14px;
-    padding: 10px 16px; background: var(--bg2); border-radius: 10px;
-    border-left: 3px solid #8b5cf6; font-size: 13.5px;
-    transition: background 0.15s, transform 0.15s;
-  }
-  .history-item:hover { background: var(--bg3); transform: translateX(2px); }
-  .history-year {
-    font-size: 12px; font-weight: 800; color: #8b5cf6;
-    flex-shrink: 0; min-width: 40px; font-variant-numeric: tabular-nums;
-  }
-  .history-event { color: var(--text); line-height: 1.6; }
 
   .word-cloud {
     display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
