@@ -366,6 +366,7 @@ def generate_sections(raw_results):
 - "almanac": 中国传统黄历，包含：lunar_date(农历日期如"正月初七")、yi(宜，3-4项，数组)、ji(忌，2-3项，数组)、lucky_color(今日幸运色)、fortune(一句简短运势寄语，20字内)
 - "daily_question": 今日一问，包含：question(一个有争议、值得思考的问题，20字内，不要是非题，不要答案显而易见的问题)、options(2-4个选项，每项15字内，数组)
 - "quote": 今日名言，包含：text(名言原文，中英文均可，50字内)、author(作者姓名)、zh(若原文是英文则提供中文译文，否则留空字符串)
+- "key_numbers": 今日关键数字，从新闻中提取 4-5 个最值得关注的具体数字/数据，每条包含：number(数字本身，如"7.3%""120亿""25bp")、label(简短说明，10字内)、context(所属新闻背景，15字内)、trend("up"/"down"/"neutral")
 
 原始数据：
 {raw_text}
@@ -455,6 +456,7 @@ def save(structured, raw_results):
         "almanac":       structured.get("almanac", {}),
         "daily_question": structured.get("daily_question", {}),
         "quote":          structured.get("quote", {}),
+        "key_numbers":    structured.get("key_numbers", []),
         "generated_at":  NOW.isoformat(),
         "version":       2
     }

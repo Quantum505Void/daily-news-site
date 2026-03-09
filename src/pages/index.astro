@@ -620,10 +620,11 @@ import Base from "../layouts/Base.astro";
           <p class="digest-summary-text">${d.summary}</p>
         </details>` : ""}
         ${wordCloud}
+        ${renderKeyNumbers(d)}
         ${renderAlmanac(d)}
       </div>
       <nav class="sec-nav" id="secNav">${navHtml}</nav>
-      ${renderHistoryToday(d)}
+      ${renderHistoryTimeline(d)}
       ${renderDailyQuestion(d)}
       ${sectionsHtml}`;
   }
@@ -779,9 +780,49 @@ import Base from "../layouts/Base.astro";
     const panel = document.getElementById("sharedPanel");
     if (!panel || panel.dataset.initialized) return;
     panel.dataset.initialized = "1";
-    panel.innerHTML = renderMarketAlmanac({almanac: null}) + renderDayTimeline();
+    panel.innerHTML = renderMarketAlmanac({almanac: null}) + renderWorldClocks() + renderDayTimeline();
     injectMarketData();
     startTimelineTick();
+    startWorldClockTick();
+  }
+
+  function renderWorldClocks(): string {
+    const zones = [
+      { city: "北京", tz: "Asia/Shanghai", flag: "🇨🇳" },
+      { city: "纽约", tz: "America/New_York", flag: "🇺🇸" },
+      { city: "伦敦", tz: "Europe/London", flag: "🇬🇧" },
+      { city: "东京", tz: "Asia/Tokyo", flag: "🇯🇵" },
+    ];
+    const clocks = zones.map(z => {
+      const t = new Date().toLocaleTimeString("zh-CN", { timeZone: z.tz, hour: "2-digit", minute: "2-digit", hour12: false });
+      const d = new Date().toLocaleDateString("zh-CN", { timeZone: z.tz, month: "numeric", day: "numeric", weekday: "short" });
+      return `<div class="wc-item" data-tz="${z.tz}">
+        <span class="wc-flag">${z.flag}</span>
+        <div class="wc-info">
+          <span class="wc-city">${z.city}</span>
+          <span class="wc-date">${d}</span>
+        </div>
+        <span class="wc-time">${t}</span>
+      </div>`;
+    }).join("");
+    return `<div class="world-clocks" id="worldClocks">${clocks}</div>`;
+  }
+
+  function startWorldClockTick() {
+    const zones = ["Asia/Shanghai","America/New_York","Europe/London","Asia/Tokyo"];
+    function tick() {
+      document.querySelectorAll<HTMLElement>(".wc-item").forEach((el, i) => {
+        const tz = zones[i];
+        const t = new Date().toLocaleTimeString("zh-CN", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
+        const d = new Date().toLocaleDateString("zh-CN", { timeZone: tz, month: "numeric", day: "numeric", weekday: "short" });
+        const timeEl = el.querySelector(".wc-time");
+        const dateEl = el.querySelector(".wc-date");
+        if (timeEl) timeEl.textContent = t;
+        if (dateEl) dateEl.textContent = d;
+      });
+    }
+    const msToNextMin = (60 - new Date().getSeconds()) * 1000;
+    setTimeout(() => { tick(); setInterval(tick, 60000); }, msToNextMin);
   }
 
   function startTimelineTick() {
@@ -1001,23 +1042,46 @@ import Base from "../layouts/Base.astro";
   }
 
   // ── 历史上的今天 ──
-  function renderHistoryToday(d: any): string {
+  // ── 今日关键数字 ──
+  function renderKeyNumbers(d: any): string {
+    const nums: Array<{number: string; label: string; context: string; trend: string}> = d.key_numbers ?? [];
+    if (!nums.length) return "";
+    const cards = nums.map(n => {
+      const trendIcon = n.trend === "up" ? "↑" : n.trend === "down" ? "↓" : "—";
+      const trendCls  = n.trend === "up" ? "kn-up" : n.trend === "down" ? "kn-down" : "kn-neutral";
+      return `<div class="kn-card">
+        <div class="kn-number ${trendCls}">${n.number}<span class="kn-trend">${trendIcon}</span></div>
+        <div class="kn-label">${n.label}</div>
+        <div class="kn-context">${n.context}</div>
+      </div>`;
+    }).join("");
+    return `<div class="key-numbers">${cards}</div>`;
+  }
+
+  // ── 历史上的今天（时间轴版）──
+  function renderHistoryTimeline(d: any): string {
     const items: Array<{year: string; event: string}> = d.history_today ?? [];
     if (!items.length) return "";
-    const rows = items.map(h =>
-      `<div class="history-item"><span class="history-year">${h.year}</span><span class="history-event">${h.event}</span></div>`
-    ).join("");
     const today = new Date();
     const mmdd = `${today.getMonth()+1}月${today.getDate()}日`;
-    return `<section class="section history-section" id="sec-history">
+    const sorted = [...items].sort((a, b) => Number(a.year) - Number(b.year));
+    const rows = sorted.map((h, i) => `
+      <div class="htl-item">
+        <div class="htl-dot ${i === sorted.length-1 ? 'htl-dot--last' : ''}"></div>
+        <div class="htl-year">${h.year}</div>
+        <div class="htl-event">${h.event}</div>
+      </div>`).join("");
+    return `<section class="section" id="sec-history">
       <div class="section-heading" style="--sec-color:#8b5cf6">
         <span class="section-icon">📜</span>
         <h2 class="section-title">历史上的今天</h2>
         <span class="section-count">${mmdd}</span>
       </div>
-      <div class="history-list">${rows}</div>
+      <div class="htl-track">${rows}</div>
     </section>`;
   }
+
+  function renderHistoryToday(d: any): string { return renderHistoryTimeline(d); }
 
   // ── 每日一问 ──
   function renderDailyQuestion(d: any): string {
@@ -2385,7 +2449,71 @@ import Base from "../layouts/Base.astro";
   .dq-bar-row--voted .dq-bar-fill { background: #f59e0b; }
   .dq-bar-pct { width: 34px; text-align: right; color: var(--text3); font-size: 12px; }
 
-  /* ── 历史上的今天 ── */
+  /* ── 今日关键数字 ── */
+  .key-numbers {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px; margin-top: 12px;
+  }
+  .kn-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 3px;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .kn-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .kn-number {
+    font-size: 22px; font-weight: 900; line-height: 1.1;
+    font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 3px;
+  }
+  .kn-up      { color: #4ade80; }
+  .kn-down    { color: #f87171; }
+  .kn-neutral { color: var(--heading); }
+  .kn-trend   { font-size: 14px; font-weight: 700; }
+  .kn-label   { font-size: 12px; font-weight: 600; color: var(--heading); }
+  .kn-context { font-size: 11px; color: var(--text3); line-height: 1.4; margin-top: 2px; }
+
+  /* ── 全球时区 ── */
+  .world-clocks {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin-top: 8px;
+  }
+  @media (max-width: 680px) { .world-clocks { grid-template-columns: repeat(2, 1fr); } }
+  .wc-item {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .wc-flag  { font-size: 20px; flex-shrink: 0; }
+  .wc-info  { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+  .wc-city  { font-size: 11px; font-weight: 700; color: var(--heading); }
+  .wc-date  { font-size: 10px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wc-time  { font-size: 16px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+  /* ── 历史上的今天（时间轴版）── */
+  .htl-track {
+    display: flex; flex-direction: column; gap: 0;
+    padding-left: 16px;
+    border-left: 2px solid color-mix(in srgb, #8b5cf6 30%, transparent);
+    margin-left: 12px;
+  }
+  .htl-item {
+    display: grid; grid-template-columns: 52px 1fr;
+    align-items: baseline; gap: 10px;
+    padding: 10px 14px 10px 20px;
+    position: relative;
+    transition: background 0.15s; border-radius: 8px;
+  }
+  .htl-item:hover { background: var(--bg2); }
+  .htl-dot {
+    position: absolute; left: -7px; top: 14px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--bg); border: 2px solid #8b5cf6;
+  }
+  .htl-dot--last { background: #8b5cf6; }
+  .htl-year  { font-size: 12px; font-weight: 800; color: #8b5cf6; font-variant-numeric: tabular-nums; }
+  .htl-event { font-size: 13px; color: var(--text); line-height: 1.6; }
+
+  /* ── 历史上的今天（旧版兼容）── */
   .history-section { margin-bottom: 28px; }
   .history-list { display: flex; flex-direction: column; gap: 6px; }
   .history-item {
