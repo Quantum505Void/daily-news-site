@@ -240,7 +240,7 @@ def llm(prompt, max_tokens=3000):
     try:
         token = get_copilot_token()
         payload = json.dumps({
-            "model": "gpt-4.1",
+            "model": "gpt-5.2",
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": max_tokens,
             "temperature": 0.7,
