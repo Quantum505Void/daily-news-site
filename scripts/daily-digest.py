@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Daily Digest v2 - 结构化新闻简报
-输出：public/data/YYYY-MM-DD.json（无 HTML，无 raw 字段，body 截断 300 字）
+输出：public/data/YYYY-MM-DD.json（无 HTML，无 raw 字段）
 """
 
 import json
@@ -11,6 +11,7 @@ import time
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ── 配置 ──────────────────────────────────────────────────────────────
 CST = timezone(timedelta(hours=8))
@@ -193,31 +194,41 @@ def web_search(query, count=8, retries=2) -> list:
     return []
 
 def collect_all() -> dict:
-    """每板块执行多条查询并去重合并，间隔 2s，失败的板块标记为空让 LLM 补全"""
+    """并发搜索所有板块，每板块内部串行查询（避免同时打爆 API 限流）"""
     results = {}
-    failed = []
-    for i, s in enumerate(SECTIONS):
-        if i > 0:
-            time.sleep(2)
+
+    def fetch_section(s):
         queries = s.get("queries") or [s.get("query", "")]
         seen_urls: set = set()
         combined = []
         for qi, q in enumerate(queries):
             if qi > 0:
-                time.sleep(1.5)
+                time.sleep(1)
             items = web_search(q, count=10)
             for item in items:
                 u = item.get("url", "")
                 if u and u not in seen_urls:
                     seen_urls.add(u)
                     combined.append(item)
-        results[s["id"]] = combined
-        status = f"{len(combined)} 条" if combined else "❌ 搜索失败（LLM补全）"
-        print(f"  {'✓' if combined else '○'} {s['title']}: {status}", flush=True)
-        if not combined:
-            failed.append(s["title"])
+        return s["id"], s["title"], combined
+
+    # 最多 4 个并发，避免触发 Brave 429
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        futures = {ex.submit(fetch_section, s): s for s in SECTIONS}
+        for fut in as_completed(futures):
+            try:
+                sid, title, combined = fut.result()
+                results[sid] = combined
+                status = f"{len(combined)} 条" if combined else "❌ 无数据（LLM补全）"
+                print(f"  {'✓' if combined else '○'} {title}: {status}", flush=True)
+            except Exception as e:
+                s = futures[fut]
+                print(f"  ✗ {s['title']} 搜索异常: {e}", flush=True)
+                results[s["id"]] = []
+
+    failed = [s["title"] for s in SECTIONS if not results.get(s["id"])]
     if failed:
-        print(f"  ⚠ 以下板块无搜索结果，将由 LLM 用自身知识补全：{', '.join(failed)}", flush=True)
+        print(f"  ⚠ 无数据板块，LLM补全：{', '.join(failed)}", flush=True)
     return results
 
 # ── GitHub Copilot LLM ───────────────────────────────────────────────
@@ -236,7 +247,7 @@ def get_copilot_token():
     with urllib.request.urlopen(req, timeout=15) as r:
         return json.loads(r.read()).get("token", "")
 
-def llm(prompt, max_tokens=3000):
+def llm(prompt, max_tokens=8000):
     try:
         token = get_copilot_token()
         payload = json.dumps({
@@ -256,7 +267,7 @@ def llm(prompt, max_tokens=3000):
                 "Editor-Version": "vscode/1.85.0",
             }
         )
-        with urllib.request.urlopen(req, timeout=150) as r:
+        with urllib.request.urlopen(req, timeout=240) as r:
             data = json.loads(r.read())
             return data["choices"][0]["message"]["content"].strip()
     except Exception as e:
@@ -303,12 +314,12 @@ def build_raw_text(raw_results):
         if not items:
             continue
         lines.append(f"=== {s['title']} ===")
-        for r in items[:15]:
+        for r in items[:12]:
             lines.append(f"- {r['title']}: {r['desc'][:150]}")
         lines.append("")
     return "\n".join(lines)
 
-def generate_sections(raw_results):
+def generate_sections(raw_results, override_prompt=None, attempt=0):
     # 统计哪些板块有搜索数据
     has_data = {sid: bool(items) for sid, items in raw_results.items()}
     empty_sections = [s["title"] for s in SECTIONS if not has_data.get(s["id"])]
@@ -373,7 +384,7 @@ def generate_sections(raw_results):
 
 输出完整 JSON（所有板块都必须有）："""
 
-    raw = llm(prompt, max_tokens=4000)
+    raw = llm(override_prompt or prompt, max_tokens=8000 if attempt == 0 else 5000)
     if not raw:
         return None
 
@@ -436,7 +447,7 @@ def save(structured, raw_results):
         # body 截断，控制 JSON 体积
         for item in sec.get("items", []):
             if item.get("body"):
-                item["body"] = item["body"][:300]
+                item["body"] = item["body"][:450]
 
     sections = structured.get("sections", [])
     # hot_words 优先用 LLM 生成的（字符串列表），转成 [{word, count}] 格式；降级用正则提取
@@ -466,17 +477,12 @@ def save(structured, raw_results):
         json.dump(data, f, ensure_ascii=False, indent=2)
     print(f"✅ JSON 已保存 → {json_path}")
 
-    # 更新 manifest.json（前端靠它发现可用日期列表）
+    # 更新 manifest.json：扫 data 目录重建，避免幽灵日期
     manifest_path = os.path.join(PROJECT_DIR, "public", "manifest.json")
-    existing_dates = []
-    if os.path.exists(manifest_path):
-        with open(manifest_path, "r", encoding="utf-8") as f:
-            try:
-                existing_dates = json.load(f).get("dates", [])
-            except Exception:
-                existing_dates = []
-    # 合并当前日期，去重排序（最新在前）
-    all_dates = sorted(set(existing_dates + [date_str]), reverse=True)
+    all_dates = sorted(
+        [f.replace(".json", "") for f in os.listdir(DATA_DIR) if f.endswith(".json")],
+        reverse=True
+    )
     manifest = {"dates": all_dates, "updated": datetime.utcnow().isoformat() + "Z"}
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
@@ -508,10 +514,11 @@ if __name__ == "__main__":
     print("🤖 LLM 生成结构化内容...", flush=True)
     structured = None
     for attempt in range(2):
-        structured = generate_sections(raw_results)
+        if attempt == 1:
+            print("  第1次失败，降低要求重试...", flush=True)
+        structured = generate_sections(raw_results, attempt=attempt)
         if structured:
             break
-        print(f"  第{attempt+1}次失败，重试...", flush=True)
 
     if not structured:
         print("⚠️  LLM 失败，使用 fallback", flush=True)
