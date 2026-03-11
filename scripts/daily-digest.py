@@ -6,6 +6,7 @@ Daily Digest v2 - 结构化新闻简报
 
 import json
 import os
+import glob
 import gzip
 import time
 import urllib.request
@@ -501,6 +502,34 @@ def save(structured, raw_results):
         with open(readme_path, "w", encoding="utf-8") as f:
             f.write(readme)
         print(f"✅ README.md 已更新")
+
+    # 重建全量搜索索引（所有日期）
+    search_index = []
+    section_meta = {s["id"]: s for s in SECTIONS}
+    for date_file in sorted(glob.glob(os.path.join(DATA_DIR, "*.json")), reverse=True):
+        try:
+            with open(date_file, encoding="utf-8") as f:
+                day = json.load(f)
+            for sec in day.get("sections", []):
+                meta = section_meta.get(sec["id"], {})
+                sec_title = meta.get("title", sec.get("title", sec["id"]))
+                for item in sec.get("items", []):
+                    search_index.append({
+                        "date": day["date"],
+                        "secId": sec["id"],
+                        "secTitle": sec_title,
+                        "title": item.get("title", ""),
+                        "body": (item.get("body", "") or "")[:120],
+                        "tag": item.get("tag", ""),
+                        "url": item.get("url", ""),
+                    })
+        except Exception as e:
+            print(f"  ⚠ 搜索索引跳过 {date_file}: {e}", flush=True)
+
+    search_path = os.path.join(PROJECT_DIR, "public", "search-index.json")
+    with open(search_path, "w", encoding="utf-8") as f:
+        json.dump(search_index, f, ensure_ascii=False, separators=(",", ":"))
+    print(f"✅ search-index.json 已重建 → {len(search_index)} 条")
 
     return json_path
 

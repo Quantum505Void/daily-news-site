@@ -52,13 +52,14 @@ export default {
       }
     }
 
-    // ── /chat — AI 代理 (POST) ──
+    // ── /chat — AI 流式代理 (POST) ──
     if (request.method !== "POST" || url.pathname !== "/chat") {
       return new Response("Not Found", { status: 404 });
     }
 
     try {
       const body = await request.json();
+      const stream = body.stream !== false; // 默认开流式
 
       const tokenRes = await fetch("https://api.github.com/copilot_internal/v2/token", {
         headers: {
@@ -71,11 +72,11 @@ export default {
       });
       if (!tokenRes.ok) {
         const txt = await tokenRes.text();
-        return json({ error: `token fetch failed: ${txt.slice(0,100)}` }, 500);
+        return json({ error: `token fetch failed: ${txt.slice(0, 100)}` }, 500);
       }
       const tokenData = await tokenRes.json();
       const token = tokenData.token;
-      if (!token) return json({ error: "no token", data: JSON.stringify(tokenData).slice(0,200) }, 500);
+      if (!token) return json({ error: "no token" }, 500);
 
       const aiRes = await fetch("https://api.githubcopilot.com/chat/completions", {
         method: "POST",
@@ -90,12 +91,31 @@ export default {
           messages: body.messages ?? [],
           max_tokens: body.max_tokens ?? 500,
           temperature: 0.7,
+          stream,
         }),
       });
 
-      const data = await aiRes.json();
-      const answer = data.choices?.[0]?.message?.content ?? "未能获取回答";
-      return json({ answer });
+      if (!aiRes.ok) {
+        const txt = await aiRes.text();
+        return json({ error: `upstream ${aiRes.status}: ${txt.slice(0, 100)}` }, 500);
+      }
+
+      if (!stream) {
+        const data = await aiRes.json();
+        const answer = data.choices?.[0]?.message?.content ?? "未能获取回答";
+        return json({ answer });
+      }
+
+      // 流式：透传 SSE，追加 CORS 头
+      return new Response(aiRes.body, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "X-Accel-Buffering": "no",
+          ...corsHeaders(),
+        },
+      });
     } catch (e) {
       return json({ error: String(e) }, 500);
     }

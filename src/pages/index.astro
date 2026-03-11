@@ -528,7 +528,8 @@ import Base from "../layouts/Base.astro";
     })();
     const sourceHtml = domain
       ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';this.style.display='none'">${domain} ↗</a>`
-      : item.url ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>` : "";
+      : item.url ? `<a class="card-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>`
+      : `<span class="card-source card-source--ai" title="AI 基于训练数据生成，非实时新闻">🤖 AI 生成</span>`;
     const extraClass = isJob ? " card--job"
       : item.tag === "突发" ? " card--breaking"
       : item.tag === "重磅" ? " card--major" : "";
@@ -552,7 +553,10 @@ import Base from "../layouts/Base.astro";
   // 今日看点英雄卡（第一条）
   function heroCardHtml(item: any, favedSet?: Set<string>): string {
     const domain = (() => { try { return item.url ? new URL(item.url).hostname.replace(/^www\./,"") : ""; } catch { return ""; } })();
-    const src = domain ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';this.style.display='none'">${domain} ↗</a>` : "";
+    const src = domain
+      ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';this.style.display='none'">${domain} ↗</a>`
+      : item.url ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener">查看原文 ↗</a>`
+      : `<span class="hero-source card-source--ai" title="AI 基于训练数据生成">🤖 AI 生成</span>`;
     const faved = favedSet ? favedSet.has(item.url) : isFaved(item.url);
     const faveHtml = item.url ? `<button class="fave-btn${faved ? " faved" : ""}" data-url="${item.url}" title="${faved ? "取消收藏" : "收藏"}">${faved ? "★" : "☆"}</button>` : "";
     return `<article class="hero-card${item.tag === "突发" ? " card--breaking" : ""}" data-url="${item.url ?? ""}" ${item.url ? 'style="cursor:pointer"' : ""}>
@@ -1400,22 +1404,43 @@ import Base from "../layouts/Base.astro";
       const res = await fetch("https://xiaoxin-ai-proxy.moke521-wang.workers.dev/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, max_tokens: 400 }),
+        body: JSON.stringify({ messages, max_tokens: 400, stream: true }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const answer = data.answer ?? data.error ?? "未能获取回答";
+
       loadEl.remove();
-      const el = appendAiMsg("ai", answer);
+      const el = appendAiMsg("ai", "");
+      const msgEl = document.getElementById("aiMessages")!;
+
+      // 流式读取 SSE
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let answer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6).trim();
+          if (data === "[DONE]") break;
+          try {
+            const chunk = JSON.parse(data);
+            const delta = chunk.choices?.[0]?.delta?.content ?? "";
+            if (delta) {
+              answer += delta;
+              el.textContent = answer;
+              msgEl.scrollTop = msgEl.scrollHeight;
+            }
+          } catch { /* ignore parse errors */ }
+        }
+      }
+      if (!answer) el.textContent = "未能获取回答";
       aiHistory.push({ role: "assistant", content: answer });
-      // 打字机效果
-      el.textContent = "";
-      let i = 0;
-      const timer = setInterval(() => {
-        el.textContent += answer[i++];
-        document.getElementById("aiMessages")!.scrollTop = 9999;
-        if (i >= answer.length) clearInterval(timer);
-      }, 18);
     } catch {
       loadEl.remove();
       appendAiMsg("ai", "AI 请求失败，请稍后重试");
@@ -2249,6 +2274,7 @@ import Base from "../layouts/Base.astro";
     display: flex; align-items: center; gap: 4px;
   }
   .card-source:hover { opacity: 1; color: var(--link); }
+  .card-source--ai { color: var(--text3); opacity: 0.5; font-size: 11px; cursor: default; }
   .card-favicon { border-radius: 2px; flex-shrink: 0; vertical-align: middle; }
   .card-expand {
     font-size: 11px; color: var(--text3);
