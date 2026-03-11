@@ -1132,18 +1132,21 @@ import Base from "../layouts/Base.astro";
   const WORKER = "https://xiaoxin-ai-proxy.moke521-wang.workers.dev";
 
   async function handleDailyQuestion(btn: HTMLElement) {
-    const key = btn.dataset.key!;           // e.g. dq_2026-03-09
+    const key = btn.dataset.key!;
     const idx = parseInt(btn.dataset.idx!);
-    if (localStorage.getItem(key) !== null) return; // 已投过
+    if (localStorage.getItem(key) !== null) return;
     localStorage.setItem(key, String(idx));
 
     const optsEl = btn.closest(".dq-options")!;
     const total = optsEl.querySelectorAll(".dq-opt").length;
     const card = btn.closest(".dq-card")!;
 
-    // 乐观显示 loading 态
-    (optsEl as HTMLElement).style.opacity = "0.5";
+    // 立刻乐观显示本地结果（不等网络）
+    const optimistic = Array(total).fill(0);
+    optimistic[idx] = 1;
+    showDQResult(card, idx, optimistic, key);
 
+    // 后台静默发请求，拿到真实 tally 后更新
     try {
       const date = key.replace("dq_", "");
       const res = await fetch(`${WORKER}/vote?date=${date}`, {
@@ -1152,16 +1155,11 @@ import Base from "../layouts/Base.astro";
         body: JSON.stringify({ idx, total }),
       });
       const data = await res.json();
-      const tally: number[] = data.tally ?? Array(total).fill(0);
-      // 同步到 localStorage（供昨日结果使用）
+      const tally: number[] = data.tally ?? optimistic;
       localStorage.setItem(`${key}_tally`, JSON.stringify(tally));
       showDQResult(card, idx, tally, key);
     } catch {
-      // 网络失败降级到纯本地
-      const tally = Array(total).fill(0);
-      tally[idx] = 1;
-      localStorage.setItem(`${key}_tally`, JSON.stringify(tally));
-      showDQResult(card, idx, tally, key);
+      localStorage.setItem(`${key}_tally`, JSON.stringify(optimistic));
     }
   }
 
