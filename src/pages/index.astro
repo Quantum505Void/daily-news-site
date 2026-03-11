@@ -1612,7 +1612,12 @@ import Base from "../layouts/Base.astro";
       const q = wcWord.dataset.q!;
       // 找所有卡片里含该词的
       const allCards = Array.from(document.querySelectorAll<HTMLElement>(".card, .hero-card"));
-      const matched = allCards.filter(c => (c.textContent ?? "").includes(q));
+      // 先精确匹配，失败则用前缀降级（中文关键词前2字往往足够定位）
+      let matched = allCards.filter(c => (c.textContent ?? "").includes(q));
+      if (!matched.length && q.length >= 3) {
+        const sub = q.slice(0, Math.max(2, Math.ceil(q.length / 2)));
+        matched = allCards.filter(c => (c.textContent ?? "").includes(sub));
+      }
       if (matched.length) {
         // 清除旧高亮
         allCards.forEach(c => c.classList.remove("card--highlighted"));
