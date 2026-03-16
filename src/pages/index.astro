@@ -1643,11 +1643,15 @@ import Base from "../layouts/Base.astro";
       const q = wcWord.dataset.q!;
       // 找所有卡片里含该词的
       const allCards = Array.from(document.querySelectorAll<HTMLElement>(".card, .hero-card"));
-      // 先精确匹配，失败则用前缀降级（中文关键词前2字往往足够定位）
+      // 精确匹配
       let matched = allCards.filter(c => (c.textContent ?? "").includes(q));
-      if (!matched.length && q.length >= 3) {
-        const sub = q.slice(0, Math.max(2, Math.ceil(q.length / 2)));
-        matched = allCards.filter(c => (c.textContent ?? "").includes(sub));
+      // 降级：从词尾往前取 2 字 ngram，取第一个有命中的
+      if (!matched.length && q.length >= 2) {
+        for (let i = q.length - 2; i >= 0; i--) {
+          const sub = q.slice(i, i + 2);
+          const m = allCards.filter(c => (c.textContent ?? "").includes(sub));
+          if (m.length) { matched = m; break; }
+        }
       }
       if (matched.length) {
         // 清除旧高亮
