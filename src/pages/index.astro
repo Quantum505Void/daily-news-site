@@ -1653,8 +1653,19 @@ import Base from "../layouts/Base.astro";
         // 清除旧高亮
         allCards.forEach(c => c.classList.remove("card--highlighted"));
         matched.forEach(c => c.classList.add("card--highlighted"));
-        // 滚动到第一个
-        matched[0].scrollIntoView({ behavior: "smooth", block: "center" });
+        // 展开卡片所在的折叠板块（cards--hidden 时 scrollIntoView 无效）
+        const cardsContainer = matched[0].closest<HTMLElement>(".cards--hidden");
+        if (cardsContainer) {
+          cardsContainer.classList.remove("cards--hidden");
+          // 同步更新折叠按钮状态
+          const section = cardsContainer.closest<HTMLElement>(".section");
+          const toggleBtn = section?.querySelector<HTMLElement>(".section-toggle");
+          if (toggleBtn) { toggleBtn.textContent = "▴"; toggleBtn.classList.remove("section-toggle--collapsed"); }
+        }
+        // 滚动到第一个（展开后延迟一帧确保布局完成）
+        requestAnimationFrame(() => {
+          matched[0].scrollIntoView({ behavior: "smooth", block: "center" });
+        });
         // 3秒后清除高亮
         setTimeout(() => matched.forEach(c => c.classList.remove("card--highlighted")), 3000);
       } else {
