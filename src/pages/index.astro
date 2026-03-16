@@ -521,7 +521,7 @@ import Base from "../layouts/Base.astro";
     });
   }
 
-  function cardHtml(item: any, isJob: boolean, idx: number, defCollapsed = "card-body--collapsed", favedSet?: Set<string>): string {
+  function cardHtml(item: any, isJob: boolean, idx: number, defCollapsed = "card-body--collapsed", favedSet?: Set<string>, secId = ""): string {
     const domain = (() => {
       try { return item.url ? new URL(item.url).hostname.replace(/^www\./, "") : ""; }
       catch { return ""; }
@@ -541,9 +541,10 @@ import Base from "../layouts/Base.astro";
       ? `<button class="fave-btn${faved ? " faved" : ""}" data-url="${item.url}" title="${faved ? "取消收藏" : "收藏"}">${faved ? "★" : "☆"}</button>`
       : "";
     const urlAttr = item.url ? `data-url="${item.url}"` : "";
+    const cardIdAttr = secId ? `data-card-id="${secId}:${idx}"` : "";
     const cursorStyle = item.url ? `style="cursor:pointer"` : "";
     const readClass = read ? " card--read" : "";
-    return `<article class="card${extraClass}${readClass}" ${urlAttr} ${cursorStyle}>
+    return `<article class="card${extraClass}${readClass}" ${urlAttr} ${cardIdAttr} ${cursorStyle}>
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed card-body-wrap--clickable" : ""}"><p class="card-body">${numHighlight(item.body ?? "")}</p></div>
       <div class="card-footer">${sourceHtml}${expandBtn}${faveHtml}</div>
@@ -551,7 +552,7 @@ import Base from "../layouts/Base.astro";
   }
 
   // 今日看点英雄卡（第一条）
-  function heroCardHtml(item: any, favedSet?: Set<string>): string {
+  function heroCardHtml(item: any, favedSet?: Set<string>, secId = "", idx = 0): string {
     const domain = (() => { try { return item.url ? new URL(item.url).hostname.replace(/^www\./,"") : ""; } catch { return ""; } })();
     const src = domain
       ? `<a class="hero-source" href="${item.url}" target="_blank" rel="noopener"><img class="card-favicon" src="https://icons.duckduckgo.com/ip3/${domain}.ico" width="14" height="14" loading="lazy" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';this.style.display='none'">${domain} ↗</a>`
@@ -559,7 +560,8 @@ import Base from "../layouts/Base.astro";
       : `<span class="hero-source card-source--ai" title="AI 基于训练数据生成">🤖 AI 生成</span>`;
     const faved = favedSet ? favedSet.has(item.url) : isFaved(item.url);
     const faveHtml = item.url ? `<button class="fave-btn${faved ? " faved" : ""}" data-url="${item.url}" title="${faved ? "取消收藏" : "收藏"}">${faved ? "★" : "☆"}</button>` : "";
-    return `<article class="hero-card${item.tag === "突发" ? " card--breaking" : ""}" data-url="${item.url ?? ""}" ${item.url ? 'style="cursor:pointer"' : ""}>
+    const cardIdAttr = secId ? `data-card-id="${secId}:${idx}"` : "";
+    return `<article class="hero-card${item.tag === "突发" ? " card--breaking" : ""}" data-url="${item.url ?? ""}" ${cardIdAttr} ${item.url ? 'style="cursor:pointer"' : ""}>
       <div class="hero-tag-row">${tagHtml(item.tag)}<span class="hero-label">头条</span></div>
       <h2 class="hero-title">${item.title}</h2>
       <p class="hero-body">${numHighlight(item.body ?? "")}</p>
@@ -598,11 +600,11 @@ import Base from "../layouts/Base.astro";
       const favedSet = globalFavedSet;
       let cardsHtml: string;
       if (isWide && items.length > 0) {
-        const hero = heroCardHtml(items[0], favedSet);
-        const rest = items.slice(1).map((item, idx) => cardHtml(item, false, idx + 1, "", favedSet)).join("");
+        const hero = heroCardHtml(items[0], favedSet, s.id, 0);
+        const rest = items.slice(1).map((item, idx) => cardHtml(item, false, idx + 1, "", favedSet, s.id)).join("");
         cardsHtml = `${hero}<div class="cards cards--grid">${rest}</div>`;
       } else {
-        cardsHtml = `<div class="${isWide ? "cards cards--wide" : "cards cards--grid"}">${items.map((item, idx) => cardHtml(item, isJob, idx, defCollapsed, favedSet)).join("")}</div>`;
+        cardsHtml = `<div class="${isWide ? "cards cards--wide" : "cards cards--grid"}">${items.map((item, idx) => cardHtml(item, isJob, idx, defCollapsed, favedSet, s.id)).join("")}</div>`;
       }
       return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}">
         <div class="section-heading" style="--sec-color:${s.color}">
@@ -685,6 +687,7 @@ import Base from "../layouts/Base.astro";
       // 预备 AI 推荐问题（当 AI 面板打开时使用）
       if (d.hot_words?.length) {
         (window as any).__hotWords = d.hot_words;
+        (window as any).__hotWordIndex = d.hot_word_index ?? {};
       }
     } catch {
       main.innerHTML = '<div class="state-msg"><div class="icon">⚠️</div><p>加载失败，请稍后重试</p></div>';
@@ -1641,16 +1644,22 @@ import Base from "../layouts/Base.astro";
     const wcWord = t.closest(".wc-word") as HTMLElement | null;
     if (wcWord) {
       const q = wcWord.dataset.q!;
-      // 找所有卡片里含该词的
+      // ── 优先：服务端预建的倒排索引（精准，零 DOM 扫描） ──
+      const index: Record<string, string[]> = (window as any).__hotWordIndex ?? {};
+      const cardIds: string[] = index[q] ?? [];
+      let matched: HTMLElement[] = cardIds
+        .map(id => document.querySelector<HTMLElement>(`[data-card-id="${id}"]`))
+        .filter((el): el is HTMLElement => !!el);
+      // ── 降级：索引未命中（旧 JSON 无索引）时扫描 DOM ──
       const allCards = Array.from(document.querySelectorAll<HTMLElement>(".card, .hero-card"));
-      // 精确匹配
-      let matched = allCards.filter(c => (c.textContent ?? "").includes(q));
-      // 降级：从词尾往前取 2 字 ngram，取第一个有命中的
-      if (!matched.length && q.length >= 2) {
-        for (let i = q.length - 2; i >= 0; i--) {
-          const sub = q.slice(i, i + 2);
-          const m = allCards.filter(c => (c.textContent ?? "").includes(sub));
-          if (m.length) { matched = m; break; }
+      if (!matched.length) {
+        matched = allCards.filter(c => (c.textContent ?? "").includes(q));
+        if (!matched.length && q.length >= 2) {
+          for (let i = q.length - 2; i >= 0; i--) {
+            const sub = q.slice(i, i + 2);
+            const m = allCards.filter(c => (c.textContent ?? "").includes(sub));
+            if (m.length) { matched = m; break; }
+          }
         }
       }
       if (matched.length) {

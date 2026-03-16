@@ -457,6 +457,34 @@ def save(structured, raw_results):
         hot_words = [{"word": w, "count": len(llm_words) - i} for i, w in enumerate(llm_words)]
     else:
         hot_words = extract_hot_words(sections)
+
+    # 构建热词倒排索引：{word -> [card_id, ...]}
+    # card_id 格式："{sec_id}:{item_index}"，方便客户端直接定位
+    def build_hot_word_index(hot_words, sections):
+        index = {}
+        for hw in hot_words:
+            word = hw["word"]
+            # 生成候选匹配串：精确词 + 从词尾往前的 2 字 ngram（与前端降级逻辑一致）
+            candidates = [word]
+            if len(word) > 2:
+                for i in range(len(word) - 2, -1, -1):
+                    candidates.append(word[i:i+2])
+            matched_ids = []
+            for cand in candidates:
+                for sec in sections:
+                    for idx, item in enumerate(sec.get("items", [])):
+                        text = (item.get("title", "") + " " + item.get("body", ""))
+                        if cand in text:
+                            card_id = f"{sec['id']}:{idx}"
+                            if card_id not in matched_ids:
+                                matched_ids.append(card_id)
+                if matched_ids:
+                    break  # 精确匹配到了，不继续降级
+            index[word] = matched_ids
+        return index
+
+    hot_word_index = build_hot_word_index(hot_words, sections)
+
     data = {
         "date":          date_str,
         "weekday":       weekday,
@@ -464,6 +492,7 @@ def save(structured, raw_results):
         "summary":       structured.get("summary", ""),
         "sections":      sections,
         "hot_words":     hot_words,
+        "hot_word_index": hot_word_index,
         "history_today": structured.get("history_today", []),
         "almanac":       structured.get("almanac", {}),
         "daily_question": structured.get("daily_question", {}),
