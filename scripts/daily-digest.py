@@ -31,7 +31,6 @@ SECTIONS = [
         "queries": [
             f"{today} 重大新闻 site:xinhuanet.com OR site:people.com.cn OR site:thepaper.cn OR site:bbc.com OR site:reuters.com",
             f"{today} 头条新闻 breaking news",
-            f"{today} 热搜 trending site:weibo.com OR site:x.com OR site:twitter.com",
         ],
         "color": "#e74c3c",
     },
@@ -42,7 +41,6 @@ SECTIONS = [
         "queries": [
             f"{today} 中国 政策 社会 site:gov.cn OR site:xinhuanet.com OR site:people.com.cn OR site:thepaper.cn OR site:caixin.com",
             f"{today} 两会 政策 国内新闻",
-            f"{today} site:weibo.com OR site:zhihu.com 国内 热点",
         ],
         "color": "#c0392b",
     },
@@ -53,7 +51,6 @@ SECTIONS = [
         "queries": [
             f"{today} international news site:reuters.com OR site:apnews.com OR site:bbc.com OR site:ft.com OR site:economist.com",
             f"{today} world news geopolitics",
-            f"{today} site:x.com OR site:twitter.com world news trending",
         ],
         "color": "#2980b9",
     },
@@ -64,7 +61,6 @@ SECTIONS = [
         "queries": [
             f"{today} military defense geopolitics site:janes.com OR site:defensenews.com OR site:mod.gov.cn OR site:globaltimes.cn OR site:reuters.com",
             f"{today} 军事 冲突 国防 安全",
-            f"{today} military site:x.com OR site:twitter.com OR site:youtube.com",
         ],
         "color": "#8e44ad",
     },
@@ -75,7 +71,6 @@ SECTIONS = [
         "queries": [
             f"{today} 经济 股市 财经 site:bloomberg.com OR site:wsj.com OR site:caixin.com OR site:cs.com.cn OR site:sse.com.cn OR site:szse.cn",
             f"{today} A股 人民币 经济数据 PMI",
-            f"{today} 财经 股市 site:weibo.com OR site:zhihu.com OR site:x.com",
         ],
         "color": "#27ae60",
     },
@@ -86,7 +81,6 @@ SECTIONS = [
         "queries": [
             f"{today} AI technology site:techcrunch.com OR site:theverge.com OR site:wired.com OR site:36kr.com OR site:mit.edu OR site:arxiv.org",
             f"{today} 人工智能 大模型 科技新闻",
-            f"{today} AI tech site:x.com OR site:twitter.com OR site:youtube.com OR site:bilibili.com OR site:zhihu.com",
         ],
         "color": "#16a085",
     },
@@ -97,7 +91,6 @@ SECTIONS = [
         "queries": [
             f"{today} 汽车 新能源 电动车 site:autohome.com.cn OR site:pcauto.com.cn OR site:reuters.com OR site:36kr.com OR site:carnewschina.com",
             f"{today} 特斯拉 比亚迪 新车发布",
-            f"{today} 汽车 site:weibo.com OR site:bilibili.com OR site:youtube.com",
         ],
         "color": "#3498db",
     },
@@ -108,7 +101,6 @@ SECTIONS = [
         "queries": [
             f"{today} 旅游 出行 景点 site:mafengwo.cn OR site:ctrip.com OR site:lonelyplanet.com OR site:travelandleisure.com OR site:tourism.gov.cn",
             f"{today} 旅游 签证 出境 目的地推荐",
-            f"{today} 旅游 打卡 site:douyin.com OR site:xiaohongshu.com OR site:weibo.com OR site:youtube.com",
         ],
         "color": "#1abc9c",
     },
@@ -119,7 +111,6 @@ SECTIONS = [
         "queries": [
             f"{today} 娱乐 电影 综艺 site:variety.com OR site:ent.sina.com.cn OR site:mtime.com OR site:douban.com OR site:hollywoodreporter.com",
             f"{today} 票房 热播剧 明星 娱乐新闻",
-            f"{today} 娱乐 综艺 site:weibo.com OR site:douyin.com OR site:bilibili.com OR site:youtube.com",
         ],
         "color": "#d35400",
     },
@@ -130,7 +121,6 @@ SECTIONS = [
         "queries": [
             f"{today} sports results site:espn.com OR site:bbc.com/sport OR site:goal.com OR site:sports.sina.com.cn",
             f"{today} 足球 篮球 CBA NBA 体育赛事",
-            f"{today} sports highlights site:youtube.com OR site:x.com OR site:twitter.com OR site:weibo.com",
         ],
         "color": "#2ecc71",
     },
@@ -141,7 +131,6 @@ SECTIONS = [
         "queries": [
             f"{today} 热门招聘 高薪 site:zhipin.com OR site:liepin.com OR site:lagou.com OR site:linkedin.com OR site:zhaopin.com",
             f"{today} 求职 薪资 就业市场 AI 热门岗位",
-            f"{today} 求职 职场 site:zhihu.com OR site:weibo.com OR site:x.com OR site:linkedin.com",
         ],
         "color": "#f39c12",
     },
@@ -197,10 +186,13 @@ def web_search(query, count=8, retries=2) -> list:
 def collect_all() -> dict:
     """并发搜索所有板块，每板块内部串行查询（避免同时打爆 API 限流）"""
     results = {}
+    # 全局 URL 去重集合，防止同一条新闻出现在多个板块
+    global_seen_urls: set = set()
+    lock = __import__('threading').Lock()
 
     def fetch_section(s):
         queries = s.get("queries") or [s.get("query", "")]
-        seen_urls: set = set()
+        local_seen: set = set()
         combined = []
         for qi, q in enumerate(queries):
             if qi > 0:
@@ -208,9 +200,14 @@ def collect_all() -> dict:
             items = web_search(q, count=10)
             for item in items:
                 u = item.get("url", "")
-                if u and u not in seen_urls:
-                    seen_urls.add(u)
-                    combined.append(item)
+                if not u or u in local_seen:
+                    continue
+                with lock:
+                    if u in global_seen_urls:
+                        continue
+                    global_seen_urls.add(u)
+                local_seen.add(u)
+                combined.append(item)
         return s["id"], s["title"], combined
 
     # 最多 4 个并发，避免触发 Brave 429

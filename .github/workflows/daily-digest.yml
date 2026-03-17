@@ -2,8 +2,8 @@ name: Daily Digest
 
 on:
   schedule:
-    # 每天北京时间 07:00 (UTC 23:00 前一天)
-    - cron: '0 23 * * *'
+    # 每天北京时间 22:00 (UTC 14:00)，当天新闻基本收尾
+    - cron: '0 14 * * *'
   workflow_dispatch:  # 允许手动触发
 
 permissions:
