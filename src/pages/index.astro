@@ -93,6 +93,7 @@ import Base from "../layouts/Base.astro";
     <div class="ai-panel-header">
       <span class="ai-panel-title">✦ AI 问答</span>
       <span class="ai-panel-sub" id="aiPanelSub">GPT-5-mini · 基于今日日报</span>
+      <button class="ai-clear-btn" id="aiClearBtn" title="清空对话">🗑</button>
       <button class="ai-panel-close" id="aiPanelClose">✕</button>
     </div>
     <div class="ai-messages" id="aiMessages">
@@ -1459,16 +1460,26 @@ import Base from "../layouts/Base.astro";
   document.getElementById("aiFab")?.addEventListener("click", () => {
     const open = aiPanel.classList.toggle("ai-panel--open");
     if (open) {
-      aiContext = "";
-      aiHistory = [];
-      const date = location.hash.replace("#","") || dates[0];
-      const sub = document.getElementById("aiPanelSub");
-      if (sub) sub.textContent = `基于 ${date} 日报`;
+      // 只在首次打开（无历史）或日期切换后才重置 context，保留本次对话历史
+      if (!aiContext) {
+        const date = location.hash.replace("#","") || dates[0];
+        aiContext = buildDigestContext(cache[date] ?? null);
+        const sub = document.getElementById("aiPanelSub");
+        if (sub) sub.textContent = `基于 ${date} 日报`;
+      }
       // 渲染动态推荐问题
       const hw = (window as any).__hotWords;
-      if (hw?.length) renderAiSuggestions(hw);
+      if (hw?.length && !aiHistory.length) renderAiSuggestions(hw);
       document.getElementById("aiInput")?.focus();
     }
+  });
+  document.getElementById("aiClearBtn")?.addEventListener("click", () => {
+    aiHistory = [];
+    aiContext = "";
+    const msgEl = document.getElementById("aiMessages")!;
+    msgEl.innerHTML = "";
+    const hw = (window as any).__hotWords;
+    if (hw?.length) renderAiSuggestions(hw);
   });
   document.getElementById("aiPanelClose")?.addEventListener("click", () => {
     aiPanel.classList.remove("ai-panel--open");
@@ -2815,7 +2826,9 @@ import Base from "../layouts/Base.astro";
   }
   .ai-panel-title { font-size: 14px; font-weight: 700; color: #818cf8; }
   .ai-panel-sub { font-size: 11px; color: var(--text3); flex: 1; }
-  .ai-panel-close { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; padding: 2px 6px; border-radius: 4px; }
+  .ai-clear-btn { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 13px; padding: 2px 6px; border-radius: 4px; margin-left: auto; }
+  .ai-clear-btn:hover { background: var(--bg3); color: var(--text); }
+  .ai-panel-close { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; padding: 2px 6px; border-radius: 4px; }
   .ai-panel-close:hover { background: var(--bg3); color: var(--text); }
 
   .ai-messages {
