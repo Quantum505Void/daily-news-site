@@ -14,6 +14,17 @@ import urllib.parse
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+try:
+    from pypinyin import lazy_pinyin, Style
+    def to_pinyin(text: str) -> str:
+        """汉字转拼音首字母串+全拼串，用于搜索"""
+        full = "".join(lazy_pinyin(text, style=Style.NORMAL))
+        initials = "".join(lazy_pinyin(text, style=Style.FIRST_LETTER))
+        return f"{full} {initials}"
+except ImportError:
+    def to_pinyin(text: str) -> str:
+        return ""
+
 # ── 配置 ──────────────────────────────────────────────────────────────
 CST = timezone(timedelta(hours=8))
 NOW = datetime.now(CST)
@@ -710,6 +721,7 @@ def save(structured, raw_results):
                         "body": (item.get("body", "") or "")[:120],
                         "tag": item.get("tag", ""),
                         "url": item.get("url", ""),
+                        "pinyin": to_pinyin(item.get("title", "")),
                     })
         except Exception as e:
             print(f"  ⚠ 搜索索引跳过 {date_file}: {e}", flush=True)

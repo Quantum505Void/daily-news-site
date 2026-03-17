@@ -17,7 +17,7 @@ import Base from "../layouts/Base.astro";
           <input
             id="searchInput"
             type="text"
-            placeholder="搜索日报内容..."
+            placeholder="搜索内容，支持拼音..."
             autocomplete="off"
             spellcheck="false"
           />
@@ -382,6 +382,7 @@ import Base from "../layouts/Base.astro";
   interface SearchDoc {
     date: string; secId: string; secTitle: string;
     title: string; body: string; tag: string; url: string;
+    pinyin?: string;
   }
   let fuse: Fuse<SearchDoc> | null = null;
 
@@ -391,10 +392,15 @@ import Base from "../layouts/Base.astro";
       if (!r.ok) return;
       const docs: SearchDoc[] = await r.json();
       fuse = new Fuse(docs, {
-        keys: [{ name: "title", weight: 2 }, { name: "body", weight: 1 }, { name: "secTitle", weight: 0.5 }],
+        keys: [
+          { name: "title",    weight: 3 },
+          { name: "pinyin",   weight: 2 },
+          { name: "body",     weight: 1 },
+          { name: "secTitle", weight: 0.5 },
+        ],
         threshold: 0.4, includeMatches: true, minMatchCharLength: 2,
       });
-    } catch { /* 降级：搜索只能搜已加载的 */ }
+    } catch { /* 降级 */ }
   }
 
   // 降级：从已加载数据建索引
