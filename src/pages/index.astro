@@ -374,7 +374,10 @@ import Base from "../layouts/Base.astro";
   }
 
   let dates: string[] = [];
+  let currentDate = "";
   let cache: Record<string, Digest> = {};
+  // label → 最近7天数值序列（float，NaN=缺失）
+  let knHistory: Record<string, number[]> = {};
 
   interface SearchDoc {
     date: string; secId: string; secTitle: string;
@@ -487,6 +490,27 @@ import Base from "../layouts/Base.astro";
     return d;
   }
 
+  // 拉取近7天历史数据，提取 key_numbers 构建 sparkline 序列
+  async function buildKnHistory(currentDate: string): Promise<void> {
+    const idx = dates.indexOf(currentDate);
+    const slice = idx >= 0
+      ? dates.slice(Math.max(0, idx - 6), idx + 1)
+      : [currentDate];
+    const allData = await Promise.all(slice.map(d =>
+      fetchDigest(d).catch(() => null)
+    ));
+    const hist: Record<string, number[]> = {};
+    for (const item of allData) {
+      const nums: Array<{label: string; number: string}> = item?.key_numbers ?? [];
+      for (const n of nums) {
+        const val = parseFloat(n.number.replace(/[^0-9.-]/g, ""));
+        if (!hist[n.label]) hist[n.label] = [];
+        hist[n.label].push(isNaN(val) ? NaN : val);
+      }
+    }
+    knHistory = hist;
+  }
+
   function fmtDate(d: string): string {
     const [y, m, day] = d.split("-").map(Number);
     const dow = ["日","一","二","三","四","五","六"][new Date(y, m-1, day).getDay()];
@@ -552,11 +576,14 @@ import Base from "../layouts/Base.astro";
     const thumbHtml = item.thumbnail
       ? `<img class="card-thumb" src="${item.thumbnail}" loading="lazy" alt="" onerror="this.style.display='none'">`
       : "";
+    const shareHtml = secId
+      ? `<button class="card-share-btn" data-sec="${secId}" data-idx="${idx}" title="分享此卡片">⬆</button>`
+      : "";
     return `<article class="card${extraClass}${readClass}${item.thumbnail ? " card--has-thumb" : ""}" ${urlAttr} ${cardIdAttr} ${cursorStyle}>
       ${thumbHtml}
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed card-body-wrap--clickable" : ""}"><p class="card-body">${numHighlight(item.body ?? "")}</p></div>
-      <div class="card-footer">${sourceHtml}${readTime}${expandBtn}${faveHtml}</div>
+      <div class="card-footer">${sourceHtml}${readTime}${expandBtn}${shareHtml}${faveHtml}</div>
     </article>`;
   }
 
@@ -674,6 +701,7 @@ import Base from "../layouts/Base.astro";
   }
 
   async function showDate(date: string) {
+    currentDate = date;
     renderSidebar(date);
     location.hash = date;
     hideDateTooltip(); // 切日期立刻隐藏 tooltip
@@ -691,6 +719,12 @@ import Base from "../layouts/Base.astro";
     </div>`;
     try {
       const d = await fetchDigest(date);
+      // 异步预加载近7天 key_numbers，不阻塞渲染
+      buildKnHistory(date).then(() => {
+        // 重新渲染 key-numbers 区域
+        const knEl = document.querySelector<HTMLElement>(".key-numbers");
+        if (knEl) knEl.outerHTML = renderKeyNumbers(d);
+      });
       main.innerHTML = renderV2(d);
       focusedCardIdx = -1; // Fix #2: 切换日期重置键盘导航索引
       aiContext = "";      // Fix #4: 切换日期清空 AI context 缓存
@@ -1113,16 +1147,40 @@ import Base from "../layouts/Base.astro";
 
   // ── 历史上的今天 ──
   // ── 今日关键数字 ──
+  function renderSparkline(label: string, trend: string): string {
+    const vals = knHistory[label];
+    if (!vals || vals.length < 2) return "";
+    const clean = vals.filter(v => !isNaN(v));
+    if (clean.length < 2) return "";
+    const min = Math.min(...clean), max = Math.max(...clean);
+    const range = max - min || 1;
+    const W = 60, H = 24, pad = 2;
+    const pts = vals.map((v, i) => {
+      const x = pad + (i / (vals.length - 1)) * (W - pad * 2);
+      const y = isNaN(v) ? NaN : H - pad - ((v - min) / range) * (H - pad * 2);
+      return { x, y };
+    }).filter(p => !isNaN(p.y));
+    if (pts.length < 2) return "";
+    const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+    const color = trend === "up" ? "#4ade80" : trend === "down" ? "#f87171" : "#94a3b8";
+    return `<svg class="kn-spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+      <path d="${d}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <circle cx="${pts[pts.length-1].x.toFixed(1)}" cy="${pts[pts.length-1].y.toFixed(1)}" r="2" fill="${color}"/>
+    </svg>`;
+  }
+
   function renderKeyNumbers(d: any): string {
     const nums: Array<{number: string; label: string; context: string; trend: string}> = d.key_numbers ?? [];
     if (!nums.length) return "";
     const cards = nums.map(n => {
       const trendIcon = n.trend === "up" ? "↑" : n.trend === "down" ? "↓" : "—";
       const trendCls  = n.trend === "up" ? "kn-up" : n.trend === "down" ? "kn-down" : "kn-neutral";
+      const spark = renderSparkline(n.label, n.trend);
       return `<div class="kn-card">
         <div class="kn-number ${trendCls}">${n.number}<span class="kn-trend">${trendIcon}</span></div>
         <div class="kn-label">${n.label}</div>
         <div class="kn-context">${n.context}</div>
+        ${spark ? `<div class="kn-spark-wrap">${spark}</div>` : ""}
       </div>`;
     }).join("");
     return `<div class="key-numbers">${cards}</div>`;
@@ -1743,6 +1801,24 @@ import Base from "../layouts/Base.astro";
     // 每日一问投票
     const dqBtn = t.closest(".dq-opt") as HTMLElement | null;
     if (dqBtn) { void handleDailyQuestion(dqBtn); return; }
+
+    // 卡片分享按钮
+    const shareCardBtn = t.closest(".card-share-btn") as HTMLElement | null;
+    if (shareCardBtn) {
+      e.stopPropagation();
+      const sec = shareCardBtn.dataset.sec!;
+      const idx = shareCardBtn.dataset.idx!;
+      const ogBase = "https://xiaoxin-ai-proxy.moke521-wang.workers.dev/og";
+      const pageUrl = `https://quantum505void.github.io/daily-news-site#${currentDate}`;
+      const ogUrl = `${ogBase}?date=${currentDate}&sec=${sec}&idx=${idx}`;
+      const shareText = `📰 小新日报 ${currentDate}\n${pageUrl}`;
+      if (navigator.share) {
+        navigator.share({ title: "小新日报", text: shareText, url: pageUrl }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(pageUrl).then(() => showToast("🔗 链接已复制"));
+      }
+      return;
+    }
 
     // 收藏按钮
     const faveBtn = t.closest(".fave-btn") as HTMLElement | null;
@@ -2639,6 +2715,15 @@ import Base from "../layouts/Base.astro";
   .hero-source:hover { opacity: 1; color: var(--link); }
 
   /* ── 收藏按钮 ── */
+  .card-share-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 13px; padding: 2px 5px;
+    border-radius: 5px; transition: color 0.15s, background 0.15s;
+    line-height: 1; opacity: 0; margin-left: 2px;
+  }
+  .card:hover .card-share-btn { opacity: 1; }
+  .card-share-btn:hover { color: var(--accent); background: rgba(231,76,60,0.08); }
+
   .fave-btn {
     font-size: 14px; background: none; border: none; cursor: pointer;
     color: var(--text3); padding: 0 2px; flex-shrink: 0;
@@ -2885,6 +2970,9 @@ import Base from "../layouts/Base.astro";
   @keyframes bounce-down { 0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)} }
   .kn-label   { font-size: 12px; font-weight: 600; color: var(--heading); }
   .kn-context { font-size: 11px; color: var(--text3); line-height: 1.4; margin-top: 2px; }
+  .kn-spark-wrap { margin-top: 6px; }
+  .kn-spark { display: block; opacity: 0; animation: kn-spark-in 0.6s 0.2s ease forwards; }
+  @keyframes kn-spark-in { to { opacity: 1; } }
 
   /* ── 历史上的今天（时间轴）── */
   .htl-track {

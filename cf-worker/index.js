@@ -52,6 +52,75 @@ export default {
       }
     }
 
+    // ── /og — 卡片分享图（SVG）──
+    if (url.pathname === "/og") {
+      const date = url.searchParams.get("date") ?? "";
+      const sec  = url.searchParams.get("sec")  ?? "";
+      const idx  = parseInt(url.searchParams.get("idx") ?? "0");
+
+      // 从 GitHub Pages 拉取 JSON
+      const dataUrl = `https://quantum505void.github.io/daily-news-site/data/${date}.json`;
+      let item = null, secTitle = "", secColor = "#e74c3c";
+      try {
+        const r = await fetch(dataUrl, { cf: { cacheTtl: 3600 } });
+        if (r.ok) {
+          const d = await r.json();
+          const section = (d.sections ?? []).find(s => s.id === sec);
+          if (section) {
+            item = (section.items ?? [])[idx] ?? null;
+            secTitle = section.title ?? sec;
+            secColor = section.color ?? secColor;
+          }
+        }
+      } catch {}
+
+      const title   = item?.title   ?? "小新日报";
+      const body    = item?.body    ?? "每日精选资讯，由 AI 驱动";
+      const source  = item?.source  ?? "quantum505void.github.io/daily-news-site";
+      const bodyShort = body.length > 80 ? body.slice(0, 78) + "…" : body;
+
+      // 转义 XML 特殊字符
+      const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+      // 多行标题（每30字换行）
+      const titleLines = [];
+      for (let i = 0; i < title.length; i += 28) titleLines.push(title.slice(i, i + 28));
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="314" viewBox="0 0 600 314">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+  </defs>
+  <!-- 背景 -->
+  <rect width="600" height="314" fill="url(#bg)" rx="16"/>
+  <!-- 顶部色条 -->
+  <rect width="600" height="5" fill="${esc(secColor)}" rx="0"/>
+  <!-- 板块标签 -->
+  <rect x="24" y="24" width="80" height="26" fill="${esc(secColor)}22" rx="6"/>
+  <text x="64" y="41" font-family="system-ui,sans-serif" font-size="12" fill="${esc(secColor)}" text-anchor="middle" font-weight="700">${esc(secTitle)}</text>
+  <!-- 标题 -->
+  ${titleLines.map((l, i) => `<text x="24" y="${76 + i * 34}" font-family="system-ui,sans-serif" font-size="22" fill="#f1f5f9" font-weight="800">${esc(l)}</text>`).join("\n  ")}
+  <!-- 摘要 -->
+  <text x="24" y="${76 + titleLines.length * 34 + 18}" font-family="system-ui,sans-serif" font-size="13" fill="#94a3b8">${esc(bodyShort)}</text>
+  <!-- 底部 -->
+  <rect x="0" y="280" width="600" height="34" fill="#0f172a" rx="0"/>
+  <rect x="0" y="278" width="600" height="36" fill="#0f172a"/>
+  <rect x="0" y="294" width="600" height="20" fill="#0f172a" rx="0"/>
+  <text x="24" y="301" font-family="system-ui,sans-serif" font-size="11" fill="#475569">📰 小新日报 · ${esc(date)}</text>
+  <text x="576" y="301" font-family="system-ui,sans-serif" font-size="11" fill="#475569" text-anchor="end">quantum505void.github.io/daily-news-site</text>
+</svg>`;
+
+      return new Response(svg, {
+        headers: {
+          "Content-Type": "image/svg+xml",
+          "Cache-Control": "public, max-age=86400",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
     // ── /chat — AI 流式代理 (POST) ──
     if (request.method !== "POST" || url.pathname !== "/chat") {
       return new Response("Not Found", { status: 404 });
