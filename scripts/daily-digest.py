@@ -169,7 +169,7 @@ def web_search(query, count=8, retries=2) -> list:
                     raw = gzip.decompress(raw)
                 data = json.loads(raw)
                 results = data.get("web", {}).get("results", [])
-                return [{"title": x.get("title",""), "url": x.get("url",""), "desc": x.get("description","")} for x in results]
+                return [{"title": x.get("title",""), "url": x.get("url",""), "desc": x.get("description",""), "thumbnail": (x.get("thumbnail") or {}).get("src","")} for x in results]
         except urllib.error.HTTPError as e:
             if e.code == 429:
                 wait = 8 * (attempt + 1)
@@ -435,6 +435,13 @@ def fallback_sections(raw_results):
 def save(structured, raw_results):
     os.makedirs(DATA_DIR, exist_ok=True)
 
+    # 构建 url→thumbnail 映射（来自原始搜索结果）
+    url_thumb: dict = {}
+    for items in raw_results.values():
+        for r in items:
+            if r.get("url") and r.get("thumbnail"):
+                url_thumb[r["url"]] = r["thumbnail"]
+
     # 合并板块 meta（icon/color/title）
     section_meta = {s["id"]: s for s in SECTIONS}
     for sec in structured.get("sections", []):
@@ -442,10 +449,12 @@ def save(structured, raw_results):
         sec["title"] = meta.get("title", sec["id"])
         sec["icon"]  = meta.get("icon", "📌")
         sec["color"] = meta.get("color", "#888")
-        # body 截断，控制 JSON 体积
+        # body 截断，控制 JSON 体积；注入 thumbnail
         for item in sec.get("items", []):
             if item.get("body"):
                 item["body"] = item["body"][:450]
+            if item.get("url") and not item.get("thumbnail"):
+                item["thumbnail"] = url_thumb.get(item["url"], "")
 
     sections = structured.get("sections", [])
     # hot_words 优先用 LLM 生成的（字符串列表），转成 [{word, count}] 格式；降级用正则提取

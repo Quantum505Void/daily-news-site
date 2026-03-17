@@ -544,7 +544,11 @@ import Base from "../layouts/Base.astro";
     const cardIdAttr = secId ? `data-card-id="${secId}:${idx}"` : "";
     const cursorStyle = item.url ? `style="cursor:pointer"` : "";
     const readClass = read ? " card--read" : "";
-    return `<article class="card${extraClass}${readClass}" ${urlAttr} ${cardIdAttr} ${cursorStyle}>
+    const thumbHtml = item.thumbnail
+      ? `<img class="card-thumb" src="${item.thumbnail}" loading="lazy" alt="" onerror="this.style.display='none'">`
+      : "";
+    return `<article class="card${extraClass}${readClass}${item.thumbnail ? " card--has-thumb" : ""}" ${urlAttr} ${cardIdAttr} ${cursorStyle}>
+      ${thumbHtml}
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed card-body-wrap--clickable" : ""}"><p class="card-body">${numHighlight(item.body ?? "")}</p></div>
       <div class="card-footer">${sourceHtml}${expandBtn}${faveHtml}</div>
@@ -2736,6 +2740,13 @@ import Base from "../layouts/Base.astro";
     transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s;
     display: flex; flex-direction: column;
   }
+  .card--has-thumb { padding-top: 0; overflow: hidden; }
+  .card-thumb {
+    width: calc(100% + 34px); margin: 0 -17px 12px -17px;
+    height: 140px; object-fit: cover; display: block;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .card--has-thumb .card-title { margin-top: 0; }
   .card:hover {
     border-color: var(--accent);
     background: var(--bg3);
