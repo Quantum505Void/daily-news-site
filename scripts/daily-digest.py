@@ -170,7 +170,87 @@ def load_api_key():
 
 API_KEY = load_api_key()
 
-def web_search(query, count=8, retries=2) -> list:
+# ── RSS 直接抓取（不消耗 Brave 配额，补充实时数据） ───────────────────
+RSS_FEEDS = {
+    "highlight": [
+        "https://feeds.bbci.co.uk/news/rss.xml",
+        "https://www.reutersagency.com/feed/?best-topics=top-news&post_type=best",
+    ],
+    "china": [
+        "http://www.xinhuanet.com/rss/news.xml",
+        "https://www.thepaper.cn/rss_ori.jsp?id=25950",
+    ],
+    "world": [
+        "https://feeds.bbci.co.uk/news/world/rss.xml",
+        "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    ],
+    "tech": [
+        "https://techcrunch.com/feed/",
+        "https://www.theverge.com/rss/index.xml",
+        "https://36kr.com/feed",
+    ],
+    "economy": [
+        "https://www.ft.com/?format=rss",
+    ],
+    "science": [
+        "https://www.nature.com/nature.rss",
+        "https://phys.org/rss-feed/",
+    ],
+    "health": [
+        "https://www.who.int/rss-feeds/news-english.xml",
+    ],
+    "entertainment": [
+        "https://variety.com/feed/",
+    ],
+    "sports": [
+        "https://www.espn.com/espn/rss/news",
+    ],
+}
+
+def fetch_rss(url, max_items=6) -> list:
+    """拉取 RSS，解析成统一格式，失败静默跳过"""
+    import xml.etree.ElementTree as ET
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; newsbot/1.0)"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            raw = r.read()
+        root = ET.fromstring(raw)
+        ns = {"atom": "http://www.w3.org/2005/Atom"}
+        items = []
+        # RSS 2.0
+        for item in root.findall(".//item")[:max_items]:
+            title = (item.findtext("title") or "").strip()
+            link  = (item.findtext("link") or "").strip()
+            desc  = (item.findtext("description") or "").strip()[:200]
+            if title and link:
+                items.append({"title": title, "url": link, "desc": desc, "thumbnail": ""})
+        # Atom
+        if not items:
+            for entry in root.findall(".//atom:entry", ns)[:max_items]:
+                title = (entry.findtext("atom:title", namespaces=ns) or "").strip()
+                link_el = entry.find("atom:link", ns)
+                link = (link_el.get("href", "") if link_el is not None else "").strip()
+                desc = (entry.findtext("atom:summary", namespaces=ns) or "")[:200]
+                if title and link:
+                    items.append({"title": title, "url": link, "desc": desc, "thumbnail": ""})
+        return items
+    except Exception as e:
+        print(f"  RSS skip {url[:40]}: {e}", flush=True)
+        return []
+
+def collect_rss(sec_id: str) -> list:
+    feeds = RSS_FEEDS.get(sec_id, [])
+    results = []
+    seen = set()
+    for feed_url in feeds:
+        for item in fetch_rss(feed_url):
+            u = item["url"]
+            if u and u not in seen:
+                seen.add(u)
+                results.append(item)
+    return results
+
+
     """搜索，失败自动重试，429 等待后重试"""
     if not API_KEY:
         return []
@@ -214,6 +294,20 @@ def collect_all() -> dict:
         queries = s.get("queries") or [s.get("query", "")]
         local_seen: set = set()
         combined = []
+
+        # 优先拉 RSS（不消耗 Brave 配额）
+        for item in collect_rss(s["id"]):
+            u = item.get("url", "")
+            if not u or u in local_seen:
+                continue
+            with lock:
+                if u in global_seen_urls:
+                    continue
+                global_seen_urls.add(u)
+            local_seen.add(u)
+            combined.append(item)
+
+        # Brave Search 补充
         for qi, q in enumerate(queries):
             if qi > 0:
                 time.sleep(1)
@@ -457,12 +551,29 @@ def fallback_sections(raw_results):
 def save(structured, raw_results):
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    # 构建 url→thumbnail 映射（来自原始搜索结果）
+    # 构建双重映射：url→thumbnail 和 title关键词→thumbnail（兜底）
     url_thumb: dict = {}
+    title_thumb: list = []  # [(title_lower, thumbnail)]
     for items in raw_results.values():
         for r in items:
-            if r.get("url") and r.get("thumbnail"):
+            if not r.get("thumbnail"):
+                continue
+            if r.get("url"):
                 url_thumb[r["url"]] = r["thumbnail"]
+            if r.get("title"):
+                title_thumb.append((r["title"].lower(), r["thumbnail"]))
+
+    def find_thumbnail(item_url: str, item_title: str) -> str:
+        # 1. 精确 url 匹配
+        if item_url and item_url in url_thumb:
+            return url_thumb[item_url]
+        # 2. 标题关键词模糊匹配（取前10字）
+        if item_title and title_thumb:
+            key = item_title[:10].lower()
+            for t_title, t_thumb in title_thumb:
+                if key and key in t_title:
+                    return t_thumb
+        return ""
 
     # 合并板块 meta（icon/color/title）
     section_meta = {s["id"]: s for s in SECTIONS}
@@ -471,12 +582,11 @@ def save(structured, raw_results):
         sec["title"] = meta.get("title", sec["id"])
         sec["icon"]  = meta.get("icon", "📌")
         sec["color"] = meta.get("color", "#888")
-        # body 截断，控制 JSON 体积；注入 thumbnail
         for item in sec.get("items", []):
             if item.get("body"):
                 item["body"] = item["body"][:450]
-            if item.get("url") and not item.get("thumbnail"):
-                item["thumbnail"] = url_thumb.get(item["url"], "")
+            if not item.get("thumbnail"):
+                item["thumbnail"] = find_thumbnail(item.get("url",""), item.get("title",""))
 
     sections = structured.get("sections", [])
     # hot_words 优先用 LLM 生成的（字符串列表），转成 [{word, count}] 格式；降级用正则提取
@@ -513,6 +623,26 @@ def save(structured, raw_results):
 
     hot_word_index = build_hot_word_index(hot_words, sections)
 
+    # ── 生成质量评分 ──────────────────────────────────────────────────
+    all_items = [item for sec in sections for item in sec.get("items", [])]
+    total_items = len(all_items)
+    has_url = sum(1 for i in all_items if i.get("url"))
+    has_thumb = sum(1 for i in all_items if i.get("thumbnail"))
+    avg_body = int(sum(len(i.get("body") or "") for i in all_items) / total_items) if total_items else 0
+    quality = {
+        "sections": len(sections),
+        "total_items": total_items,
+        "url_rate": round(has_url / total_items * 100) if total_items else 0,
+        "thumb_rate": round(has_thumb / total_items * 100) if total_items else 0,
+        "avg_body_len": avg_body,
+        "score": min(100, int(
+            (len(sections) / 13 * 30) +           # 板块完整度 30分
+            (has_url / max(total_items,1) * 30) +  # URL覆盖率 30分
+            (min(avg_body, 300) / 300 * 25) +      # 正文丰富度 25分
+            (has_thumb / max(total_items,1) * 15)  # 图片覆盖率 15分
+        ))
+    }
+
     data = {
         "date":          date_str,
         "weekday":       weekday,
@@ -526,6 +656,7 @@ def save(structured, raw_results):
         "daily_question": structured.get("daily_question", {}),
         "quote":          structured.get("quote", {}),
         "key_numbers":    structured.get("key_numbers", []),
+        "quality":        quality,
         "generated_at":  NOW.isoformat(),
         "version":       2
     }
