@@ -1007,7 +1007,7 @@ import Base from "../layouts/Base.astro";
     const ji = (a.ji ?? []).map((s: string) => `<span class="almanac-ji">忌${s}</span>`).join("");
     return `<div class="almanac-block">
       <span class="almanac-date">🗓 ${a.lunar_date}</span>
-      ${a.lucky_color ? `<span class="almanac-color">🎨 ${a.lucky_color}</span>` : ""}
+      ${a.lucky_color ? `<span class="almanac-color"><span class="almanac-color-dot" style="background:${a.lucky_color}"></span>${a.lucky_color}</span>` : ""}
       <div class="almanac-tags">${yi}${ji}</div>
       ${a.fortune ? `<div class="almanac-fortune">${a.fortune}</div>` : ""}
     </div>`;
@@ -2367,6 +2367,11 @@ import Base from "../layouts/Base.astro";
   :global(html.density-compact) .card-body { font-size: 12px; line-height: 1.5; }
   :global(html.density-compact) .card-thumb { height: 90px; }
   :global(html.density-compact) .cards--grid { gap: 6px; }
+  :global(html.density-compact) .hero-card { padding: 14px 16px; }
+  :global(html.density-compact) .hero-title { font-size: 17px; }
+  :global(html.density-compact) .hero-body { font-size: 12px; -webkit-line-clamp: 3; }
+  :global(html.density-compact) .kn-card { padding: 8px 10px; }
+  :global(html.density-compact) .kn-number { font-size: 18px; }
 
   /* ── 英雄卡轮播 ── */
   .carousel { position: relative; margin-bottom: 14px; }
@@ -2717,7 +2722,8 @@ import Base from "../layouts/Base.astro";
     font-size: 12px; margin-top: 8px;
   }
   .almanac-date { font-size: 12px; font-weight: 700; color: var(--heading); flex-shrink: 0; }
-  .almanac-color { font-size: 11px; color: var(--text2); flex-shrink: 0; }
+  .almanac-color { font-size: 11px; color: var(--text2); flex-shrink: 0; display: flex; align-items: center; gap: 4px; }
+  .almanac-color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0; }
   .almanac-tags { display: flex; flex-wrap: wrap; gap: 4px; }
   .almanac-yi { font-size: 11px; background: rgba(34,197,94,0.12); color: #22c55e; border-radius: 6px; padding: 2px 7px; }
   .almanac-ji { font-size: 11px; background: rgba(239,68,68,0.1); color: #ef4444; border-radius: 6px; padding: 2px 7px; }
@@ -2873,6 +2879,10 @@ import Base from "../layouts/Base.astro";
   .kn-down    { color: #f87171; }
   .kn-neutral { color: var(--heading); }
   .kn-trend   { font-size: 14px; font-weight: 700; }
+  .kn-up .kn-trend   { animation: bounce-up 1.2s ease infinite; }
+  .kn-down .kn-trend { animation: bounce-down 1.2s ease infinite; }
+  @keyframes bounce-up   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+  @keyframes bounce-down { 0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)} }
   .kn-label   { font-size: 12px; font-weight: 600; color: var(--heading); }
   .kn-context { font-size: 11px; color: var(--text3); line-height: 1.4; margin-top: 2px; }
 
