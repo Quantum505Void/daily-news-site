@@ -134,6 +134,26 @@ SECTIONS = [
         ],
         "color": "#f39c12",
     },
+    {
+        "id": "health",
+        "title": "健康生活",
+        "icon": "🏥",
+        "queries": [
+            f"{today} 健康 医疗 疾病 site:healthline.com OR site:webmd.com OR site:dxy.cn OR site:yxj.org.cn OR site:nhc.gov.cn OR site:who.int",
+            f"{today} 健康 养生 医学 site:jiankang.com OR site:39.net OR site:120ask.com OR site:medscape.com OR site:nejm.org",
+        ],
+        "color": "#e91e8c",
+    },
+    {
+        "id": "science",
+        "title": "科学探索",
+        "icon": "🔬",
+        "queries": [
+            f"{today} science discovery research site:nature.com OR site:science.org OR site:phys.org OR site:newscientist.com OR site:scientificamerican.com",
+            f"{today} 科学 发现 研究 宇宙 site:guokr.com OR site:zhishi.com OR site:cas.cn OR site:nasa.gov OR site:esa.int",
+        ],
+        "color": "#7b1fa2",
+    },
 ]
 
 # ── Brave Search ─────────────────────────────────────────────────────
@@ -368,6 +388,8 @@ def generate_sections(raw_results, override_prompt=None, attempt=0):
 - auto（汽车）：5-8 条，新能源/传统车/行业竞争，有具体车型/销量/价格数据，优先引用 autohome/pcauto/reuters
 - travel（旅游）：5-8 条，热门目的地/签证政策/出行攻略，优先引用 mafengwo/ctrip/官方旅游局，有实用信息
 - jobs_hot（热门方向）：5-8 条，不限地区行业，列公司+岗位+薪资范围(如有)+核心亮点，选当下最热门/高薪/有代表性的岗位方向
+- health（健康生活）：5-8 条，医学研究/疾病防治/健康政策/生活方式建议，优先引用 WHO/国家卫健委/NEJM/丁香医生，有具体数据和实用建议
+- science（科学探索）：5-8 条，最新科研成果/天文发现/生物医学突破，优先引用 Nature/Science/NASA，解释清楚"发现了什么"和"为什么重要"
 - hot_words：从今日所有新闻标题中提取 15-20 个最能代表今日新闻热点的关键词（2-5字，真实词语，如"两会"、"美伊冲突"、"新能源"），按热度排序，不要动词短语
 
 另外，在 JSON 根节点额外输出：

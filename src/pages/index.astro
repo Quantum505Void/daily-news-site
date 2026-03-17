@@ -536,6 +536,9 @@ import Base from "../layouts/Base.astro";
       : item.tag === "重磅" ? " card--major" : "";
     const num = `<span class="card-num">${idx + 1}</span>`;
     const expandBtn = defCollapsed ? `<button class="card-expand">展开 ▾</button>` : ``;
+    const bodyLen = (item.body ?? "").length;
+    const readMin = Math.max(1, Math.round(bodyLen / 200));
+    const readTime = `<span class="card-readtime">⏱ ${readMin}min</span>`;
     const faved = favedSet ? favedSet.has(item.url) : isFaved(item.url);
     const read  = item.url ? isRead(item.url) : false;
     const faveHtml = item.url
@@ -552,7 +555,7 @@ import Base from "../layouts/Base.astro";
       ${thumbHtml}
       <div class="card-title">${num}<span class="card-title-text">${item.title}</span>${tagHtml(item.tag)}</div>
       <div class="card-body-wrap${defCollapsed ? " card-body-wrap--collapsed card-body-wrap--clickable" : ""}"><p class="card-body">${numHighlight(item.body ?? "")}</p></div>
-      <div class="card-footer">${sourceHtml}${expandBtn}${faveHtml}</div>
+      <div class="card-footer">${sourceHtml}${readTime}${expandBtn}${faveHtml}</div>
     </article>`;
   }
 
@@ -1601,7 +1604,16 @@ import Base from "../layouts/Base.astro";
     }
   }
 
-  applyTheme(document.documentElement.getAttribute("data-theme") === "light");
+  // 初始主题：localStorage > 系统偏好
+  const savedTheme = localStorage.getItem("theme");
+  const systemLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  applyTheme(savedTheme ? savedTheme === "light" : systemLight);
+
+  // 跟随系统主题变化（用户没手动设置过才自动跟）
+  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", (e) => {
+    if (!localStorage.getItem("theme")) applyTheme(e.matches);
+  });
+
   themeBtn.addEventListener("click", (e) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
@@ -2315,6 +2327,7 @@ import Base from "../layouts/Base.astro";
   .card-source:hover { opacity: 1; color: var(--link); }
   .card-source--ai { color: var(--text3); opacity: 0.5; font-size: 11px; cursor: default; }
   .card-favicon { border-radius: 2px; flex-shrink: 0; vertical-align: middle; }
+  .card-readtime { font-size: 10px; color: var(--text3); opacity: 0.55; margin-left: auto; white-space: nowrap; }
   .card-expand {
     font-size: 11px; color: var(--text3);
     background: none; border: none; cursor: pointer;
