@@ -26,6 +26,7 @@ import Base from "../layouts/Base.astro";
           <button id="searchClear" class="search-clear" style="display:none" aria-label="清空">✕</button>
         </div>
         <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+        <button class="density-btn" id="densityBtn" title="紧凑/宽松视图">⊞</button>
         <button class="share-btn" id="shareBtn" title="分享今日日报">🔗</button>
       </div>
     </div>
@@ -607,17 +608,30 @@ import Base from "../layouts/Base.astro";
       const items = s.items ?? [];
       const favedSet = globalFavedSet;
       let cardsHtml: string;
-      if (isWide && items.length > 0) {
+      if (s.id === "highlight" && items.length > 0) {
+        // 英雄卡轮播：前3条轮播，其余正常展示
+        const carouselItems = items.slice(0, Math.min(3, items.length));
+        const restItems = items.slice(carouselItems.length);
+        const slides = carouselItems.map((item, idx) =>
+          `<div class="carousel-slide${idx === 0 ? " carousel-slide--active" : ""}" data-idx="${idx}">${heroCardHtml(item, favedSet, s.id, idx)}</div>`
+        ).join("");
+        const dots = carouselItems.length > 1
+          ? `<div class="carousel-dots">${carouselItems.map((_, i) => `<button class="carousel-dot${i === 0 ? " carousel-dot--active" : ""}" data-slide="${i}"></button>`).join("")}</div>`
+          : "";
+        const rest = restItems.map((item, idx) => cardHtml(item, false, idx + carouselItems.length, "", favedSet, s.id)).join("");
+        cardsHtml = `<div class="carousel" id="carousel-${s.id}">${slides}${dots}</div>${rest ? `<div class="cards cards--grid">${rest}</div>` : ""}`;
+      } else if (isWide && items.length > 0) {
         const hero = heroCardHtml(items[0], favedSet, s.id, 0);
         const rest = items.slice(1).map((item, idx) => cardHtml(item, false, idx + 1, "", favedSet, s.id)).join("");
         cardsHtml = `${hero}<div class="cards cards--grid">${rest}</div>`;
       } else {
         cardsHtml = `<div class="${isWide ? "cards cards--wide" : "cards cards--grid"}">${items.map((item, idx) => cardHtml(item, isJob, idx, defCollapsed, favedSet, s.id)).join("")}</div>`;
       }
-      return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}">
+      return `<section class="section${isWide ? " section--wide" : ""}" id="sec-${s.id}" data-sec-id="${s.id}">
         <div class="section-heading" style="--sec-color:${s.color}">
           <span class="section-icon">${s.icon}</span>
           <h2 class="section-title">${s.title}</h2>
+          <span class="sec-progress" id="prog-${s.id}"></span>
           <button class="section-toggle" aria-label="折叠板块">▴</button>
         </div>
         ${cardsHtml}
@@ -691,7 +705,20 @@ import Base from "../layouts/Base.astro";
       requestAnimationFrame(() => { main.classList.add("main--fadein"); });
       window.scrollTo({ top: 0, behavior: "instant" });
       initSectionObserver();
+      initCarousels();
       restoreDQVotes();
+      // 恢复板块折叠状态
+      const colSaved = JSON.parse(localStorage.getItem("sec-collapsed") ?? "{}");
+      main.querySelectorAll<HTMLElement>(".section[data-sec-id]").forEach(sec => {
+        const sid = sec.dataset.secId!;
+        if (colSaved[sid]) {
+          sec.querySelectorAll<HTMLElement>(".cards, .hero-card").forEach(c => c.classList.add("cards--hidden"));
+          const tb = sec.querySelector<HTMLElement>(".section-toggle");
+          if (tb) { tb.textContent = "▾"; tb.classList.add("section-toggle--collapsed"); }
+        }
+      });
+      // 初始化阅读进度徽章
+      updateAllProgress();
       // 预备 AI 推荐问题（当 AI 面板打开时使用）
       if (d.hot_words?.length) {
         (window as any).__hotWords = d.hot_words;
@@ -721,6 +748,33 @@ import Base from "../layouts/Base.astro";
       const orig = btn.textContent;
       btn.textContent = "✅";
       setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  function initCarousels() {
+    document.querySelectorAll<HTMLElement>(".carousel").forEach(car => {
+      let cur = 0;
+      const slides = car.querySelectorAll<HTMLElement>(".carousel-slide");
+      const dots = car.querySelectorAll<HTMLElement>(".carousel-dot");
+      if (slides.length <= 1) return;
+
+      function goTo(idx: number) {
+        slides[cur].classList.remove("carousel-slide--active");
+        dots[cur]?.classList.remove("carousel-dot--active");
+        cur = (idx + slides.length) % slides.length;
+        slides[cur].classList.add("carousel-slide--active");
+        dots[cur]?.classList.add("carousel-dot--active");
+      }
+
+      // 点击 dot
+      dots.forEach((d, i) => d.addEventListener("click", (e) => { e.stopPropagation(); goTo(i); }));
+
+      // 自动轮播 5s
+      const timer = setInterval(() => goTo(cur + 1), 5000);
+      // 页面不可见时暂停
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) clearInterval(timer);
+      });
     });
   }
 
@@ -1201,6 +1255,23 @@ import Base from "../layouts/Base.astro";
   }
 
   // 初始化时恢复已投票状态（已投过则从服务端拉最新结果）
+  function updateSectionProgress(sec: HTMLElement) {
+    const sid = sec.dataset.secId!;
+    const cards = sec.querySelectorAll<HTMLElement>(".card[data-url],.hero-card[data-url]");
+    if (!cards.length) return;
+    const total = cards.length;
+    const read = Array.from(cards).filter(c => c.classList.contains("card--read")).length;
+    const el = document.getElementById(`prog-${sid}`);
+    if (!el) return;
+    if (read === 0) { el.textContent = ""; return; }
+    el.textContent = read === total ? `✓ 全读` : `${read}/${total}`;
+    el.className = `sec-progress${read === total ? " sec-progress--done" : ""}`;
+  }
+
+  function updateAllProgress() {
+    document.querySelectorAll<HTMLElement>(".section[data-sec-id]").forEach(updateSectionProgress);
+  }
+
   function restoreDQVotes() {
     document.querySelectorAll<HTMLElement>(".dq-options").forEach(optsEl => {
       const btn0 = optsEl.querySelector<HTMLElement>(".dq-opt");
@@ -1625,6 +1696,18 @@ import Base from "../layouts/Base.astro";
   const backTop = document.getElementById("backTop")!;
   backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
+  // ── 紧凑/宽松视图切换 ──
+  const densityBtn = document.getElementById("densityBtn")!;
+  let compact = localStorage.getItem("density") === "compact";
+  function applyDensity(c: boolean) {
+    document.documentElement.classList.toggle("density-compact", c);
+    densityBtn.textContent = c ? "⊟" : "⊞";
+    densityBtn.title = c ? "切换宽松视图" : "切换紧凑视图";
+    localStorage.setItem("density", c ? "compact" : "loose");
+  }
+  applyDensity(compact);
+  densityBtn.addEventListener("click", () => { compact = !compact; applyDensity(compact); });
+
   // ── 事件委托：展开/折叠卡片 + 折叠板块 + 收藏 + 热词云 ──
   document.getElementById("main")!.addEventListener("click", (e) => {
     const t = e.target as HTMLElement;
@@ -1724,6 +1807,9 @@ import Base from "../layouts/Base.astro";
       const url = cardEl.dataset.url!;
       markRead(url);
       cardEl.classList.add("card--read");
+      // 更新所在板块进度
+      const sec = cardEl.closest<HTMLElement>(".section[data-sec-id]");
+      if (sec) updateSectionProgress(sec);
       window.open(url, "_blank", "noopener");
       return;
     }
@@ -1761,11 +1847,19 @@ import Base from "../layouts/Base.astro";
     const toggleBtn = t.closest(".section-toggle") as HTMLElement | null;
     if (toggleBtn) {
       const section = toggleBtn.closest(".section")!;
+      const secId = (section as HTMLElement).dataset.secId ?? "";
       const targets = section.querySelectorAll<HTMLElement>(".cards, .hero-card");
       const willCollapse = !targets[0]?.classList.contains("cards--hidden");
       targets.forEach(c => c.classList.toggle("cards--hidden", willCollapse));
       toggleBtn.textContent = willCollapse ? "▾" : "▴";
       toggleBtn.classList.toggle("section-toggle--collapsed", willCollapse);
+      // 记忆折叠状态
+      if (secId) {
+        const colKey = "sec-collapsed";
+        const saved = JSON.parse(localStorage.getItem(colKey) ?? "{}");
+        if (willCollapse) saved[secId] = 1; else delete saved[secId];
+        localStorage.setItem(colKey, JSON.stringify(saved));
+      }
     }
   });
 
@@ -2232,6 +2326,41 @@ import Base from "../layouts/Base.astro";
   }
   .section-toggle:hover { background: var(--bg4); color: var(--text); }
   .section-toggle--collapsed { color: var(--accent) !important; }
+
+  /* ── 板块阅读进度 ── */
+  .sec-progress {
+    font-size: 10px; color: var(--text3); opacity: 0.7;
+    background: var(--bg3); border-radius: 10px; padding: 1px 7px;
+    margin-left: 6px; white-space: nowrap; transition: opacity 0.2s;
+  }
+  .sec-progress--done { color: var(--accent); opacity: 1; font-weight: 600; }
+
+  /* ── 紧凑模式 ── */
+  .density-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 16px; padding: 4px 6px;
+    border-radius: 6px; transition: color 0.15s, background 0.15s;
+  }
+  .density-btn:hover { background: var(--bg3); color: var(--text); }
+  :global(html.density-compact) .card { padding: 9px 13px; }
+  :global(html.density-compact) .card-body { font-size: 12px; line-height: 1.5; }
+  :global(html.density-compact) .card-thumb { height: 90px; }
+  :global(html.density-compact) .cards--grid { gap: 6px; }
+
+  /* ── 英雄卡轮播 ── */
+  .carousel { position: relative; margin-bottom: 14px; }
+  .carousel-slide { display: none; }
+  .carousel-slide--active { display: block; animation: fadeSlide 0.4s ease; }
+  @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .carousel-dots {
+    display: flex; justify-content: center; gap: 6px; margin-top: 10px;
+  }
+  .carousel-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--border); border: none; cursor: pointer;
+    padding: 0; transition: background 0.2s, transform 0.2s;
+  }
+  .carousel-dot--active { background: var(--accent); transform: scale(1.3); }
 
   /* ── Main fade-in ── */
   .main { flex: 1; min-width: 0; padding: 24px 28px 60px; transition: opacity 0.25s ease; }
