@@ -26,7 +26,7 @@ import Base from "../layouts/Base.astro";
           <button id="searchClear" class="search-clear" style="display:none" aria-label="清空">✕</button>
         </div>
         <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
-        <button class="density-btn" id="densityBtn" title="紧凑/宽松视图">⊞</button>
+        <button class="density-btn" id="densityBtn" title="切换紧凑/宽松视图">详</button>
         <button class="share-btn" id="shareBtn" title="分享今日日报">🔗</button>
       </div>
     </div>
@@ -583,7 +583,7 @@ import Base from "../layouts/Base.astro";
       ? `<img class="card-thumb" src="${item.thumbnail}" loading="lazy" alt="" onerror="this.style.display='none'">`
       : "";
     const shareHtml = secId
-      ? `<button class="card-share-btn" data-sec="${secId}" data-idx="${idx}" title="分享此卡片">⬆</button>`
+      ? `<button class="card-share-btn" data-sec="${secId}" data-idx="${idx}" title="分享此卡片">↗</button>`
       : "";
     return `<article class="card${extraClass}${readClass}${item.thumbnail ? " card--has-thumb" : ""}" ${urlAttr} ${cardIdAttr} ${cursorStyle}>
       ${thumbHtml}
@@ -871,13 +871,14 @@ import Base from "../layouts/Base.astro";
   function renderQuote(d: any): string {
     const q = d.quote;
     if (!q?.text || !q?.author) return "";
-    const body = q.zh ? `<span class="quote-zh">${q.zh}</span>` : "";
+    const mainText = q.zh ?? q.text;
+    const subText  = q.zh ? `<span class="quote-en">${q.text}</span>` : "";
     const copyText = q.zh
       ? `${q.zh} —— ${q.author}`
       : `${q.text} —— ${q.author}`;
     return `<blockquote class="daily-quote">
-      <p class="quote-text">${q.text}</p>
-      ${body}
+      <p class="quote-text">${mainText}</p>
+      ${subText}
       <div class="quote-footer">
         <cite class="quote-author">— ${q.author}</cite>
         <button class="quote-copy" data-text="${copyText.replace(/"/g,'&quot;')}" title="复制名言">📋 复制</button>
@@ -1337,7 +1338,7 @@ import Base from "../layouts/Base.astro";
   // 初始化时恢复已投票状态（已投过则从服务端拉最新结果）
   function updateSectionProgress(sec: HTMLElement) {
     const sid = sec.dataset.secId!;
-    const cards = sec.querySelectorAll<HTMLElement>(".card[data-url],.hero-card[data-url]");
+    const cards = sec.querySelectorAll<HTMLElement>(".card,.hero-card");
     if (!cards.length) return;
     const total = cards.length;
     const read = Array.from(cards).filter(c => c.classList.contains("card--read")).length;
@@ -1781,7 +1782,7 @@ import Base from "../layouts/Base.astro";
   let compact = localStorage.getItem("density") === "compact";
   function applyDensity(c: boolean) {
     document.documentElement.classList.toggle("density-compact", c);
-    densityBtn.textContent = c ? "⊟" : "⊞";
+    densityBtn.textContent = c ? "简" : "详";
     densityBtn.title = c ? "切换宽松视图" : "切换紧凑视图";
     localStorage.setItem("density", c ? "compact" : "loose");
   }
@@ -2841,6 +2842,7 @@ import Base from "../layouts/Base.astro";
     margin: 0; line-height: 1.7; font-weight: 500;
   }
   .quote-zh     { font-size: 13px; color: var(--text2); font-style: normal; display: block; margin-top: 4px; }
+  .quote-en     { font-size: 12px; color: var(--text3); font-style: italic; display: block; margin-top: 6px; }
   .quote-author { font-size: 11px; color: var(--text3); font-style: normal; }
   .quote-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
   .quote-copy {
