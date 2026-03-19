@@ -14,6 +14,7 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,9 +50,7 @@ jobs:
           git config user.email "bot@xiaoxin"
           git add public/data/ public/manifest.json public/search-index.json README.md || true
           git diff --cached --quiet && echo "nothing to commit" && exit 0
-          git stash  # 防止 unstaged 文件干扰 rebase
           git pull --rebase origin main
-          git stash pop 2>/dev/null || true
           git add public/data/ public/manifest.json public/search-index.json README.md || true
           git commit -m "daily: $(date +%Y-%m-%d)" || true
           git push
@@ -67,7 +66,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main  # 拉取刚 push 的最新代码
+          ref: main
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -87,6 +86,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
-    id: deployment
         uses: actions/deploy-pages@v4
