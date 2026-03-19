@@ -48,12 +48,13 @@ jobs:
         run: |
           git config user.name "xiaoxin-bot"
           git config user.email "bot@xiaoxin"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add public/data/ public/manifest.json public/search-index.json README.md || true
           git diff --cached --quiet && echo "nothing to commit" && exit 0
           git pull --rebase origin main
           git add public/data/ public/manifest.json public/search-index.json README.md || true
           git commit -m "daily: $(date +%Y-%m-%d)" || true
-          git push
+          git push origin main
 
   deploy:
     needs: generate
