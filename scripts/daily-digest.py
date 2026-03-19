@@ -186,70 +186,64 @@ RSS_FEEDS = {
     "highlight": [
         "https://feeds.bbci.co.uk/news/rss.xml",
         "https://www.reutersagency.com/feed/?best-topics=top-news&post_type=best",
-        "https://www.thepaper.cn/rss_ori.jsp?id=25950",        # 澎湃新闻
-        "https://rsshub.app/zaobao/znews/china",               # 联合早报中国
+        "https://www.thepaper.cn/rss_ori.jsp?id=25950",
     ],
     "china": [
         "http://www.xinhuanet.com/rss/news.xml",
         "https://www.thepaper.cn/rss_ori.jsp?id=25950",
-        "https://www.caixin.com/rss/home.xml",                 # 财新
-        "https://rsshub.app/gov/zhengce",                      # 国务院政策
+        "https://www.caixin.com/rss/home.xml",
     ],
     "world": [
         "https://feeds.bbci.co.uk/news/world/rss.xml",
         "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-        "https://feeds.bbci.co.uk/news/world/asia/rss.xml",   # BBC亚洲
-        "https://www.aljazeera.com/xml/rss/all.xml",           # 半岛电视台
+        "https://feeds.bbci.co.uk/news/world/asia/rss.xml",
+        "https://www.aljazeera.com/xml/rss/all.xml",
     ],
     "military": [
         "https://www.defensenews.com/arc/outboundfeeds/rss/",
-        "https://feeds.feedburner.com/janes/news",             # Jane's
-        "https://www.mil.cn/rss/index.xml",                    # 中国军网
+        "https://breakingdefense.com/feed/",
     ],
     "tech": [
         "https://techcrunch.com/feed/",
         "https://www.theverge.com/rss/index.xml",
         "https://36kr.com/feed",
-        "https://sspai.com/feed",                              # 少数派
-        "https://rsshub.app/huxiu/article",                    # 虎嗅
+        "https://sspai.com/feed",
         "https://www.wired.com/feed/rss",
     ],
     "economy": [
         "https://www.ft.com/?format=rss",
-        "https://feeds.bloomberg.com/markets/news.rss",        # Bloomberg Markets
-        "https://caifuhao.eastmoney.com/rss.xml",              # 东方财富
-        "https://rsshub.app/cls/depth",                        # 财联社深度
+        "https://feeds.bloomberg.com/markets/news.rss",
     ],
     "science": [
         "https://www.nature.com/nature.rss",
         "https://phys.org/rss-feed/",
         "https://www.sciencedaily.com/rss/top/science.xml",
-        "https://feeds.feedburner.com/nasa/breaking-news",     # NASA
+        "https://www.nasa.gov/news-release/feed/",
     ],
     "health": [
         "https://www.who.int/rss-feeds/news-english.xml",
-        "https://rsshub.app/dxy/headline",                     # 丁香园
         "https://www.sciencedaily.com/rss/top/health.xml",
+        "https://www.medicalnewstoday.com/newsfeeds/index.xml",
     ],
     "entertainment": [
         "https://variety.com/feed/",
         "https://deadline.com/feed/",
-        "https://rsshub.app/douban/movie/playing",             # 豆瓣正在热映
     ],
     "sports": [
         "https://www.espn.com/espn/rss/news",
-        "https://rsshub.app/zhibo8/news",                      # 直播吧
+        "https://www.bbc.com/sport/rss.xml",
     ],
     "auto": [
-        "https://rsshub.app/autohome/news",                    # 汽车之家
-        "https://rsshub.app/cls/auto",                         # 财联社汽车
-        "https://electrek.co/feed/",                           # 电动车
+        "https://electrek.co/feed/",
+        "https://insideevs.com/rss/index.xml",
+        "https://www.motortrend.com/feeds/all/",
     ],
     "travel": [
-        "https://rsshub.app/mafengwo/note/destination/10065", # 马蜂窝热门
+        "https://www.lonelyplanet.com/news/feed",
+        "https://www.travelandleisure.com/rss.xml",
     ],
     "jobs_hot": [
-        "https://rsshub.app/zhihu/hot",                        # 知乎热榜（就业话题）
+        "https://techcrunch.com/category/startups/feed/",
     ],
 }
 
@@ -367,7 +361,7 @@ def collect_all() -> dict:
         # Brave Search 补充
         for qi, q in enumerate(queries):
             if qi > 0:
-                time.sleep(1)
+                time.sleep(2)
             for item in web_search(q, count=10):
                 u = item.get("url", "")
                 tk = title_key(item.get("title", ""))
@@ -383,9 +377,9 @@ def collect_all() -> dict:
                 combined.append(item)
         return s["id"], s["title"], combined
 
-    # 并发抓取（highlight 跳过）
+    # 并发抓取（highlight 跳过），降到2并发防429
     non_highlight = [s for s in SECTIONS if s["id"] != "highlight"]
-    with ThreadPoolExecutor(max_workers=4) as ex:
+    with ThreadPoolExecutor(max_workers=2) as ex:
         futures = {ex.submit(fetch_section, s): s for s in non_highlight}
         for fut in as_completed(futures):
             try:
