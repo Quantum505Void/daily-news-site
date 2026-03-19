@@ -2575,7 +2575,7 @@ import Base from "../layouts/Base.astro";
   .card-source:hover { opacity: 1; color: var(--link); }
   .card-source--ai { color: var(--text3); opacity: 0.5; font-size: 11px; cursor: default; }
   .card-favicon { border-radius: 2px; flex-shrink: 0; vertical-align: middle; }
-  .card-readtime { font-size: 10px; color: var(--text3); opacity: 0.55; margin-left: auto; white-space: nowrap; }
+  .card-readtime { font-size: 10px; color: var(--text3); opacity: 0.55; margin-left: auto; white-space: nowrap; padding-inline: 2px; }
   .card-expand {
     font-size: 11px; color: var(--text3);
     background: none; border: none; cursor: pointer;
@@ -2682,13 +2682,20 @@ import Base from "../layouts/Base.astro";
   /* ── 英雄卡 ── */
   .hero-card {
     position: relative; overflow: hidden;
-    background: var(--summary-bg);
-    border: 1px solid var(--summary-border);
-    border-radius: 14px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--summary-bg) 86%, white 14%), var(--summary-bg));
+    border: 1px solid color-mix(in srgb, var(--summary-border) 78%, var(--accent) 22%);
+    border-radius: 16px;
     padding: 22px 24px 18px;
     margin-bottom: 12px;
     cursor: default;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.10);
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+  .hero-card::after {
+    content: ""; position: absolute; right: -36px; top: -36px;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
+    pointer-events: none;
   }
   .hero-card[data-url]:hover {
     border-color: var(--accent);
