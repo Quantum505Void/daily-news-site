@@ -1193,20 +1193,7 @@ import Base from "../layouts/Base.astro";
     return `<div class="key-numbers">${cards}</div>`;
   }
 
-  function renderQuality(d: any): string {
-    const q = d.quality;
-    if (!q) return "";
-    const score = q.score ?? 0;
-    const color = score >= 80 ? "#27ae60" : score >= 60 ? "#f39c12" : "#e74c3c";
-    const grade = score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : "D";
-    return `<div class="quality-bar">
-      <span class="quality-label">今日数据质量</span>
-      <span class="quality-grade" style="color:${color}">${grade}</span>
-      <div class="quality-track"><div class="quality-fill" style="width:${score}%;background:${color}"></div></div>
-      <span class="quality-score" style="color:${color}">${score}分</span>
-      <span class="quality-meta">${q.sections}板块 · ${q.total_items}条 · URL ${q.url_rate}% · 图片 ${q.thumb_rate}%</span>
-    </div>`;
-  }
+  function renderQuality(_d: any): string { return ""; }
 
   function renderHistoryTimeline(d: any): string {
     const items: Array<{year: string; event: string}> = d.history_today ?? [];

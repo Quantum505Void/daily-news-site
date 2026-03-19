@@ -637,21 +637,9 @@ def save(structured, raw_results):
     # ── 生成质量评分 ──────────────────────────────────────────────────
     all_items = [item for sec in sections for item in sec.get("items", [])]
     total_items = len(all_items)
-    has_url = sum(1 for i in all_items if i.get("url"))
-    has_thumb = sum(1 for i in all_items if i.get("thumbnail"))
-    avg_body = int(sum(len(i.get("body") or "") for i in all_items) / total_items) if total_items else 0
     quality = {
         "sections": len(sections),
         "total_items": total_items,
-        "url_rate": round(has_url / total_items * 100) if total_items else 0,
-        "thumb_rate": round(has_thumb / total_items * 100) if total_items else 0,
-        "avg_body_len": avg_body,
-        "score": min(100, int(
-            (len(sections) / 13 * 30) +           # 板块完整度 30分
-            (has_url / max(total_items,1) * 30) +  # URL覆盖率 30分
-            (min(avg_body, 300) / 300 * 25) +      # 正文丰富度 25分
-            (has_thumb / max(total_items,1) * 15)  # 图片覆盖率 15分
-        ))
     }
 
     data = {
