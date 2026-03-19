@@ -297,11 +297,12 @@ def collect_rss(sec_id: str) -> list:
     return results
 
 
-    """搜索，失败自动重试，429 等待后重试"""
+def web_search(query: str, count: int = 10, retries: int = 2) -> list:
+    """搜索，加 freshness=day 只取24h内结果，失败自动重试，429 等待后重试"""
     if not API_KEY:
         return []
     encoded = urllib.parse.quote(query)
-    url = f"https://api.search.brave.com/res/v1/web/search?q={encoded}&count={count}&country=CN"
+    url = f"https://api.search.brave.com/res/v1/web/search?q={encoded}&count={count}&country=CN&freshness=pd"
     req = urllib.request.Request(url, headers={
         "Accept": "application/json",
         "Accept-Encoding": "gzip",
@@ -329,64 +330,88 @@ def collect_rss(sec_id: str) -> list:
             return []
     return []
 
+def title_key(title: str) -> str:
+    """取标题前20字做相似度key，用于去重"""
+    return title.strip()[:20].lower()
+
 def collect_all() -> dict:
-    """并发搜索所有板块，每板块内部串行查询（避免同时打爆 API 限流）"""
+    """并发搜索所有板块（highlight 除外），每板块内部串行查询"""
     results = {}
-    # 全局 URL 去重集合，防止同一条新闻出现在多个板块
     global_seen_urls: set = set()
+    global_seen_titles: set = set()  # 标题去重（前20字）
     lock = __import__('threading').Lock()
 
     def fetch_section(s):
+        if s["id"] == "highlight":
+            return s["id"], s["title"], []  # highlight 后面从其他板块聚合
         queries = s.get("queries") or [s.get("query", "")]
-        local_seen: set = set()
+        local_seen_urls: set = set()
+        local_seen_titles: set = set()
         combined = []
 
-        # 优先拉 RSS（不消耗 Brave 配额）
+        # 优先拉 RSS
         for item in collect_rss(s["id"]):
             u = item.get("url", "")
-            if not u or u in local_seen:
+            tk = title_key(item.get("title", ""))
+            if not u or u in local_seen_urls or tk in local_seen_titles:
                 continue
             with lock:
-                if u in global_seen_urls:
+                if u in global_seen_urls or tk in global_seen_titles:
                     continue
                 global_seen_urls.add(u)
-            local_seen.add(u)
+                global_seen_titles.add(tk)
+            local_seen_urls.add(u)
+            local_seen_titles.add(tk)
             combined.append(item)
 
         # Brave Search 补充
         for qi, q in enumerate(queries):
             if qi > 0:
                 time.sleep(1)
-            items = web_search(q, count=10)
-            for item in items:
+            for item in web_search(q, count=10):
                 u = item.get("url", "")
-                if not u or u in local_seen:
+                tk = title_key(item.get("title", ""))
+                if not u or u in local_seen_urls or tk in local_seen_titles:
                     continue
                 with lock:
-                    if u in global_seen_urls:
+                    if u in global_seen_urls or tk in global_seen_titles:
                         continue
                     global_seen_urls.add(u)
-                local_seen.add(u)
+                    global_seen_titles.add(tk)
+                local_seen_urls.add(u)
+                local_seen_titles.add(tk)
                 combined.append(item)
         return s["id"], s["title"], combined
 
-    # 最多 4 个并发，避免触发 Brave 429
+    # 并发抓取（highlight 跳过）
+    non_highlight = [s for s in SECTIONS if s["id"] != "highlight"]
     with ThreadPoolExecutor(max_workers=4) as ex:
-        futures = {ex.submit(fetch_section, s): s for s in SECTIONS}
+        futures = {ex.submit(fetch_section, s): s for s in non_highlight}
         for fut in as_completed(futures):
             try:
                 sid, title, combined = fut.result()
                 results[sid] = combined
-                status = f"{len(combined)} 条" if combined else "❌ 无数据（LLM补全）"
+                status = f"{len(combined)} 条" if combined else "❌ 无数据"
                 print(f"  {'✓' if combined else '○'} {title}: {status}", flush=True)
             except Exception as e:
                 s = futures[fut]
                 print(f"  ✗ {s['title']} 搜索异常: {e}", flush=True)
                 results[s["id"]] = []
 
-    failed = [s["title"] for s in SECTIONS if not results.get(s["id"])]
-    if failed:
-        print(f"  ⚠ 无数据板块，LLM补全：{', '.join(failed)}", flush=True)
+    # highlight：从所有其他板块各取前2条，组成今日看点候选池
+    highlight_pool = []
+    seen_h_urls: set = set()
+    for s in SECTIONS:
+        if s["id"] == "highlight":
+            continue
+        for item in results.get(s["id"], [])[:2]:
+            u = item.get("url", "")
+            if u and u not in seen_h_urls:
+                seen_h_urls.add(u)
+                highlight_pool.append(item)
+    results["highlight"] = highlight_pool
+    print(f"  ✓ 今日看点（聚合）: {len(highlight_pool)} 条候选", flush=True)
+
     return results
 
 # ── GitHub Copilot LLM ───────────────────────────────────────────────
