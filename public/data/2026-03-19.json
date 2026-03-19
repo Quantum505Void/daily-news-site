@@ -2,51 +2,74 @@
   "date": "2026-03-19",
   "weekday": "周四",
   "title": "2026年03月19日 周四",
-  "summary": "在缺乏实时检索数据的前提下，今日最该盯紧的是“宏观政策—市场预期—产业竞争”这条主线：国内稳增长与结构转型并行，外部地缘与贸易规则不确定性仍在抬升。对个人与企业来说，关键在于把现金流安全与技术/出海能力放在同一张资产负债表上做决策。",
+  "summary": "伊朗战争外溢效应全面冲击全球能源与金融市场：油价冲上114美元、天然气价格单日飙升，欧洲与亚洲再度被“能源危机”阴影笼罩。与此同时，围绕霍尔木兹海峡护航与战争保险的新方案出炉，安全、贸易与成本三线同时拉紧。",
   "sections": [
     {
       "id": "highlight",
+      "overview": "伊朗战争把能源与安全议题推到头条：油气价格跳涨、霍尔木兹护航与保险机制进入政策视野。国内外交人事与高层会见同步推进，为外部风险下的对外沟通定下基调。",
       "items": [
         {
-          "title": "政策与预期再博弈",
-          "body": "今天最重要的不在“有没有刺激”，而在“刺激如何更精准”。过去几年经验表明，泛洪式信用很难直接传导到消费与民企投资，市场更看重财政支出结构、专项债投向、以及对就业与现金流的直接支持。对企业来说，订单可见度仍偏短，库存与应收账款管理比扩张更关键。下一阶段胜负手是“政策落地速度+产业链信心修复”。",
-          "tag": "分析",
-          "url": "",
+          "title": "Gas price surges 30% and oil hits $114 as strikes rattle markets",
+          "body": "Donald Trump threatens massive attack on Iranian gasfield if Tehran continues to target Qatari facilities",
+          "insight": "油气同涨是战争风险最直观的“传导器”，30%气价与114美元油价将迅速抬升通胀与航运成本，政策反应会比市场更急。",
+          "tag": "",
+          "url": "https://www.ft.com/content/07f52f59-528b-4bc4-9fca-5fee5f7f6e86",
           "thumbnail": ""
         },
         {
-          "title": "地产进入“慢修复”",
-          "body": "房地产更像缓慢出清而非快速反转：需求端受收入预期与人口结构影响，供给端受融资纪律与交付约束。核心城市的结构性韧性仍在，但三四线去化压力意味着“以价换量”仍会出现。对居民而言，房子从“资产”回归“居住”的定价逻辑在强化。未来影响不止楼市本身，还会通过地方财政与建材家居链条传导。",
-          "tag": "趋势",
-          "url": "",
+          "title": "How the Iran war has left Europe facing yet another energy crisis",
+          "body": "It is not the first time that there has been deep energy-linked frustration in the heart of Europe.",
+          "insight": "欧洲再遇能源焦虑，说明即使有储备与替代来源，地缘冲突仍能通过预期与保险成本撬动价格，产业竞争力首当其冲。",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/c24de9e97vno?at_medium=RSS&at_campaign=rss",
           "thumbnail": ""
         },
         {
-          "title": "外贸压力转向规则战",
-          "body": "外部不确定性正从单点关税扩散到补贴调查、原产地规则、碳边境等“制度型冲突”。这类摩擦往往周期更长、证据链更复杂，企业单靠价格优势难以应对，必须补齐合规、海外产能布局与品牌渠道。对中国的影响在于出口结构升级被迫加速：低附加值环节出海，高附加值环节留在国内做技术迭代。",
-          "tag": "观察",
-          "url": "",
+          "title": "US exploring tying naval escorts in Strait of Hormuz to government insurance",
+          "body": "Vessels seeking protection may be required to take out cover from programme run by Development Finance Corporation",
+          "insight": "把护航与政府保险绑定，等于用制度化工具给风险定价并筛选受保护船只；一旦落地，可能重塑航运合规与保费结构。",
+          "tag": "",
+          "url": "https://www.ft.com/content/4f3d0c64-42e6-438e-882a-1158532751b1",
           "thumbnail": ""
         },
         {
-          "title": "AI从“会写”到“会做”",
-          "body": "大模型竞争焦点明显前移：从参数规模、榜单分数，转向可控性、工具调用、私有化部署与行业落地的单位经济性。企业采购更在意“能否减少工时、降低错误率、可追责”，而不是演示效果。对行业而言，这意味着算力、数据治理、以及端侧推理成为下一波投资重心。短期看应用爆发，长期看供给侧出清。",
-          "tag": "趋势",
-          "url": "",
+          "title": "US intelligence chief says Iran's regime 'intact' but 'degraded'",
+          "body": "Lawmakers pressed intelligence officials about the Iran war, and if the Islamic Republic had posed an imminent threat.",
+          "insight": "情报口径称政权“仍完整但受损”，释放的是“冲突可持续”的信号：既为升级留余地，也为谈判留窗口，市场会据此押注久战。",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/c1d6dk569w6o?at_medium=RSS&at_campaign=rss",
           "thumbnail": ""
         },
         {
-          "title": "汽车价格战进入深水区",
-          "body": "降价已不只是“冲销量”，而是围绕电池成本、平台化能力与渠道效率的系统战。价格战越久，弱势品牌越容易在现金流与残值管理上被拖垮，二手车与金融端的风险会抬头。消费者短期受益，但也要关注售后网络与长期软件服务是否缩水。最终胜负不取决于一两次降价，而是规模与技术迭代节奏。",
-          "tag": "分析",
-          "url": "",
+          "title": "Ukraine war undermining Russia’s Arctic plans, US intelligence says",
+          "body": "Nonetheless, Russia still views the Arctic as vital to its security for a variety of political, economic and military reasons.",
+          "insight": "俄乌战事外溢到北极布局，提示战略竞争不只在前线消耗，而是牵动能源通道、资源开发与军事投送体系的长期规划。",
+          "tag": "",
+          "url": "https://www.defensenews.com/flashpoints/ukraine/2026/03/18/ukraine-war-undermining-russias-arctic-plans-us-intelligence-says/",
           "thumbnail": ""
         },
         {
-          "title": "黄金成为情绪温度计",
-          "body": "当利率路径摇摆、地缘风险反复时，黄金往往同时吸收“避险需求”和“货币信用焦虑”。但黄金并非只涨不跌：如果美元实际利率上行或风险偏好回暖，回撤会非常快。对普通投资者，黄金更适合作为组合对冲而非单边押注。往后看，决定金价的核心仍是实际利率与冲突升级概率。",
-          "tag": "提醒",
-          "url": "",
+          "title": "Lockheed tests upgraded Precision Strike Missile designed to strike ships",
+          "body": "The upgraded missile is backed by \"significant investment\" and is advancing rapidly through initial tests.",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.defensenews.com/news/your-military/2026/03/18/lockheed-tests-upgraded-precision-strike-missile-designed-to-strike-ships/",
+          "thumbnail": ""
+        },
+        {
+          "title": "重要新闻_中华人民共和国外交部",
+          "body": "2026年3月18日，中共中央政治局常委、国务院副总理丁薛祥在北京会见阿联酋总统中国事务特使哈勒敦。 · 丁薛祥表示，在习近平主席和穆罕默德总统战略引领下，中阿政治互信不断巩固，各领域务实合作成果丰硕。中方始...",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.mfa.gov.cn/zyxw/202603/t20260318_11877077.shtml",
+          "thumbnail": ""
+        },
+        {
+          "title": "国家主席习近平任免驻外大使 --时政--人民网",
+          "body": "新华社北京3月17日电中华人民共和国主席习近平根据全国人民代表大会常务委员会的决定任免下列驻外大使： 一、免去肖建国的中华人民共和国驻文莱达鲁萨兰国特命全权大使职务； 任命陈少春为中华人民共和",
+          "insight": "",
+          "tag": "",
+          "url": "http://politics.people.com.cn/n1/2026/0318/c1024-40683788.html",
           "thumbnail": ""
         }
       ],
@@ -56,47 +79,62 @@
     },
     {
       "id": "china",
+      "overview": "国内聚焦外交与周边工作：驻外大使任免、中阿互动与中越机制会议传递稳合作信号。舆论场也被伊朗战事牵动，关于油价、供应缺口与日本抉择的讨论升温。",
       "items": [
         {
-          "title": "促消费更重“直达”",
-          "body": "若要把政策红利转成现实订单，关键是让支持更“直达”居民与中小企业：比如以旧换新、服务消费券、育儿与教育减负的财政安排。过去的经验显示，耐用品补贴能短期拉动，但若收入预期不稳，消费会更偏向必需品与高性价比。对地方而言，政策设计要避免“层层加码、兑现慢”。未来一季的高频数据将检验政策乘数。",
-          "tag": "趋势",
-          "url": "",
+          "title": "重要新闻_中华人民共和国外交部",
+          "body": "2026年3月18日，中共中央政治局常委、国务院副总理丁薛祥在北京会见阿联酋总统中国事务特使哈勒敦。 · 丁薛祥表示，在习近平主席和穆罕默德总统战略引领下，中阿政治互信不断巩固，各领域务实合作成果丰硕。中方始...",
+          "insight": "中阿高层会见在能源动荡期更具含金量：既稳政治互信，也为经贸与能源合作提供“确定性锚”，对冲外部冲击预期。",
+          "tag": "",
+          "url": "https://www.mfa.gov.cn/zyxw/202603/t20260318_11877077.shtml",
           "thumbnail": ""
         },
         {
-          "title": "地方债务仍需“结构解”",
-          "body": "地方债问题的难点不是规模本身，而是期限错配与项目现金流不足：短债压顶会挤压民生与投资支出。可行路径通常包括置换降息、拉长期限、盘活存量资产、以及严格新增隐性债约束。对企业与居民，最直接影响是基建节奏与政府付款周期。未来看点在于“谁来买、怎么买、由谁兜底”的制度安排更清晰。",
-          "tag": "分析",
-          "url": "",
+          "title": "国家主席习近平任免驻外大使 --时政--人民网",
+          "body": "新华社北京3月17日电中华人民共和国主席习近平根据全国人民代表大会常务委员会的决定任免下列驻外大使： 一、免去肖建国的中华人民共和国驻文莱达鲁萨兰国特命全权大使职务； 任命陈少春为中华人民共和",
+          "insight": "驻外大使任免体现对外工作节奏与布局调整，重点国家岗位变动往往对应下一阶段双边沟通重点与经贸、人文议程推进。",
+          "tag": "",
+          "url": "http://politics.people.com.cn/n1/2026/0318/c1024-40683788.html",
           "thumbnail": ""
         },
         {
-          "title": "房地产回归产品竞争",
-          "body": "在需求增速放缓背景下，开发商比拼更偏向交付能力、产品力与物业运营，而非拿地周转。旧改、保障性住房、城中村改造若推进，会对建筑、家装与家电形成结构性支撑，但也要求资金闭环更严格。对购房者，要把“交付确定性”和“片区公共服务”放在价格之前。未来楼市更可能呈现分化复苏而非全面反弹。",
-          "tag": "观察",
-          "url": "",
+          "title": "中越雙邊合作指導委員會舉行第十七次會議 --時政--人民網",
+          "body": "裴青山祝賀中國經濟社會發展取得巨大成就，表示在兩黨兩國最高領導人親自指導下，越中關系發展勢頭強勁，取得豐碩成果。雙方高層溝通頻繁，政治互信不斷鞏固，務實合作深入推進，民間地方交流日趨活躍，給兩國人民帶來實實在在的福祉。越南一貫視中國為對外政策的頭等優先和戰略選擇，堅定奉行一個中國政策，反對任何形式的“台獨”分裂活動。越方贊同中方提出的下步合作設想，願堅持越中全面戰略合作伙伴定位，進一步鞏固戰略互信，籌備好高層交往，加強黨際、議會交流，深化國防安全合作，推動經貿、農業、金融、綠色能源、人文教育等互利合作，密切多邊協調配合，妥善管控分歧，推動越中關系走深走實。",
+          "insight": "中越机制会议强调务实合作与民间交流，意味着在周边复杂背景下，双方更重视用制度化渠道管控分歧、扩大共同利益。",
+          "tag": "",
+          "url": "http://politics.people.com.cn/BIG5/n1/2026/0318/c1001-40683789.html",
           "thumbnail": ""
         },
         {
-          "title": "就业压力转向结构性",
-          "body": "就业矛盾更集中在“青年—服务业—新技术替代”交叉处：一边是高校毕业生供给高峰，另一边是企业用工更谨慎、岗位技能门槛提升。解决思路应该是把培训与岗位需求对接到具体行业（制造业数字化、护理养老、外贸合规、AI运营）。对个人，简历上的“可量化产出”比泛经验更值钱。未来一年将是职业重估的窗口期。",
-          "tag": "提醒",
-          "url": "",
+          "title": "伊朗战争要是打久了，那就远不只是油价暴涨的事了|美银|原油|沙特|全球能源价格|石油输出国组织_网易订阅",
+          "body": "它们把2026年的“新中位基准”定在$77.5/桶：1H26出现约110万桶/日的供需缺口，2H26供给恢复后转回盈余。关键前提有两条：一是能源资产没有“12个月以上”的永久性损毁；二是战争结束后霍尔木兹通行能在几天内快速恢复。研报也承认，这两条假设可能偏乐观——这正是其风险区间拉得很宽的原因。",
+          "insight": "研报把供需缺口与“12个月以上损毁”作为关键前提，提醒投资者别只盯油价点位，更要盯基础设施可恢复性与航道恢复速度。",
+          "tag": "",
+          "url": "https://www.163.com/dy/article/KOAI7I4005198NMR.html",
           "thumbnail": ""
         },
         {
-          "title": "数据要素进入治理深水",
-          "body": "数据要素的关键不在“能不能交易”，而在确权、定价与责任边界：数据泄露与滥用的社会成本极高，会反噬数字经济信任。更现实的路径是从公共数据授权运营、行业数据合规流通、以及隐私计算等技术路线逐步推进。对企业，合规体系将从成本项变成竞争力。下一步看谁能把“数据—模型—业务”闭环跑通。",
-          "tag": "趋势",
-          "url": "",
-          "thumbnail": ""
+          "title": "高市早苗摊上大事了，伊朗强烈警告：若日本助纣为虐，将对日本本土发动袭击！_搜狐网",
+          "body": "作为一个传统盟友的日本，目前正处于一个极其棘手的十字路口。伊朗革命卫队前指挥官穆加达姆少将的警告，使得日本政府在应对美伊冲突时感到巨大的压力。尽管伊朗声称不把日本视为敌人，但如果日本选择支持美国...",
+          "insight": "伊朗对日本发出本土袭击警告，体现冲突在“选边站”压力下向第三方扩散；对企业的风险管理与供应链决策是直接冲击。",
+          "tag": "",
+          "url": "https://m.sohu.com/a/997959695_121752862?scm=10001.325_13-325_13.0.0-0-0-0-0.5_1334",
+          "thumbnail": "https://imgs.search.brave.com/lrjciFERAngFOO2-3WDCsGoVNM3S_z6SgpvDp6-WA2Q/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9xNi5p/dGMuY24vaW1hZ2Vz/MDEvMjAyNjAzMTgv/ZWM4ZThhYWE3Zjlm/NGRlOGEzOTdiODVk/NTBlOGQ1NmMuanBl/Zw"
         },
         {
-          "title": "公共安全更重预防",
-          "body": "城市治理越来越强调对极端天气、群体性活动、老旧小区消防的前置排查与应急演练。经验表明，风险管理的关键不在装备多先进，而在责任链条是否闭环：隐患排查、整改复核、公众教育缺一不可。对居民，掌握基本逃生与急救技能是低成本高收益投入。未来公共安全考核会更多量化到“响应时间与整改率”。",
-          "tag": "观察",
-          "url": "",
+          "title": "特朗普让日本开始行动，高市早苗沉默48小时，说了他最不想听的话_搜狐网",
+          "body": "这可不是闹着玩的，相当于日本自己动手掐断能源咽喉，到时候油价飞涨都是小事，工厂停工、民生瘫痪才是真要命。",
+          "insight": "",
+          "tag": "",
+          "url": "https://m.sohu.com/a/998179778_122572428?scm=10001.325_13-325_13.0.0-0-0-0-0.5_1334",
+          "thumbnail": "https://imgs.search.brave.com/HJFJ0_PF5mfNphnQluKwYqHuDuFPp0ytkk8hUAgognQ/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9xNC5p/dGMuY24vcV83MC9p/bWFnZXMwMy8yMDI2/MDMxOC9kYWU0NmMx/M2EzYjE0NjAyYjcw/MTFmZWJlYWJmNGRl/Zi5qcGVn"
+        },
+        {
+          "title": "结盟敌人的叛徒？被伊朗队除名？阿兹蒙晒照惹风波",
+          "body": "2026-03-18 23:52:18 2026-03-19 00:52:49 · 体坛周报 · 《体坛周报》官方账号 · 43036文章数 93166关注度 · 往期回顾 全部 · \\ 本地 · 房产 · 家居 · 时尚 · 公开课 · About NetEase | 公司简介 | 联系方法 | 招聘信息 | 客户服务 | 隐私政策 | 不良信息举报 Complaint Center | 廉正举报 | 侵权投诉 无障碍浏览 进入关怀版",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.163.com/dy/article/KOBCM2RM05299JMD.html",
           "thumbnail": ""
         }
       ],
@@ -106,47 +144,70 @@
     },
     {
       "id": "world",
+      "overview": "中东打击升级引爆能源焦虑，欧洲再临价格与供应双重压力，亚洲通胀预期也被抬升。非洲大湖区出现缓和动向，但巴以冲突仍以平民伤亡提醒风险无处不在。",
       "items": [
         {
-          "title": "降息路径仍在摇摆",
-          "body": "全球市场最敏感的变量依旧是主要央行的降息节奏：通胀回落并不等于风险消失，服务通胀与工资粘性常导致政策更“走一步看一步”。对中国而言，外需稳定与人民币汇率预期都受其影响，出口企业的套保与定价策略必须更动态。若海外降息延后，全球风险资产波动会放大，资金更偏向短久期与高信用资产。",
-          "tag": "分析",
-          "url": "",
+          "title": "Iran War Live Updates: Qatar Reports More Attacks on Energy Infrastructure as Oi",
+          "body": "Qatar blamed Tehran for strikes on its natural gas facilities, a day after Iran’s largest natural gas source was hit. The price of oil climbed to $114 a barrel as uncertainty over the war’s impacts on",
+          "insight": "卡塔尔能源设施再遭袭，把冲突从战争叙事推向“全球供给端事件”，任何进一步升级都将通过LNG与油轮航线放大到全球。",
+          "tag": "",
+          "url": "https://www.nytimes.com/live/2026/03/19/world/iran-war-news-trump-oil",
           "thumbnail": ""
         },
         {
-          "title": "地缘冲突拖累航运",
-          "body": "红海与周边海域的安全风险一旦上升，航运绕行会推高运价、延长交货周期，并通过保险费与燃油成本传导到全球通胀。对中国外贸企业而言，影响不只在运费，还在交付可靠性与客户库存策略变化。更稳妥的应对是多口岸、多航线与海外仓的组合。若冲突反复，供应链“更分散”将成为新常态。",
-          "tag": "观察",
-          "url": "",
+          "title": "Gas price soars nearly 25% after strikes on Qatar hub",
+          "body": "Energy costs jump after fresh strikes hit key infrastructure in the Middle East,",
+          "insight": "天然气近25%涨幅释放强烈信号：市场对供应中断的定价已从“概率”变成“趋势”，欧洲与亚洲的电力与化工成本将被重估。",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/c78x83lpgngo?at_medium=RSS&at_campaign=rss",
           "thumbnail": ""
         },
         {
-          "title": "贸易摩擦升级到产业链",
-          "body": "部分经济体对新能源、半导体等领域的限制趋向“全链条”：从终端关税扩展到设备、人才、投融资与政府采购。对中国企业，这意味着合规、原产地管理、以及海外本地化生产的重要性明显上升。成本会增加，但也倒逼管理与技术升级。未来两年将是“规则适配能力”决定出海成败的阶段。",
-          "tag": "趋势",
-          "url": "",
+          "title": "How the Iran war has left Europe facing yet another energy crisis",
+          "body": "It is not the first time that there has been deep energy-linked frustration in the heart of Europe.",
+          "insight": "欧洲能源危机的“既视感”回归，凸显结构性脆弱：替代能源与储气提高了韧性，但地缘冲突仍能令价格波动变成政治压力。",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/c24de9e97vno?at_medium=RSS&at_campaign=rss",
           "thumbnail": ""
         },
         {
-          "title": "俄乌进入消耗战逻辑",
-          "body": "冲突若长期化，影响将从能源价格转为军工产能、粮食与化肥供给、以及欧洲财政压力。对中国的间接影响主要在全球能源与大宗商品波动、以及欧洲需求的周期性走弱。企业层面要警惕汇率与物流链条的二次冲击。未来关键变量是外部援助强度与双方动员能力，而非单次战役得失。",
-          "tag": "分析",
-          "url": "",
+          "title": "The Iran War’s Economic Threat to Europe and Asia",
+          "body": "Inflation and its consequences for growth are a growing concern for countries where memories of the 2022 energy crisis are fresh.",
+          "insight": "把经济威胁点名欧洲与亚洲，实质是通胀与增长的再平衡难题：央行政策空间被压缩，财政补贴与产业扶持或再度加码。",
+          "tag": "",
+          "url": "https://www.nytimes.com/2026/03/19/business/iran-war-fiscal-spending-debt.html",
           "thumbnail": ""
         },
         {
-          "title": "中东局势牵动油价",
-          "body": "中东紧张局势常通过“风险溢价”影响油价，而油价又会影响全球通胀预期与货币政策。对中国，能源进口成本与化工链利润对油价极为敏感；对居民，油价变化会体现在出行与物流价格。建议企业用期货/长期合同锁定部分成本，避免利润大起大落。若局势缓和，油价回落会改善全球风险偏好。",
-          "tag": "提醒",
-          "url": "",
+          "title": "US intelligence chief says Iran's regime 'intact' but 'degraded'",
+          "body": "Lawmakers pressed intelligence officials about the Iran war, and if the Islamic Republic had posed an imminent threat.",
+          "insight": "美国情报系统在国会受压问“是否迫在眉睫”，背后是合法性与升级边界之争；该口径将影响盟友站队与市场风险偏好。",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/c1d6dk569w6o?at_medium=RSS&at_campaign=rss",
           "thumbnail": ""
         },
         {
-          "title": "欧洲产业政策更强势",
-          "body": "欧洲在绿色转型与关键产业上更强调本地化与补贴引导，这将改变中国企业进入欧洲市场的方式：从出口为主转向“产能+研发+供应链”更深度的本地嵌入。短期摩擦概率上升，但长期也可能形成更稳定的合作结构。对想做欧洲市场的企业，提前布局认证、合规与本地伙伴至关重要。下一阶段比拼的是耐心与组织能力。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Three Palestinian women killed as missile debris hits West Bank beauty salon",
+          "body": "Several other people were injured when shrapnel struck the beauty salon in Beit Awwa, in the southern West Bank.",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/c0ljl23plpzo?at_medium=RSS&at_campaign=rss",
+          "thumbnail": ""
+        },
+        {
+          "title": "DR Congo and Rwanda agree to ease tensions after talks in US",
+          "body": "The conflict has persisted despite a peace deal signed by DR Congo and Rwanda in December.",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/c15x5ejgyl3o?at_medium=RSS&at_campaign=rss",
+          "thumbnail": ""
+        },
+        {
+          "title": "Sony removes 135,000 'deepfakes' of its artists' music",
+          "body": "The company says the proliferation of AI has enabled people to upload fake songs to streaming sites.",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.bbc.com/news/articles/cy57593gxe0o?at_medium=RSS&at_campaign=rss",
           "thumbnail": ""
         }
       ],
@@ -156,40 +217,70 @@
     },
     {
       "id": "military",
+      "overview": "美方情报与军工动向并行：从“2027台海”评估到激光武器规模化、巡飞弹需求，反映战场技术迭代加速。俄乌战事持续牵制俄罗斯北极布局，战略竞争外溢到极地与太空链路。",
       "items": [
         {
-          "title": "安全态势更重“预警”",
-          "body": "现代安全竞争的核心正在从单一武器平台转向体系能力：侦察预警、指挥控制、电子对抗与后勤保障共同决定战力上限。对周边安全环境而言，任何一方提升ISR（情报监视侦察）密度都会改变风险阈值，误判成本也随之上升。对中国，强化多域态势感知与危机沟通同样重要。未来安全稳定的关键在于“可验证的克制机制”。",
-          "tag": "分析",
-          "url": "",
+          "title": "US assesses China not planning to invade Taiwan in 2027",
+          "body": "The assessment in the intelligence agencies’ annual report comes as Beijing has stepped up pressure on Taiwan with frequent military drills.",
+          "insight": "“不计划2027攻台”的评估意在纠偏时间表叙事，但并不等于风险下降；更可能驱动各方转向长期消耗与灰色地带对抗准备。",
+          "tag": "",
+          "url": "https://www.defensenews.com/news/your-military/2026/03/18/us-assesses-china-not-planning-to-invade-taiwan-in-2027/",
           "thumbnail": ""
         },
         {
-          "title": "无人化加速“规模化”",
-          "body": "无人机与反无人机进入“规模—成本”竞争：便宜、可消耗的平台在局部冲突中频繁验证价值，反制手段则必须兼顾低成本与高效拦截。中国相关产业链（通信、光电、复材、电机电控）具备制造基础，但军用场景强调抗干扰、冗余与供应安全。未来战场将更像“传感器与算法的对抗”，而非单纯火力对抗。",
-          "tag": "趋势",
-          "url": "",
+          "title": "The Pentagon wants to field laser weapons at scale within 3 years",
+          "body": "Amid waves of Iranian drone attacks, the U.S. Defense Department is pushing to finally field high-energy laser weapons in the next 36 months.",
+          "insight": "三年内规模化部署激光武器，显示反无人机防空进入成本战：用更低边际成本对抗蜂群与廉价弹药，将改变战场防御经济学。",
+          "tag": "",
+          "url": "https://www.defensenews.com/industry/techwatch/2026/03/18/the-pentagon-wants-to-field-laser-weapons-at-scale-within-3-years/",
           "thumbnail": ""
         },
         {
-          "title": "海上通道风险外溢",
-          "body": "海上通道一旦出现安全事件，影响会迅速传导到能源、粮食与制造业零部件运输。战略上，护航能力与海外应急保障体系决定了外部冲击下的供应链韧性。对中国企业，重要的不只是保险加价，更是交货违约与客户流失风险。未来应对方向是“航线多元化+关键物资储备+海外仓与本地化”。",
-          "tag": "观察",
-          "url": "",
+          "title": "US Air Force special operations seeks kamikaze drones",
+          "body": "The U.S. Air Force wants small one-way attack drones for its special operations forces, according to an Air Force Request for Information.",
+          "insight": "特种作战需求“自杀式无人机”，说明小型精准打击正在下沉到基层单位；未来采购重点会从平台数量转向弹药消耗与供应链。",
+          "tag": "",
+          "url": "https://www.defensenews.com/unmanned/2026/03/18/us-air-force-special-operations-seeks-kamikaze-drones/",
           "thumbnail": ""
         },
         {
-          "title": "网络攻防成常态威胁",
-          "body": "网络安全已从“偶发攻击”变成持续对抗：APT渗透、供应链投毒、工业控制系统漏洞都可能造成现实生产停摆。对政府与关键基础设施企业，零信任架构、最小权限与日志审计的重要性上升；对普通企业，勒索软件与数据泄露是最直接风险。未来安全投入会更偏向“运营化”（持续监测）而非一次性采购。",
-          "tag": "提醒",
-          "url": "",
+          "title": "In new timeline, Army set to take full control of THAAD missile program by 2027",
+          "body": "<p><a href=\"https://breakingdefense.com/2026/03/in-new-timeline-army-set-to-take-full-control-of-thaad-missile-program-by-2027/\"><img width=\"790\" height=\"444\" src=\"https://breakingdefense.com/wp-conte",
+          "insight": "THAAD由陆军2027接管时间表，反映美军在导弹防御体系上强化军种整合与运维能力；也意味着相关升级与训练节奏将加快。",
+          "tag": "",
+          "url": "https://breakingdefense.com/2026/03/in-new-timeline-army-set-to-take-full-control-of-thaad-missile-program-by-2027/",
           "thumbnail": ""
         },
         {
-          "title": "军民融合更重可交付",
-          "body": "军民技术协同的难点不在研发，而在工程化、可靠性与可批产。很多“民用领先”技术（AI、材料、通信）进入军用场景后，需要通过极端环境与安全认证，周期与成本被显著拉长。对相关企业，订单价值在于长期稳定，但也要求合规与质量体系。未来谁能做到“按期交付+全寿命成本控制”，谁就更具优势。",
-          "tag": "分析",
-          "url": "",
+          "title": "Lockheed tests upgraded Precision Strike Missile designed to strike ships",
+          "body": "The upgraded missile is backed by \"significant investment\" and is advancing rapidly through initial tests.",
+          "insight": "精确打击导弹升级为反舰能力，是对海上拒止场景的回应；一旦量产部署，将对近海作战与岛链海域的威慑结构产生影响。",
+          "tag": "",
+          "url": "https://www.defensenews.com/news/your-military/2026/03/18/lockheed-tests-upgraded-precision-strike-missile-designed-to-strike-ships/",
+          "thumbnail": ""
+        },
+        {
+          "title": "Ukraine war undermining Russia’s Arctic plans, US intelligence says",
+          "body": "Nonetheless, Russia still views the Arctic as vital to its security for a variety of political, economic and military reasons.",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.defensenews.com/flashpoints/ukraine/2026/03/18/ukraine-war-undermining-russias-arctic-plans-us-intelligence-says/",
+          "thumbnail": ""
+        },
+        {
+          "title": "UK, Netherlands, Finland in talks to set up defense investment bank",
+          "body": "The multilateral mechanism can include non-EU partners such as the U.K., according to Dutch officials.",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.defensenews.com/global/europe/2026/03/18/uk-netherlands-finland-in-talks-to-set-up-defense-investment-bank/",
+          "thumbnail": ""
+        },
+        {
+          "title": "Pentagon CTO ‘pretty confident’ about life after Anthropic",
+          "body": "<p><a href=\"https://breakingdefense.com/2026/03/pentagon-cto-pretty-confident-about-life-after-anthropic/\"><img width=\"1024\" height=\"577\" src=\"https://breakingdefense.com/wp-content/uploads/sites/13/2",
+          "insight": "",
+          "tag": "",
+          "url": "https://breakingdefense.com/2026/03/pentagon-cto-pretty-confident-about-life-after-anthropic/",
           "thumbnail": ""
         }
       ],
@@ -199,47 +290,70 @@
     },
     {
       "id": "economy",
+      "overview": "能源资产遭袭带动油气暴涨，价格、保险与护航成为同一条成本链条上的关键变量。市场也在重新给战争风险定价：从航运保险到企业业绩指引，冲击正向实体传导。",
       "items": [
         {
-          "title": "A股更像“结构牛”",
-          "body": "在宏观弱复苏环境里，指数可能不如结构：高股息与现金流稳健资产更容易获得配置资金，而主题行情集中在AI、先进制造与出海链条。投资者需要区分“景气”与“故事”——前者依赖订单与毛利，后者依赖流动性与情绪。操作上更适合用分散与再平衡，而非重仓押赛道。未来一季的业绩披露将决定风格切换。",
-          "tag": "观察",
-          "url": "",
+          "title": "Gas price surges 30% and oil hits $114 as strikes rattle markets",
+          "body": "Donald Trump threatens massive attack on Iranian gasfield if Tehran continues to target Qatari facilities",
+          "insight": "油到114美元、气价暴涨把“战争溢价”拉满，短期看是交易机会，长期看会挤压制造业利润并推高全球运输与化肥成本。",
+          "tag": "",
+          "url": "https://www.ft.com/content/07f52f59-528b-4bc4-9fca-5fee5f7f6e86",
           "thumbnail": ""
         },
         {
-          "title": "汇率看“利差+预期”",
-          "body": "人民币汇率短期由利差与风险偏好主导，中期仍取决于经常账户、资本流动与增长预期的相对强弱。企业应把汇率管理当作经营的一部分：出口端可用远期与期权做区间锁定，进口端更要防突发贬值带来的成本跳升。对个人，不建议用高杠杆押汇率方向。未来走势大概率是区间波动而非单边趋势。",
-          "tag": "提醒",
-          "url": "",
+          "title": "Brent Oil Jumps as Major Energy Assets Are Targeted in Mideast",
+          "body": "Oil extended gains to more that 10% following attacks on some of the Middle East’s most important energy facilities, raising concerns of an escalating impact from the almost three-week-old conflict th",
+          "insight": "布伦特涨超10%源于能源资产被直接攻击，这比一般制裁更具破坏性；市场关注点会从产量数据转向设施修复与防护能力。",
+          "tag": "",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-18/latest-oil-market-news-and-analysis-for-march-19",
           "thumbnail": ""
         },
         {
-          "title": "国债利率反映信心",
-          "body": "长端利率是“增长预期与避险情绪”的合成指标：若经济修复不稳，资金更偏好久期；一旦政策发力与信用扩张改善，利率会迅速反弹。对机构，久期管理与票息策略要匹配负债端稳定性；对普通投资者，别把短期净值波动当作产品风险失控。未来关键在于信用数据与财政投放节奏。",
-          "tag": "分析",
-          "url": "",
+          "title": "US exploring tying naval escorts in Strait of Hormuz to government insurance",
+          "body": "Vessels seeking protection may be required to take out cover from programme run by Development Finance Corporation",
+          "insight": "政府保险绑定护航，相当于把军事保护货币化、制度化；若推广，可能形成新的全球航运“准入门槛”和价格歧视机制。",
+          "tag": "",
+          "url": "https://www.ft.com/content/4f3d0c64-42e6-438e-882a-1158532751b1",
           "thumbnail": ""
         },
         {
-          "title": "黄金适合做对冲仓",
-          "body": "黄金的优势在于对冲地缘与货币信用风险，但它不产生现金流，长期收益更多来自风险溢价变化。更合理的方式是把黄金作为组合的“保险”，控制仓位并设置再平衡规则，而不是追涨杀跌。若实际利率上行，金价回撤的速度会快于多数人预期。未来影响金价的关键变量仍是实际利率与冲突升级概率。",
-          "tag": "机会",
-          "url": "",
+          "title": "Trump sails into battle with Lloyd’s of London",
+          "body": "The market’s historic strength in marine war insurance is being challenged by the US",
+          "insight": "特朗普与劳合社的保险之争，折射美国试图把风险定价权从伦敦转移；海运战争险若分裂，全球贸易成本将出现结构性上移。",
+          "tag": "",
+          "url": "https://www.ft.com/content/f95d211f-eab2-40ba-91b0-fbbd57f468d6",
           "thumbnail": ""
         },
         {
-          "title": "油价牵动化工链利润",
-          "body": "油价上行会挤压下游制造利润，但也可能改善上游资源与部分化工品价差；反之亦然。企业应把能源成本管理与产品定价联动，必要时通过套保对冲极端波动。对居民，油价会通过物流与出行成本影响生活物价。未来一旦航运与地缘风险缓和，油价回落将对全球通胀形成缓冲。",
-          "tag": "观察",
-          "url": "",
+          "title": "Iran sets its price to end the war",
+          "body": "Islamic regime is digging in for a protracted conflict as it seeks to ensure the US and Israel will not attack again",
+          "insight": "“伊朗设定结束战争的价格”强调以安全承诺换取停火收益；这类谈判若久拖不决，市场会把高油价视为新常态而非短波动。",
+          "tag": "",
+          "url": "https://www.ft.com/content/869f650b-7a9e-461d-a2bb-0788eb991e6d",
           "thumbnail": ""
         },
         {
-          "title": "民企投资看“回款”",
-          "body": "民间投资的核心约束常常不是意愿，而是回款与融资可得性。应收账款周期过长会直接压缩研发与扩产能力，形成“越谨慎越不敢投”的循环。改善路径通常在政府采购支付纪律、供应链票据与融资工具完善，以及对小微的信用增进。未来若回款环境改善，投资与就业会出现同步修复。",
-          "tag": "趋势",
-          "url": "",
+          "title": "CK Hutchison Profit Misses, With Outlook Dented By Iran War",
+          "body": "CK Hutchison Holdings Ltd. signaled it will aggressively pursue new deals to bolster shareholder value, after the conglomerate’s 2025 profit missed expectations and as it navigates a volatile geopolit",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.bloomberg.com/news/articles/2026-03-19/ck-hutchison-s-profit-misses-with-outlook-dented-by-iran-war",
+          "thumbnail": ""
+        },
+        {
+          "title": "How the White House tries to sell war and death as a game",
+          "body": "Declassified footage spliced with cartoon and action movie clips seeks to glorify US military prowess",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.ft.com/content/02b5b54a-364b-4869-a6ff-1bc2d9950aa1",
+          "thumbnail": ""
+        },
+        {
+          "title": "Battersea Power Station in dispute with fired CEO over accounts",
+          "body": "Company denies any accounting irregularity or retaliation",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.ft.com/content/0ea88797-a181-43fa-bcd0-b0c3e0f0bfb4",
           "thumbnail": ""
         }
       ],
@@ -249,40 +363,70 @@
     },
     {
       "id": "tech",
+      "overview": "AI产业进入“压缩与代理”竞赛：模型压缩走向主流，智能体替代App的叙事加速。与此同时，数据边界与内容治理拉响警报：Meta权限泄露、FBI购买位置数据、深度伪造泛滥同台出现。",
       "items": [
         {
-          "title": "大模型走向可控可靠",
-          "body": "模型能力的下一道门槛是“可控性与可追责”：幻觉、越权工具调用、数据泄露都会把试点项目直接打回。工程上更可行的路线是RAG（检索增强）、工具调用白名单、权限分级与审计日志，把“能回答”变成“能在规则内完成任务”。对中国企业，机会在行业数据与场景深耕，而不是通用模型硬拼。未来竞争将由“参数”转向“系统交付”。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Nvidia is quietly building a multibillion-dollar behemoth to rival its chips bus",
+          "body": "Nvidia's networking business raked in $11 billion last quarter despite getting significantly less fanfare than chips and gaming.",
+          "insight": "英伟达网络业务11亿美元级别增长，说明AI基础设施不只拼算力芯片，更拼互联与数据中心架构，产业链利润分配将被改写。",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/nvidia-networking-division-building-a-multibillion-dollar-behemoth-to-rival-its-chips-business/",
           "thumbnail": ""
         },
         {
-          "title": "算力瓶颈转为“能耗”",
-          "body": "算力扩张的约束越来越像电力与散热问题：同样的推理成本，在不同部署架构下差距巨大。数据中心需要更高效的液冷、功率调度与能效优化；端侧则依赖更强的NPU与模型压缩。对创业公司，能把单位推理成本降下来，才有规模化毛利。未来会出现“算力—电力—园区”协同的新基建竞赛。",
-          "tag": "分析",
-          "url": "",
+          "title": "Meta is having trouble with rogue AI agents",
+          "body": "A rogue AI agent inadvertently exposed Meta company and user data to engineers who didn't have permission to see it.",
+          "insight": "Meta“失控智能体”暴露权限管理短板：当代理能自动行动时，传统的访问控制更易被绕过，企业需用审计与隔离重建安全边界。",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/meta-is-having-trouble-with-rogue-ai-agents/",
           "thumbnail": ""
         },
         {
-          "title": "半导体更重供应韧性",
-          "body": "在外部限制与周期波动下，半导体的关键从单点突破转向全链条韧性：设备、材料、EDA、封测与工艺迭代必须协同。短期看国产替代会经历验证期与良率爬坡，资本市场会更挑剔；中期看，成熟制程与特色工艺（功率、模拟、车规）更易形成现金流。未来赢家往往不是最激进的，而是最能穿越周期的。",
-          "tag": "观察",
-          "url": "",
+          "title": "The FBI is buying Americans’ location data",
+          "body": "FBI director Kash Patel admitted that the agency is buying location data that can be used to track people's movements. Unlike information obtained from cellphone providers, this data can be accessed w",
+          "insight": "FBI购买位置数据把“商业数据=执法能力”问题摆上台面，隐私与合规争议会倒逼数据经纪行业收缩，也影响广告与风控生态。",
+          "tag": "",
+          "url": "https://www.theverge.com/news/897145/kash-patel-ron-wyden-fbi-location-data-no-warrant",
           "thumbnail": ""
         },
         {
-          "title": "机器人从演示到产线",
-          "body": "人形/通用机器人最难的不是“能走”，而是“能在产线上稳定干活”：感知鲁棒性、抓取泛化、以及安全协作是三大门槛。短期更可能先在物流、仓储、巡检等半结构化场景落地，再向复杂制造推进。对中国供应链，优势在机电与制造，但软件与数据闭环决定上限。未来两年会出现一批“能算清账”的落地案例。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Multiverse Computing pushes its compressed AI models into the mainstream",
+          "body": "After compressing models from major AI labs including OpenAI, Meta, DeepSeek and Mistral AI, Multiverse Computing has launched both an app that showcases the capabilities of its compressed models and ",
+          "insight": "模型压缩走向主流意味着AI将更快落地到端侧与企业内网；成本下降会扩大使用面，但也可能让管控更难、滥用门槛更低。",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/19/multiverse-computing-pushes-its-compressed-ai-models-into-the-mainstream/",
           "thumbnail": ""
         },
         {
-          "title": "电池技术比拼安全与寿命",
-          "body": "电池竞争不仅是能量密度，更是安全、寿命与一致性：热失控风险、低温性能与快充衰减决定用户体验与保险成本。固态电池被寄予厚望，但产业化通常卡在界面稳定与量产良率。对车企，短期更可行的是材料体系优化与BMS算法升级。未来技术路线会呈现“多技术并存”，而非一统天下。",
-          "tag": "分析",
-          "url": "",
+          "title": "Nothing CEO Carl Pei says smartphone apps will disappear as AI agents take their",
+          "body": "Nothing CEO Carl Pei says AI agents will eventually replace apps, shifting smartphones toward systems that understand intent and act on a user's behalf.",
+          "insight": "“应用消失、智能体上位”是交互范式之争：赢家可能是掌握系统入口与个人数据的厂商，开发者生态将从做App转向做能力模块。",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/nothing-ceo-carl-pei-says-smartphone-apps-will-disappear-as-ai-agents-take-their-place/",
+          "thumbnail": ""
+        },
+        {
+          "title": "Two Palantir veterans just came out of stealth with $30 million and a Sequoia st",
+          "body": "The founders are worth paying attention to.",
+          "insight": "",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/two-palantir-veterans-just-came-out-of-stealth-with-30-million-and-a-sequoia-stamp-of-approval/",
+          "thumbnail": ""
+        },
+        {
+          "title": "Trump is threatening international students, and a new bill could help stop him",
+          "body": "A bipartisan duo is pushing back on President Donald Trump's attempts to end a program that lets hundreds of thousands of foreign students work in the US for a year after graduation. Reps. Sam Liccard",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.theverge.com/policy/897097/opt-bill-international-student-visas",
+          "thumbnail": ""
+        },
+        {
+          "title": "Sam Altman’s thank-you to coders draws the memes",
+          "body": "Altman expresses gratitude for people who knew how to write their code from scratch. The internet replies with salty jokes.",
+          "insight": "",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/sam-altmans-thank-you-to-coders-draws-the-memes/",
           "thumbnail": ""
         }
       ],
@@ -292,41 +436,71 @@
     },
     {
       "id": "auto",
+      "overview": "电动车政策与技术两条线同时加速：联邦EV费用提案引发公平性争论，固态电池续航目标再刷新想象空间。车企的能源布局与产线调整也在重塑供应链，太阳能与储能成为新关键词。",
       "items": [
         {
-          "title": "价格战逼出“现金流淘汰赛”",
-          "body": "当降价常态化，真正危险的是利润与周转同时恶化：销量上去但现金回不来，会让弱势品牌在供应商账期与渠道返利上承压。对消费者，建议优先考虑保有量大、售后网点密、核心零部件供应稳定的品牌，避免“便宜但后期难修”。对行业，未来一两年会出现更明显的并购整合与品牌退场。",
-          "tag": "分析",
-          "url": "",
+          "title": "A solid-state EV battery that can achieve 800 miles of driving range — It’s beco",
+          "body": "<div class=\"feat-image\"><img src=\"https://electrek.co/wp-content/uploads/sites/3/2026/03/Solid-state-EV-batteries-range-1.jpeg?quality=82&#038;strip=all&#038;w=1400\" /></div><p><a href=\"https://electr",
+          "insight": "固态电池向800英里续航逼近，将把竞争从“续航焦虑”转向“成本与量产可靠性”；一旦规模化，充电网络压力也会被重新定义。",
+          "tag": "",
+          "url": "https://electrek.co/2026/03/18/solid-state-ev-batteries-with-800-miles-range-become-reality/",
           "thumbnail": ""
         },
         {
-          "title": "智驾从炫技到责任",
-          "body": "智能驾驶的竞争焦点正在转向安全与责任边界：功能命名、用户教育、以及事故数据披露会越来越重要。技术上，端到端与多传感器融合能提升上限，但长尾场景与极端天气仍是硬关。对车企，合规与冗余设计会抬高成本。未来“谁更敢把安全指标公开透明”，谁更可能赢得信任溢价。",
-          "tag": "提醒",
-          "url": "",
+          "title": "New EV fee proposals charge owners 2-3x what gas drivers pay in federal tax",
+          "body": "<div class=\"feat-image\"><img src=\"https://electrek.co/wp-content/uploads/sites/3/2025/06/gas-vs-electric.png?w=1600\" /></div><p>A growing number of states and federal lawmakers are pushing flat annual",
+          "insight": "EV年费拟按汽油车税负的2-3倍征收，争议点在“补路费”还是“惩罚转型”；政策走向将直接影响电动车渗透率与二手残值。",
+          "tag": "",
+          "url": "https://electrek.co/2026/03/18/new-ev-fee-proposals-punish-adoption-reward-oil-dependence/",
           "thumbnail": ""
         },
         {
-          "title": "混动成为家庭车主流",
-          "body": "在补能条件不均衡地区，混动/增程对家庭用户仍具性价比：能耗低、里程焦虑小、二手残值相对稳定。车企的胜负取决于发动机热效率、能量管理策略与整车NVH。对用户，重点看真实油耗、保养成本与质保条款。未来混动会与纯电长期并存，而不是过渡品简单消失。",
-          "tag": "观察",
-          "url": "",
+          "title": "GM–LG shifts a US plant from EV batteries to LFP energy storage",
+          "body": "<div class=\"feat-image\"><img src=\"https://electrek.co/wp-content/uploads/sites/3/2025/07/GM-Low-cost-EV-batteries.jpeg?quality=82&#038;strip=all&#038;w=1400\" /></div><p><a href=\"https://electrek.co/gu",
+          "insight": "GM-LG把电池产线转向LFP储能，说明盈利确定性正从车端转向电网侧；这也可能缓解动力电池过剩与价格战压力。",
+          "tag": "",
+          "url": "https://electrek.co/2026/03/18/gm-lg-shifts-a-us-plant-from-ev-batteries-to-lfp-energy-storage/",
           "thumbnail": ""
         },
         {
-          "title": "出海从卖车到建体系",
-          "body": "中国车企出海的下一步是本地化：KD工厂、售后零件仓、金融与保险合作、以及合规认证。单靠价格优势很难长期维持，尤其在贸易摩擦背景下。对企业，渠道与服务投入前置会压利润，但能换来更稳的生命周期价值。未来两年，海外市场会从“增量故事”变成“运营能力考试”。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Toyota locks in power from a massive new Texas solar farm",
+          "body": "<div class=\"feat-image\"><img src=\"https://electrek.co/wp-content/uploads/sites/3/2026/03/Avantus-Toyota-Texas-solar.jpg?quality=82&#038;strip=all&#038;w=1200\" /></div><p>Avantus and Toyota Tsusho Amer",
+          "insight": "丰田锁定德州大型太阳能电力，体现车企把能源成本当成核心竞争力；未来“制造+电力采购”将同步纳入ESG与成本核算。",
+          "tag": "",
+          "url": "https://electrek.co/2026/03/18/toyota-locks-in-power-from-a-massive-new-texas-solar-farm/",
           "thumbnail": ""
         },
         {
-          "title": "电池回收成新利润池",
-          "body": "动力电池退役规模上来后，回收将同时影响资源安全与成本：镍钴锂回收能对冲原材料波动，梯次利用则考验安全与一致性。对车企与电池厂，建立闭环回收网络能降低合规风险并形成长期收益。对消费者，正规回收渠道也决定二手车残值。未来行业会走向标准化与头部集中。",
-          "tag": "机会",
-          "url": "",
+          "title": "Range Rover’s next electric SUV is bringing an entirely new look inside and out",
+          "body": "<div class=\"feat-image\"><img src=\"https://electrek.co/wp-content/uploads/sites/3/2025/01/Range-Rovers-mid-size-electric-SUV.jpeg?quality=82&#038;strip=all&#038;w=1400\" /></div><p>The electric <a href=",
+          "insight": "路虎电动SUV重塑内外设计，意味着豪华品牌要用体验与差异化对抗同质化电动化；软件与座舱将成为溢价主战场。",
+          "tag": "",
+          "url": "https://electrek.co/2026/03/18/range-rovers-next-ev-bringing-new-look-inside-and-out/",
           "thumbnail": ""
+        },
+        {
+          "title": "Hyundai’s most affordable EV gets a ‘luxury’ upgrade — Here’s our first look at ",
+          "body": "<div class=\"feat-image\"><img src=\"https://electrek.co/wp-content/uploads/sites/3/2026/03/Hyundai-affordable-EV-luxury-3.jpeg?quality=82&#038;strip=all&#038;w=1400\" /></div><p>Hyundai launched the Casp",
+          "insight": "",
+          "tag": "",
+          "url": "https://electrek.co/2026/03/18/hyundais-most-affordable-ev-gets-luxury-upgrade-video/",
+          "thumbnail": ""
+        },
+        {
+          "title": "新造车9月销量：卷低价奏效，“理小零”创新高-36氪",
+          "body": "可以预见，随着新车的上市，岚图、智己在10月的交付量应该会更上一层楼。 · 最后还有一个亮点是极越。极越的月交付量已从6月的444辆增长至9月的2605辆，增速迅猛。 · 销量的增长或许与极越近期在营销上的发力有关。除了在极越07发布会上邀请了李彦宏、曾毓群、李斌等大佬造势外，极越CEO夏一平还在持续做直播、拍视频，甚至连续直播18小时测试极越07续航。",
+          "insight": "",
+          "tag": "",
+          "url": "https://36kr.com/p/2974635673342214",
+          "thumbnail": "https://imgs.search.brave.com/56_IHQyOxvj0iKRNJeigrDXqP2JR30DoJ3eN4MjTUu4/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9pbWcu/MzZrcmNkbi5jb20v/aHNvc3Ntcy8yMDI0/MTAwMi92Ml9lOTE5/ODRkMDYyMjU0Yzdj/YTQ2YzU2OTU4N2Y4/ZDQ0MEAwMDAwMDBf/b3N3ZzE5OTE0OTBv/c3dnMTc5Mm9zd2cx/MDI0X2ltZ19wbmc_/eC1vc3MtcHJvY2Vz/cz1pbWFnZS9yZXNp/emUsbV9tZml0LHdf/NjAwLGhfNDAwLGxp/bWl0XzAvY3JvcCx3/XzYwMCxoXzQwMCxn/X2NlbnRlcg"
+        },
+        {
+          "title": "2024，汽车业22大预言-36氪",
+          "body": "从“蔚小理”到华为、比...们扎堆发布售价50万甚至更高价格的新车型。“再不努力工作，就只能开BBA了”，一度成为社交网络上的热门话题。 · 2024年，它们还想走得更远。蔚来ET9的野心是“去抢BBA最核心的根据地”，理想则要“挑战BBA在中国区的销量”...",
+          "insight": "",
+          "tag": "",
+          "url": "https://36kr.com/p/2616532101470338",
+          "thumbnail": "https://imgs.search.brave.com/SXEQR7c8XxUESrMB6NUw2Mjmh5yQ5OlE6Qj64OYx3pM/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9pbWcu/MzZrcmNkbi5jb20v/aHNvc3Ntcy8yMDI0/MDEyMy92Ml82ZjBk/YzRkNzRkMDQ0ZjUz/YjkwYTYyMDg3ODEw/M2I3OUA1ODg4Mjc1/X29zd2c1OTkxNzRv/c3dnMTA1M29zd2c0/OTVfaW1nX3BuZz94/LW9zcy1wcm9jZXNz/PWltYWdlL3Jlc2l6/ZSxtX21maXQsd182/MDAsaF80MDAsbGlt/aXRfMC9jcm9wLHdf/NjAwLGhfNDAwLGdf/Y2VudGVy"
         }
       ],
       "title": "汽车",
@@ -335,83 +509,78 @@
     },
     {
       "id": "travel",
-      "items": [
-        {
-          "title": "清明前后迎短途高峰",
-          "body": "按国内出行习惯，清明前后往往是春季第一波短途高峰：周边自驾、赏花与亲子游需求集中，酒店与租车价格容易在周末上浮。建议提前锁定可退改产品，避开热门景区的中午入园峰值，改用“早进晚出”。对旅行者，提升体验的关键是行程密度别过高。未来一周关注天气与高铁余票会更实用。",
-          "tag": "提醒",
-          "url": "",
-          "thumbnail": ""
-        },
-        {
-          "title": "县城游拼的是内容",
-          "body": "县城旅游从“情绪消费”进入“内容竞争”：真正能留住人的不是一条网红街，而是博物馆、非遗工坊、节庆活动与在地餐饮的组合。对地方，文旅最怕同质化，建议用一两个强IP做深，而不是面面俱到。对游客，选择淡季与错峰更容易吃到本地味。未来县城游会出现头部目的地与长尾分化。",
-          "tag": "观察",
-          "url": "",
-          "thumbnail": ""
-        },
-        {
-          "title": "入境游复苏看支付便利",
-          "body": "入境游体验的“最后一公里”往往是支付、交通与语言：移动支付绑定、地铁购票、景区预约对外籍游客仍有学习成本。提升便利化会直接带动消费，因为游客愿意在“可预期的体验”上多花钱。对旅游企业，面向入境客的导览与多语服务是增量。未来入境游的竞争将落在城市服务细节。",
-          "tag": "趋势",
-          "url": "",
-          "thumbnail": ""
-        },
-        {
-          "title": "出境游先看签证与航班",
-          "body": "出境游成本主要由机票与签证效率决定：若直飞航班恢复不足，转机时间会显著拉高疲劳与不确定性。建议优先选择航班密度高、签证材料相对清晰的目的地，并购买覆盖延误与医疗的保险。对家庭出行，行程留出缓冲日很关键。未来航司运力恢复节奏将继续影响价格中枢。",
-          "tag": "提醒",
-          "url": "",
-          "thumbnail": ""
-        },
-        {
-          "title": "春季徒步谨防失温",
-          "body": "春季山地天气变化快，体感温度可能在短时间内下降，失温风险不亚于冬季。建议采用分层穿衣（排汗层+保暖层+防风层），备头灯、保温毯与能量补给，并尽量结伴和报备路线。对新手，别用网红路线替代专业评估。未来户外热仍会持续，安全教育与救援体系将更受关注。",
-          "tag": "提醒",
-          "url": "",
-          "thumbnail": ""
-        }
-      ],
+      "overview": "本日数据未提供旅游板块原始新闻，暂无可据以编辑导读与排序的条目。建议关注中东局势对航线、保险与出行成本的外溢影响。",
+      "items": [],
       "title": "旅游",
       "icon": "✈️",
       "color": "#1abc9c"
     },
     {
       "id": "entertainment",
+      "overview": "国际娱乐以内容交易与IP资产运作为主线：音乐目录收购、国际销售与厂牌新设密集。纪录片与舞台评论类报道也在强化“现实题材”的回潮。",
       "items": [
         {
-          "title": "长视频精品转向“短剧化”",
-          "body": "长视频平台在增长放缓后更强调内容的“开场即抓人”，叙事节奏向短剧学习：更密集的冲突、更短的情节单元、更强的话题点。好处是提升完播与讨论度，副作用是削弱复杂人物弧光，容易同质化。对创作者，真正稀缺的是类型创新与现实质感。未来观众会用脚投票：爽感可以快，但审美会反噬套路。",
-          "tag": "观察",
-          "url": "",
+          "title": "Majority Stake in Tina Turner Catalog Acquired by Pophouse",
+          "body": "Pophouse Entertainment, the Sweden-based company co-founded by ABBA’s Björn Ulvaeus, has completed a transaction that sees Pophouse becoming an owner alongside BMG in “the music interests of the music",
+          "insight": "音乐目录股权交易继续升温，说明“现金流型内容资产”仍受追捧；在流媒体增速放缓背景下，版权成为更确定的金融化标的。",
+          "tag": "",
+          "url": "https://variety.com/2026/music/news/tina-turner-sells-catalog-pophouse-1236692878/",
           "thumbnail": ""
         },
         {
-          "title": "音乐宣发向社区迁移",
-          "body": "新歌传播越来越依赖短视频与社区二创，而不是传统打榜。算法能把作品推成爆款，也会把歌曲切成“15秒片段”，导致创作更迎合副歌高潮。对独立音乐人，持续输出与风格识别比一次爆红更重要。未来唱片公司会更像“内容运营公司”，用数据反向定义制作流程。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Louis Theroux on Capturing Reality of Israeli Settlements in ‘The Settlers’: ‘I’",
+          "body": "In 2010, British journalist Louis Theroux went to Israel to interview ultra-nationalist Jewish settlers who believed it was their religious and political obligation to populate the West Bank for the B",
+          "insight": "以定居点为主题的纪录片引发关注，显示现实政治议题正回到主流叙事中心；内容产业在分裂舆论中更依赖真实性与立场透明。",
+          "tag": "",
+          "url": "https://variety.com/2026/film/markets-festivals/louis-theroux-reality-of-israeli-settlements-the-settlers-1236692747/",
           "thumbnail": ""
         },
         {
-          "title": "明星商业价值回归口碑",
-          "body": "品牌更谨慎的背景下，代言不再只看曝光量，而看舆情风险、粉黑大战与可持续人设。艺人团队需要把公益、作品与合规经营形成闭环，避免“空热度”。对观众，审美也更务实：演技、舞台、作品供给决定留存。未来娱乐工业会更像“风控驱动”的生意，而非单纯流量游戏。",
-          "tag": "分析",
-          "url": "",
+          "title": "The Open Reel Swoops on Málaga WIP Winner ‘Little Tragedies’ (EXCLUSIVE)",
+          "body": "Italy’s The Open Reel has picked up international sales rights to Daniel Nolasco’s Brazilian hybrid feature “Little Tragedies” (“Pequenas tragédias”), winner last week of the Malaga Festival&#8217;s W",
+          "insight": "WIP获奖片迅速被国际销售公司拿下，反映影展市场对“制作中项目”的提前锁定；融资压力下，提前交易能显著提高项目确定性。",
+          "tag": "",
+          "url": "https://variety.com/2026/film/markets-festivals/the-open-reel-little-tragedies-malaga-wip-winner-1236692069/",
           "thumbnail": ""
         },
         {
-          "title": "综艺回暖靠“真实感”",
-          "body": "观众对脚本痕迹越来越敏感，反而愿意为真实互动与专业内容买单：旅行、人文、职场技能类更容易出圈。制作端的挑战是成本与真实性的平衡，过度控场会消解信任。对平台，长期价值在“可复用IP”与线下衍生。未来综艺竞争将从明星阵容转向内容方法论。",
-          "tag": "观察",
-          "url": "",
+          "title": "Red Empire, Organic Bow Hybrid AI Animated ‘Home Away AI.i.Ce‘ (EXCLUSIVE)",
+          "body": "Brisbane’s Red Empire Prods. and Taipei- and Los Angeles-based Organic Media Group have unveiled their first animated vertical series, “Home Away AI.i.Ce,” at Hong Kong FilMart. Created and written by",
+          "insight": "“混合AI动画”合作上新，标志制作流程向AI渗透更深；关键不在噱头，而在能否稳定降低工期并通过版权与署名的合规考验。",
+          "tag": "",
+          "url": "https://variety.com/2026/digital/markets-festivals/red-empire-organic-ai-home-away-ai-i-ce-1236692119/",
           "thumbnail": ""
         },
         {
-          "title": "短剧出海进入“合规期”",
-          "body": "短剧在海外的增长很快，但下一步难点是版权、分级与支付合规：一旦踩线，平台与投放可能瞬间归零。对公司而言，必须把本地化编剧、演员与发行渠道建起来，而不是简单翻译搬运。对内容本身，文化差异要求更强的类型适配。未来短剧出海会从野蛮增长走向头部集中。",
-          "tag": "提醒",
-          "url": "",
+          "title": "Former Buccaneer & Cineflix Execs Launch Drama Outfit High Road Entertainment",
+          "body": "EXCLUSIVE: Former Buccaneer co-CEO Richard Tulk-Hart and former Cineflix Head of Scripted TV James Durie are taking the High Road. The pair have joined forces to launch High Road Entertainment, a new ",
+          "insight": "前高管组建新剧集公司，显示流媒体时代制作端仍在重组：更轻资产、更国际化、以项目制吸引人才与融资将成为常态。",
+          "tag": "",
+          "url": "https://deadline.com/2026/03/high-road-entertainment-launch-buccaneer-cineflix-miramax-1236759644/",
+          "thumbnail": ""
+        },
+        {
+          "title": "Russell T. Davies & Pet Shop Boys Reviving ‘It’s A Sin’ For Contemporary Dance S",
+          "body": "It&#8217;s a Sin creator Russell T. Davies is reviving his hit Channel 4 and HBO drama with British synth pop duo Pet Shop Boys. The group have teamed with dance studio Rambert and festival producer G",
+          "insight": "",
+          "tag": "",
+          "url": "https://deadline.com/2026/03/its-a-sin-dance-show-russell-t-davies-pet-shop-boys-channel-4-1236759376/",
+          "thumbnail": ""
+        },
+        {
+          "title": "Lola Young Proves She’s a Bona Fide Rock Star in a Bravura Return to the Stage i",
+          "body": "How many phenomenal young British female singers can one world withstand? It&#8217;s hard to imagine a more enjoyable onslaught than the wave that has brought us Olivia Dean, Raye and Sienna Spiro, am",
+          "insight": "",
+          "tag": "",
+          "url": "https://variety.com/2026/music/concert-reviews/lola-young-orpheum-concert-review-1236692910/",
+          "thumbnail": ""
+        },
+        {
+          "title": "LIV Golf South Africa 2026: Where to Watch the Golf Tournament Live Online",
+          "body": "With the first tournament in Africa of the season, the 2026 LIV Golf South Africa tees off starting on Thursday, Mar. 19 and goes until Sunday, Mar. 22 at Club at Steyn City in Midrand, South Africa. ",
+          "insight": "",
+          "tag": "",
+          "url": "https://variety.com/2026/shopping/news/how-to-watch-liv-golf-south-africa-2026-live-online-free-1236692309/",
           "thumbnail": ""
         }
       ],
@@ -421,40 +590,70 @@
     },
     {
       "id": "sports",
+      "overview": "NCAA“附加赛”爆冷与晋级故事持续发酵，篮球与橄榄球规则讨论并行。NBA方面湖人连胜、勇士直言附加赛，季后赛格局正在快速定型。",
       "items": [
         {
-          "title": "国足建设关键在体系",
-          "body": "中国足球的核心问题早已不是某一场胜负，而是青训、联赛质量、教练培养与竞赛体系的长期缺口。短期换帅或归化并不能替代青训供给与比赛强度。对公众而言，降低“唯成绩论”的情绪波动，才能给改革留出空间。未来真正的拐点会出现在青训产出能稳定进入职业联赛并形成竞争。",
-          "tag": "分析",
-          "url": "",
+          "title": "LeBron's 6 dunks key Lakers' 7th straight win",
+          "body": "LeBron James put on a show Wednesday night in Houston as the Lakers matched their winning streak to a season-best seven games.",
+          "insight": "詹姆斯6次扣篮带队七连胜，既是个人状态信号，也是湖人冲刺季后赛的“化学反应”注脚；西部卡位或因此重新洗牌。",
+          "tag": "",
+          "url": "https://www.espn.com/nba/story/_/id/48246814/lebron-james-6-dunks-vs-rockets-key-lakers-7th-straight-win",
           "thumbnail": ""
         },
         {
-          "title": "巴黎周期更看重稳定",
-          "body": "奥运备战的共性规律是：伤病管理、比赛节奏控制与心理韧性往往比单次成绩更重要。对中国优势项目，如何在规则变化与对手升级下保持领先，需要更多技术细节与数据化训练。对新兴项目，提升国际参赛密度是硬指标。未来一年的关键在于“用比赛找问题”，而不是用训练掩盖问题。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Four English teams out in 24 hours - what happened and why?",
+          "body": "With just two out of six Premier League teams progressing to the Champions League quarter-finals, what went wrong for the English sides?",
+          "insight": "24小时四支英格兰球队出局揭示联赛强不等于欧战稳：赛程、伤病与战术适配才是淘汰赛关键，球队建队策略或将调整。",
+          "tag": "",
+          "url": "https://www.bbc.com/sport/football/articles/cqxd55dxrejo?at_medium=RSS&at_campaign=rss",
           "thumbnail": ""
         },
         {
-          "title": "CBA竞争看外援与青训",
-          "body": "CBA观赏性与商业价值受外援质量、比赛节奏与本土新人成长同时影响。外援能抬高上限，但若挤压本土球权，会削弱国家队人才供给。更合理的方向是通过规则设计让外援带动对抗强度，同时把关键回合留给本土核心。未来联赛的可持续性取决于青训产出与观众体验双提升。",
-          "tag": "观察",
-          "url": "",
+          "title": "NFL to consider 5-year window for pick trades",
+          "body": "The Browns are proposing a rule change that would allow NFL teams to trade draft picks five years into the future instead of three.",
+          "insight": "允许交易未来5年选秀权将显著提高豪赌空间，也放大“透支未来”的系统性风险；联盟需要平衡竞争与财务/战绩崩盘的外部性。",
+          "tag": "",
+          "url": "https://www.espn.com/nfl/story/_/id/48243911/browns-propose-nfl-rule-change-allow-pick-trades-5-years-out",
           "thumbnail": ""
         },
         {
-          "title": "马拉松热需安全底线",
-          "body": "路跑赛事井喷后，组织能力成为硬约束：补给密度、医疗点位、气象预案与分区起跑直接关系安全。对跑者，配速管理与体检比“PB焦虑”更重要，特别是高温、寒潮或大风天。对城市，赛事经济可观，但必须以安全与秩序为前提。未来监管会更重视赛事资质与医疗配置的量化标准。",
-          "tag": "提醒",
-          "url": "",
+          "title": "Miami (Ohio): SMU win 'proved doubters wrong'",
+          "body": "After much debate in the lead-up to NCAA tournament selections, Miami (Ohio) beat SMU in the First Four on Wednesday night.",
+          "insight": "迈阿密(俄亥俄)“证明质疑者错了”是附加赛叙事核心：单场淘汰让球队心态与临场执行凌驾纸面实力，黑马概率天然更高。",
+          "tag": "",
+          "url": "https://www.espn.com/mens-college-basketball/story/_/id/48246028/miami-ohio-beats-smu-first-ncaa-tournament-win-1999",
           "thumbnail": ""
         },
         {
-          "title": "乒羽优势要防“内耗”",
-          "body": "优势项目最怕的不是外敌强，而是内部更新慢与竞争不足。梯队建设要避免“一代天才顶一项”，需要稳定的人才漏斗与科学选材。对顶尖选手，赛历管理与技战术微创新决定寿命。未来国际对手的打法升级会更快，必须用更开放的训练与数据分析保持领先。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Prairie View A&M's run continues in First Four win",
+          "body": "One year after winning only five games, Prairie View A&M continued its dramatic turnaround by earning its first NCAA tournament victory, a 67-55 triumph over Lehigh on Wednesday night in the First Fou",
+          "insight": "草原景观农工大学的逆袭延续，体现NCAA体系下培养与策略的回报周期；对中小项目而言，稳定防守与节奏控制更易创造奇迹。",
+          "tag": "",
+          "url": "https://www.espn.com/mens-college-basketball/story/_/id/48244552/prairie-view-beats-lehigh-first-four-first-ncaa-tournament-win",
+          "thumbnail": ""
+        },
+        {
+          "title": "Kerr to the point: Dubs 'going to be in the play-in'",
+          "body": "After a sixth loss in seven games, Warriors coach Steve Kerr laid bare the cold reality his team has been facing as it hobbles toward the regular season's conclusion: \"We're going to be in the play-in",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.espn.com/nba/story/_/id/48245791/steve-kerr-says-warriors-know-going-play-in",
+          "thumbnail": ""
+        },
+        {
+          "title": "'I thought I'd be bleeped by BBC' - but Hunt's words resonate",
+          "body": "British sprinter Amy Hunt on inspiring female athletes to get university degrees as she prepares to compete at the World Athletics Indoor Championships.",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.bbc.com/sport/athletics/articles/cqxdxze375po?at_medium=RSS&at_campaign=rss",
+          "thumbnail": ""
+        },
+        {
+          "title": "Make your picks now",
+          "body": "Like favorites? Pick one as your champ",
+          "insight": "",
+          "tag": "",
+          "url": "https://fantasy.espn.com/games/tournament-challenge-bracket-2026/?addata=tcmens2026_ncaam_web_CreateabracketP1Hero",
           "thumbnail": ""
         }
       ],
@@ -464,48 +663,71 @@
     },
     {
       "id": "jobs_hot",
+      "overview": "AI创业与大厂并购持续改写职业版图：从“提示词化软件”到团队整体并入微软，机会与淘汰同频发生。更值得关注的是新岗位走俏——懂技术又懂业务的“翻译型人才”正在成为组织刚需。",
       "items": [
         {
-          "title": "AI应用产品经理",
-          "body": "公司：字节/阿里/腾讯/美团及大量B端SaaS。岗位：AI应用PM（RAG、Agent、工作流）。薪资：一线城市常见30k-80k/月（视级别）。亮点：直接对业务指标负责，最吃香的是能把模型能力拆成可交付功能，并懂数据合规与ROI核算。未来影响：应用层将淘汰“只会写PRD、不懂技术与成本”的PM。",
-          "tag": "机会",
-          "url": "",
+          "title": "Microsoft hires the team of Sequoia-backed AI collaboration platform, Cove",
+          "body": "AI collaboration startup Cove is shutting down after its team joined Microsoft, with service ending April 1 and customer data set for deletion.",
+          "insight": "Cove团队并入微软是典型“人才并购”：产品停服但能力被吸收，创业者与求职者都要适应“被收编”成为退出方式之一。",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/microsoft-hires-the-team-of-sequioa-backed-ai-collaboration-platform-cove/",
           "thumbnail": ""
         },
         {
-          "title": "大模型工程化/平台",
-          "body": "公司：华为/百度/商汤/科大讯飞/云厂商。岗位：推理优化、训练平台、MLOps、评测体系。薪资：35k-100k/月+。亮点：降本增效最刚需，涉及编译优化、KV缓存、量化蒸馏、集群调度。未来影响：会把“算法”与“工程”重新定价，工程化能力将成为稳定高薪区。",
-          "tag": "趋势",
-          "url": "",
+          "title": "This startup wants to make enterprise software look more like a prompt",
+          "body": "The company has raised $12 million in seed funding to build an AI operating system for enterprise.",
+          "insight": "让企业软件像提示词一样使用，是把复杂系统的门槛压到业务端；若成功，将重塑B端岗位分工，让“会提需求”成为硬技能。",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/this-startup-wants-to-make-enterprise-software-look-more-like-a-prompt/",
           "thumbnail": ""
         },
         {
-          "title": "芯片验证/DFT工程师",
-          "body": "公司：中芯国际/华虹/韦尔/兆易创新及大量设计服务商。岗位：验证、后端、DFT、功能安全。薪资：25k-70k/月（资深更高）。亮点：行业长期缺口在“能把良率与可靠性做出来的人”，比单纯写RTL更稀缺。未来影响：随车规与工业芯片扩大，验证人才将持续紧缺。",
-          "tag": "机会",
-          "url": "",
+          "title": "AI时代催生新职业需求：懂技术的业务翻译人才走俏",
+          "body": "这位朋友的儿子，学过编程、懂技术逻辑，恰恰是传统行业最需要的那种“翻译人才”。虽然在企业中从事与IT无关的岗位，却可以在第一时间将本岗位那些因技术成本太高而被忽视的细碎需求落地。这不是AI对程序员的替代，而是对程序员职业领域的扩容。",
+          "insight": "“懂技术的业务翻译”走俏，说明AI并非只替代，而是在组织中制造新接口岗位；能把碎片需求产品化的人会更值钱。",
+          "tag": "",
+          "url": "https://www.huxiu.com/article/4843235.html",
+          "thumbnail": "https://imgs.search.brave.com/gngeRK886Wrr_VAKP-ZWuWtT4TscaBrM2cbQ87px4Y8/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9pbWcu/aHV4aXVjZG4uY29t/L2FpL2FpLWdlbmVy/YWwtY292ZXIvMjAy/NjAzLzE4LzE0MDI3/LXByb2QtZGItZ2Vu/ZXJhbC0xLTE3NzM4/MjY5OTUyNTIucG5n/P2ltYWdlVmlldzIv/MS93Lzc4OC9oLzQ0/NC98aW1hZ2VNb2dy/Mi9zdHJpcC9pbnRl/cmxhY2UvMS9xdWFs/aXR5Lzg1L2Zvcm1h/dC9wbmc"
+        },
+        {
+          "title": "The leaderboard “you can’t game,” funded by the companies it ranks",
+          "body": "Artificial intelligence&#160;models are multiplying fast, and competition is stiff. With so many players crowding the space, which one will be the best&#160;— and who decides that?&#160;Arena, formerl",
+          "insight": "不可被刷榜的评测榜单若由被评公司资助，核心在治理与透明度；它既可能提升行业标准，也可能引发新的利益冲突争议。",
+          "tag": "",
+          "url": "https://techcrunch.com/video/the-leaderboard-you-cant-game-funded-by-the-companies-it-ranks/",
           "thumbnail": ""
         },
         {
-          "title": "出海合规与本地化运营",
-          "body": "公司：Shein/Temu/TikTok生态/新能源与车企出海团队。岗位：跨境法务合规、关务原产地、投放与增长、本地社媒运营。薪资：20k-60k/月+绩效。亮点：直接决定能否持续经营，懂当地广告法、数据保护与内容审核更吃香。未来影响：外部规则越复杂，合规岗越从成本中心变利润护城河。",
-          "tag": "趋势",
-          "url": "",
+          "title": "Rebel Audio is a new AI podcasting tool aimed at first-time creators",
+          "body": "Rebel Audio is a new all-in-one podcasting tool that allows creators to record podcasts, edit, clip content for social, and publish episodes, all without ever leaving the platform.",
+          "insight": "面向新手的一体化AI播客工具降低创作门槛，但也会扩大内容同质化；真正的差异化将回到选题、观点与分发能力。",
+          "tag": "",
+          "url": "https://techcrunch.com/2026/03/18/rebel-audio-is-a-new-ai-podcasting-tool-aimed-at-first-time-creators/",
           "thumbnail": ""
         },
         {
-          "title": "储能系统与电力交易",
-          "body": "公司：宁德时代/阳光电源/华为数字能源/电网与售电公司。岗位：储能系统工程、EMS算法、电力现货交易。薪资：25k-80k/月。亮点：储能商业模式越来越依赖电价机制与调度能力，复合型人才稀缺。未来影响：电力市场化推进会把“懂交易的工程师”推成核心岗位。",
-          "tag": "机会",
-          "url": "",
+          "title": "The PhD students who became the judges of the AI industry",
+          "body": "Artificial intelligence&#160;models are multiplying fast, and competition is stiff. With so many players crowding the space, which one will be the best&#160;— and who decides that?&#160;Arena, formerl",
+          "insight": "",
+          "tag": "",
+          "url": "https://techcrunch.com/podcast/the-phd-students-who-became-the-judges-of-the-ai-industry/",
           "thumbnail": ""
         },
         {
-          "title": "医疗器械注册与临床",
-          "body": "公司：迈瑞/联影/微创及大量创新器械公司。岗位：注册事务、临床项目、质量体系。薪资：18k-50k/月。亮点：监管趋严下，能把临床证据与合规材料一次做对的人最值钱。未来影响：医疗“强监管”常态将抬升合规与证据链人才的议价权。",
-          "tag": "观察",
-          "url": "",
-          "thumbnail": ""
+          "title": "2023年的科技行业，这些技能不可或缺-36氪",
+          "body": "“回顾过去 24 个月的招聘和解雇人数相关数据，我们会发现，Meta、Salesforce、微软（Microsoft）等公司招聘的员工数远远超过其解雇的员工数，甚至可达解雇员工人数的 10 倍。” 但根据 LinkedIn 今年 2 月的劳动力雇佣报告显示，技术、信息和媒体行业自去年春季以来呈现出最大用工跌幅（招聘人数下滑 41%）。为了在这些领域继续保持竞争力，求职者必须得掌握强大的技术性技能。",
+          "insight": "",
+          "tag": "",
+          "url": "https://36kr.com/p/2224813823953032",
+          "thumbnail": "https://imgs.search.brave.com/S4Sj7LDhTheYaVQPlnwQBjEjz1vlXOyrTJHLvHqV_PA/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9pbWcu/MzZrcmNkbi5jb20v/aHNvc3Ntcy8yMDIz/MDQyNy92Ml9hNGMx/ZDZlMjMyMGU0OTg4/YmMzMWY3MjI3MDhi/ZWRmNEA1MzM1MzU4/X29zd2czNzU0OTJv/c3dnNjAwb3N3ZzQw/MF9pbWdfcG5n"
+        },
+        {
+          "title": "2023年，蓄势待发的5大科技赛道-36氪",
+          "body": "首超30万亿元，今年国家钱往哪花：民生占比超四成，社保和就业增加近3000亿元 · 乱世买黄金？真有事仍是“现金为王” ... 按火必全球顾问孙宇晨的说法，火必最近的业务做的很好，正是发展的关键时期。 ... 本站由 阿里云 提供计算与安全服务 违法和不良信息、未成年人保护举报电话：010-89650707 举报邮箱：jubao@36kr.com 网上有害信息举报 · © 2011~2026 北京多氪信息科技有限公司 | 京ICP备12031756号-6 | 京ICP证150143号 | 京公网安备11010502057322号",
+          "insight": "",
+          "tag": "",
+          "url": "https://36kr.com/p/2069229426594184",
+          "thumbnail": "https://imgs.search.brave.com/IxL1ES5-E_ezPqtflZaunXCCg5-9dpxi1SKd1PxMVjk/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9pbWcu/MzZrcmNkbi5jb20v/MjAyMzAxMDMvdjJf/MjY1M2M5YWJkM2M5/NDk3MDg0NzI4OGQ2/YWJjMDI1NThfaW1n/X3BuZw"
         }
       ],
       "title": "热门方向",
@@ -514,40 +736,70 @@
     },
     {
       "id": "health",
+      "overview": "全球公共卫生出现两种对照：一边是五岁以下儿童死亡下降放缓、中东冲突加剧医疗崩溃；另一边是多国被WHO认证消除重大传染病传播。流感疫苗成分建议出炉与咖啡长期研究，也为个体健康提供可执行线索。",
       "items": [
         {
-          "title": "春季过敏进入高发期",
-          "body": "春季花粉与尘螨叠加，过敏性鼻炎与结膜炎常见。实用做法：外出佩戴口罩与护目镜、回家后洗脸冲鼻（生理盐水）、减少开窗时段并用空气净化器。若出现喘鸣、胸闷或夜间咳嗽加重，应警惕过敏性哮喘并就医评估。未来一月过敏人群的用药依从性，将直接决定症状控制水平。",
-          "tag": "提醒",
-          "url": "",
+          "title": "Conflict deepens health crisis across Middle East, WHO says",
+          "body": "<p>More than ten days into the latest escalation of conflict in the Middle East, health systems across the Region are coming under strain as injuries and displacement rise, attacks on health care cont",
+          "insight": "WHO提示中东冲突加深卫生危机，重点不只在伤员救治，更在基础公共卫生与慢病管理被打断；次生死亡常在战后集中爆发。",
+          "tag": "",
+          "url": "https://www.who.int/news/item/11-03-2026-conflict-deepens-health-crisis-across-middle-east--who-says",
           "thumbnail": ""
         },
         {
-          "title": "体重管理重在可持续",
-          "body": "减脂的核心不是极端节食，而是可持续的能量缺口与肌肉保留：优先保证蛋白质与睡眠，再用力量训练提高基础代谢。对多数人，能长期坚持的饮食结构（少含糖饮料、少油炸、多蔬果全谷物）比短期“速瘦”更有效。若有基础病或BMI较高，建议在医生指导下进行计划。未来健康管理会更强调行为与环境干预。",
-          "tag": "知识库",
-          "url": "",
+          "title": "Progress in reducing child deaths slows as 4.9 million children die before age f",
+          "body": "<p>An estimated 4.9&nbsp;million children died before their fifth birthday in 2024, including 2.3&nbsp;million newborns, according to new estimates released today. Most of these deaths are preventable",
+          "insight": "2024年仍有490万儿童未满五岁死亡，且下降放缓，意味着疫苗、营养与基础医疗投入出现瓶颈；政策需回到可达性与资金稳定。",
+          "tag": "",
+          "url": "https://www.who.int/news/item/18-03-2026-progress-in-reducing-child-deaths-slows-as-4.9-million-children-die-before-age-five",
           "thumbnail": ""
         },
         {
-          "title": "心梗中风识别别拖延",
-          "body": "急性心梗与卒中最怕“等一等”：胸痛压榨感、出冷汗、左臂放射痛；或突然口角歪斜、言语不清、单侧无力，都应立刻呼叫120。时间窗决定预后：卒中溶栓/取栓与心梗再灌注越早越好。家庭应准备常用药清单与既往史，便于急救沟通。未来公共健康最大的增益来自急救意识普及。",
-          "tag": "提醒",
-          "url": "",
+          "title": "Recommendations for influenza vaccine composition for the 2026-2027 northern hem",
+          "body": "The World Health Organization (WHO) today announced recommendations for the viral composition of influenza (or “flu”) vaccines for the 2026-2027 northern hemisphere influenza season. The announcement ",
+          "insight": "流感疫苗成分建议提前公布，为各国秋冬免疫准备争取时间；对企业与学校而言，及早规划接种与防控能显著降低缺勤与医疗挤兑。",
+          "tag": "",
+          "url": "https://www.who.int/news/item/27-02-2026-recommendations-for-influenza-vaccine-composition-for-the-2026-2027-northern-hemisphere-season",
           "thumbnail": ""
         },
         {
-          "title": "睡眠是最便宜的处方",
-          "body": "长期睡眠不足会抬升肥胖、抑郁焦虑与代谢异常风险，并削弱免疫力。建议固定入睡起床时间、睡前减少蓝光与咖啡因、卧室降温并保持黑暗安静。若持续打鼾伴白天嗜睡，需警惕睡眠呼吸暂停并做评估。未来企业与学校对作息的制度安排，也会成为公共健康的重要变量。",
-          "tag": "观察",
-          "url": "",
+          "title": "Denmark becomes first country in the European Union to eliminate mother-to-child",
+          "body": "The World Health Organization (WHO) has certified Denmark for the elimination of mother-to-child transmission (EMTCT) of HIV and syphilis, recognizing the country's sustained commitment to ensuring ev",
+          "insight": "丹麦消除母婴传播的认证说明“系统能力”可复制：产检覆盖、检测随访与抗病毒治疗缺一不可，为其他国家提供可操作模板。",
+          "tag": "",
+          "url": "https://www.who.int/news/item/27-02-2026-denmark-becomes-first-country-in-the-european-union-to-eliminate-of-mother-to-child-transmission-of-hiv-and-syphilis",
           "thumbnail": ""
         },
         {
-          "title": "抗生素别当“退烧药”",
-          "body": "多数感冒由病毒引起，抗生素无效且会增加耐药风险。发热时以补液、休息和对症退烧为主；若高热不退、呼吸困难、持续咳脓痰或症状超过一周，应就医排查细菌感染或肺炎。家长尤其要避免自行给儿童使用抗生素。未来耐药问题会越来越多通过门诊规范用药来控制。",
-          "tag": "提醒",
-          "url": "",
+          "title": "Chile becomes the first country in the Americas to be verified by WHO for the el",
+          "body": "The World Health Organization (WHO), together with the Pan American Health Organization (PAHO), congratulates Chile for becoming the first country in the Americas – and the second globally – to be off",
+          "insight": "智利在美洲率先消除麻风病，体现持续监测与去污名化的重要性；当病例稀少时，公共卫生更容易因忽视而反弹。",
+          "tag": "",
+          "url": "https://www.who.int/news/item/04-03-2026-chile-becomes-the-first-country-in-the-americas-to-be-verified-by-who-for-the-elimination-of-leprosy",
+          "thumbnail": ""
+        },
+        {
+          "title": "Your daily coffee may be protecting your brain, 43-year study finds",
+          "body": "Your morning coffee or tea could be quietly supporting your brain health. A long-term study found that moderate consumption of caffeinated coffee or tea was linked to an 18% lower risk of dementia and",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.sciencedaily.com/releases/2026/03/260318033138.htm",
+          "thumbnail": ""
+        },
+        {
+          "title": "The surprising cancer link between cats and humans",
+          "body": "Scientists have mapped the genetics of cancer in cats for the first time at scale, uncovering major overlaps with human cancers. Key mutations—like those linked to breast cancer—appear in both species",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.sciencedaily.com/releases/2026/03/260318033143.htm",
+          "thumbnail": ""
+        },
+        {
+          "title": "WHO Director-General visits Jordan to recognize strong collaboration on health s",
+          "body": "The Director-General of the World Health Organization, Dr Tedros Adhanom Ghebreyesus, today concluded the first day of his two-day State visit to the Hashemite Kingdom of Jordan, underscoring the stro",
+          "insight": "",
+          "tag": "",
+          "url": "https://www.who.int/news/item/25-02-2026-who-director-general-visits-jordan-to-recognize-strong-collaboration-on-health-system-delivery--emergency-relief-and-advancing-mental-health",
           "thumbnail": ""
         }
       ],
@@ -557,40 +809,70 @@
     },
     {
       "id": "science",
+      "overview": "社交媒体对幸福感的负面影响被量化，教育领域AI与手机禁令的“副作用”同样被研究揭示。与此同时，从恐龙巢穴复原到南极“粉色岩石”指向隐藏巨体，基础科学仍在不断刷新认知边界。",
       "items": [
         {
-          "title": "引力波天文学走向常规",
-          "body": "引力波探测已从首次发现时代进入“常态化观测”：更多事件意味着可以研究黑洞/中子星的种群分布，甚至约束宇宙学参数。科学意义在于提供不同于电磁波的“新感官”，让我们看到不可见的剧烈并合过程。对产业端，高精度激光、超低噪声测量与数据分析方法会外溢。未来十年多信使天文学将持续扩展人类观测边界。",
-          "tag": "知识库",
-          "url": "",
+          "title": "World Happiness Report highlights social media's negative impact, ranks Finland ",
+          "body": "Heavy social media use contributes to a stark decline in well-being among young people, with the effects particularly worrying in teenage girls in English-speaking countries and Western Europe, accord",
+          "insight": "幸福报告点名社交媒体伤害年轻人福祉，提示“连接”不等于“支持”；平台治理与家庭、学校的使用边界将成为公共议题。",
+          "tag": "",
+          "url": "https://phys.org/news/2026-03-world-happiness-highlights-social-media.html",
           "thumbnail": ""
         },
         {
-          "title": "系外行星寻找“类地证据”",
-          "body": "系外行星研究正从“发现数量”转向“观测大气成分”：通过凌日光谱寻找水汽、二氧化碳、甲烷等可能的生物或地质信号。难点在于恒星活动的干扰与信号极弱，需要更强的望远镜与更精细的建模。意义在于回答“地球是否特殊”。未来更大口径空间望远镜将把这条证据链推向更可靠的统计结论。",
-          "tag": "知识库",
-          "url": "",
+          "title": "More and more teachers and students are using AI, even though it might do more h",
+          "body": "K-12 teachers and students across the country are increasingly using AI in and out of classrooms, whether it is teachers turning to AI to refine lesson plans or students asking AI to help them researc",
+          "insight": "师生广泛使用AI但担心伤害学习，关键在评价体系与课堂设计没跟上；若不改考核，AI只会把“完成作业”与“获得能力”进一步分离。",
+          "tag": "",
+          "url": "https://phys.org/news/2026-03-teachers-students-ai-good.html",
           "thumbnail": ""
         },
         {
-          "title": "CRISPR走向治疗规范化",
-          "body": "基因编辑的临床应用从概念验证走向适应症拓展，但核心挑战仍是脱靶风险、递送效率与长期随访。体内递送（如LNP或病毒载体）与免疫反应管理决定安全性上限。科学意义在于为遗传病与部分肿瘤提供“机制性治疗”可能。未来监管与伦理框架会更细化，决定技术扩散速度。",
-          "tag": "知识库",
-          "url": "",
+          "title": "School phone policies not silver bullet for student outcomes",
+          "body": "Students who attend schools with smartphone bans report missing sleep to make up for \"lost time\" on their phones but benefit from more face-to-face socializing in the school day, as a new UK study rev",
+          "insight": "手机禁令并非银弹：学生可能用熬夜补“屏幕时间”，反而损害睡眠；学校管理需要配套数字素养与行为干预，而非一禁了之。",
+          "tag": "",
+          "url": "https://phys.org/news/2026-03-school-policies-silver-bullet-student.html",
           "thumbnail": ""
         },
         {
-          "title": "可控核聚变仍是长跑",
-          "body": "核聚变的里程碑多与等离子体约束、材料耐辐照与能量增益相关，但从实验装置到并网发电仍有工程鸿沟：稳定运行、维护成本、燃料循环都很难。其意义在于若成功可提供近乎无限的低碳能源，但短期不应被当作解决能源问题的“速效药”。未来十年更可能看到的是关键部件突破与示范装置推进。",
-          "tag": "知识库",
-          "url": "",
+          "title": "These strange pink rocks just revealed a hidden giant beneath Antarctica",
+          "body": "Pink granite boulders sitting mysteriously atop Antarctica’s Hudson Mountains have led scientists to a stunning discovery: a hidden granite mass buried beneath Pine Island Glacier, stretching nearly 1",
+          "insight": "南极粉色花岗岩指向地下隐藏巨体，为冰下地质演化提供新证据；这类发现会影响我们对冰盖稳定性与资源分布的长期推演。",
+          "tag": "",
+          "url": "https://www.sciencedaily.com/releases/2026/03/260318033126.htm",
           "thumbnail": ""
         },
         {
-          "title": "深海探测推动材料进步",
-          "body": "深海高压、低温与腐蚀环境迫使装备材料、密封与传感系统不断升级。科学价值在于理解海洋环流、碳循环与极端生态，并为资源勘探与灾害预警提供数据。对工业端，耐压壳体、声学通信与自主航行算法会反向促进民用技术。未来深海观测网络化，将显著提升对海洋变化的预测能力。",
-          "tag": "知识库",
-          "url": "",
+          "title": "Scientists recreated a dinosaur nest to solve a 70-million-year-old mystery",
+          "body": "Scientists recreated a life-size oviraptor nest to understand how these dinosaurs hatched their eggs. Their experiments showed the parent likely couldn’t heat all the eggs directly, meaning sunlight p",
+          "insight": "复原恐龙巢穴解决7000万年前谜题，体现实验古生物学的价值：用工程与物理还原行为，能把化石从“形态”推向“生态”。",
+          "tag": "",
+          "url": "https://www.sciencedaily.com/releases/2026/03/260319005102.htm",
+          "thumbnail": ""
+        },
+        {
+          "title": "Changing shower and toilet habits could help close England's five billion-liter ",
+          "body": "Changing how people shower, report leaks and flush toilets could help close England's projected five billion liter daily water shortfall—but only if the water sector builds the evidence base to make i",
+          "insight": "",
+          "tag": "",
+          "url": "https://phys.org/news/2026-03-shower-toilet-habits-england-billion.html",
+          "thumbnail": ""
+        },
+        {
+          "title": "Mystery fish deaths in Papua New Guinea prompt health warning",
+          "body": "Villagers on a remote island in Papua New Guinea have been warned not to eat fish until scientists can identify the cause of thousands of deaths of marine creatures and hundreds of cases of illness.",
+          "insight": "",
+          "tag": "",
+          "url": "https://phys.org/news/2026-03-mystery-fish-deaths-papua-guinea.html",
+          "thumbnail": ""
+        },
+        {
+          "title": "Some 'designer' crossbreed dogs may have more problem behaviors than pure breeds",
+          "body": "In a new, survey-based study of three kinds of \"designer\" crossbreed dogs, cockapoos, cavapoos and labradoodles, all three showed more undesirable behaviors than at least one of their purebred progeni",
+          "insight": "",
+          "tag": "",
+          "url": "https://phys.org/news/2026-03-crossbreed-dogs-problem-behaviors-pure.html",
           "thumbnail": ""
         }
       ],
@@ -601,287 +883,228 @@
   ],
   "hot_words": [
     {
-      "word": "稳增长",
+      "word": "伊朗战争",
       "count": 20
     },
     {
-      "word": "降息预期",
+      "word": "油价114",
       "count": 19
     },
     {
-      "word": "地方债",
+      "word": "天然气暴涨",
       "count": 18
     },
     {
-      "word": "房地产",
+      "word": "霍尔木兹",
       "count": 17
     },
     {
-      "word": "以旧换新",
+      "word": "海军护航",
       "count": 16
     },
     {
-      "word": "新能源",
+      "word": "战争保险",
       "count": 15
     },
     {
-      "word": "AI算力",
+      "word": "欧洲能源",
       "count": 14
     },
     {
-      "word": "国产替代",
+      "word": "卡塔尔设施",
       "count": 13
     },
     {
-      "word": "半导体",
+      "word": "美情报评估",
       "count": 12
     },
     {
-      "word": "数据要素",
+      "word": "俄北极计划",
       "count": 11
     },
     {
-      "word": "低空经济",
+      "word": "精确打击导弹",
       "count": 10
     },
     {
-      "word": "出海",
+      "word": "激光武器",
       "count": 9
     },
     {
-      "word": "关税",
+      "word": "自杀式无人机",
       "count": 8
     },
     {
-      "word": "红海航运",
+      "word": "AI深度伪造",
       "count": 7
     },
     {
-      "word": "俄乌局势",
+      "word": "位置数据",
       "count": 6
     },
     {
-      "word": "中东冲突",
+      "word": "英超出局",
       "count": 5
     },
     {
-      "word": "粮食安全",
+      "word": "湖人七连胜",
       "count": 4
     },
     {
-      "word": "黄金",
+      "word": "固态电池",
       "count": 3
     },
     {
-      "word": "油价",
+      "word": "电动车税费",
       "count": 2
     },
     {
-      "word": "医疗反腐",
+      "word": "儿童死亡",
       "count": 1
     }
   ],
   "hot_word_index": {
-    "稳增长": [
-      "economy:1",
-      "economy:2",
-      "entertainment:0",
-      "entertainment:4",
-      "jobs_hot:3"
+    "伊朗战争": [
+      "china:3"
     ],
-    "降息预期": [
+    "油价114": [
       "highlight:0",
-      "highlight:1",
-      "china:0",
       "world:0",
-      "world:4",
-      "economy:1",
-      "economy:2",
-      "economy:3",
-      "travel:2"
-    ],
-    "地方债": [
-      "china:1"
-    ],
-    "房地产": [
-      "highlight:1",
-      "china:2"
-    ],
-    "以旧换新": [
-      "china:0"
-    ],
-    "新能源": [
-      "world:2",
-      "jobs_hot:3"
-    ],
-    "AI算力": [
-      "highlight:3",
-      "tech:1"
-    ],
-    "国产替代": [
-      "tech:2"
-    ],
-    "半导体": [
-      "world:2",
-      "tech:2"
-    ],
-    "数据要素": [
-      "china:4"
-    ],
-    "低空经济": [
-      "highlight:3",
-      "china:4",
-      "world:2",
-      "economy:2",
-      "sports:3"
-    ],
-    "出海": [
-      "highlight:2",
-      "world:2",
       "economy:0",
-      "auto:3",
-      "entertainment:4",
-      "jobs_hot:3"
+      "auto:0",
+      "auto:2",
+      "auto:4",
+      "auto:5",
+      "jobs_hot:7"
     ],
-    "关税": [
-      "highlight:2",
-      "world:2"
+    "天然气暴涨": [
+      "china:3"
     ],
-    "红海航运": [
-      "world:1",
-      "economy:4"
+    "霍尔木兹": [
+      "china:3"
     ],
-    "俄乌局势": [
-      "world:4"
+    "海军护航": [],
+    "战争保险": [
+      "china:3"
     ],
-    "中东冲突": [
-      "highlight:2",
-      "highlight:5",
-      "world:1",
-      "world:3",
-      "military:1",
-      "economy:3",
-      "entertainment:0"
+    "欧洲能源": [
+      "china:2",
+      "china:3",
+      "china:5"
     ],
-    "粮食安全": [
-      "china:5",
-      "world:1",
-      "military:0",
-      "military:1",
-      "military:2",
-      "military:3",
-      "military:4",
+    "卡塔尔设施": [],
+    "美情报评估": [],
+    "俄北极计划": [],
+    "精确打击导弹": [],
+    "激光武器": [],
+    "自杀式无人机": [],
+    "AI深度伪造": [
+      "world:7",
+      "tech:1",
       "tech:3",
       "tech:4",
-      "auto:1",
-      "auto:4",
-      "travel:4",
-      "sports:3",
+      "entertainment:3",
+      "jobs_hot:0",
+      "jobs_hot:1",
       "jobs_hot:2",
-      "science:2"
+      "jobs_hot:4",
+      "jobs_hot:5",
+      "science:1"
     ],
-    "黄金": [
-      "highlight:5",
-      "economy:3"
+    "位置数据": [
+      "jobs_hot:6"
     ],
-    "油价": [
-      "world:4",
-      "economy:4"
-    ],
-    "医疗反腐": [
-      "travel:3",
-      "sports:3",
-      "jobs_hot:5"
-    ]
+    "英超出局": [],
+    "湖人七连胜": [],
+    "固态电池": [],
+    "电动车税费": [],
+    "儿童死亡": []
   },
   "history_today": [
     {
       "year": "1918",
-      "event": "美国国会通过《标准时间法》，确立夏令时制度。"
+      "event": "美国国会通过《时区法》，确立标准时区制度"
+    },
+    {
+      "year": "1932",
+      "event": "悉尼海港大桥正式通车，成澳大利亚地标"
+    },
+    {
+      "year": "1962",
+      "event": "法国与阿尔及利亚签署埃维昂协议，结束战争"
     },
     {
       "year": "2003",
-      "event": "伊拉克战争爆发，美军对伊拉克发动军事行动。"
+      "event": "伊拉克战争爆发，美英对伊发动军事行动"
     },
     {
-      "year": "2011",
-      "event": "利比亚军事干预展开，多国对卡扎菲政权实施打击。"
-    },
-    {
-      "year": "2020",
-      "event": "新冠疫情全球扩散，多国进入紧急状态与封控期。"
+      "year": "2016",
+      "event": "布鲁塞尔恐袭前夕，欧洲反恐警戒持续升级"
     }
   ],
   "almanac": {
-    "lunar_date": "二月初一",
+    "lunar_date": "农历二月初一",
     "yi": [
-      "出行",
       "会友",
       "签约",
-      "整理财务"
+      "出行"
     ],
     "ji": [
-      "冲动投资",
-      "熬夜过度",
-      "口舌争执"
+      "动土",
+      "破土"
     ],
-    "lucky_color": "藏青",
-    "fortune": "稳字当头，先守再攻。"
+    "lucky_color": "深蓝",
+    "fortune": "稳住节奏，先控风险再谈扩张。"
   },
   "daily_question": {
-    "question": "平台治理应更重“反垄断”还是“促创新”？",
+    "question": "霍尔木兹护航应由谁买单？",
     "options": [
-      "优先反垄断",
-      "优先促创新",
-      "并重但分行业",
-      "交给市场自调"
+      "政府承担为主",
+      "企业与保险分摊",
+      "市场自担不介入"
     ]
   },
   "quote": {
     "text": "In the middle of difficulty lies opportunity.",
     "author": "Albert Einstein",
-    "zh": "在困难的中间蕴藏着机会。"
+    "zh": "在困难的中心，蕴藏着机会。"
   },
   "key_numbers": [
     {
-      "number": "2%~3%",
-      "label": "通胀舒适区",
-      "context": "货币政策讨论",
-      "trend": "neutral"
-    },
-    {
-      "number": "50bp",
-      "label": "可能降息幅度",
-      "context": "海外降息预期",
-      "trend": "neutral"
-    },
-    {
-      "number": "30%+",
-      "label": "部分车企降价幅",
-      "context": "价格战延续",
+      "number": "$114",
+      "label": "油价冲高",
+      "context": "中东能源资产遭袭",
       "trend": "up"
     },
     {
-      "number": "10TB+",
-      "label": "多模态训练数据量级",
-      "context": "大模型训练",
+      "number": "30%",
+      "label": "气价涨幅",
+      "context": "袭击引发市场震荡",
       "trend": "up"
     },
     {
-      "number": "1e-6",
-      "label": "AI推理误差目标",
-      "context": "工程可靠性",
-      "trend": "down"
+      "number": "25%",
+      "label": "天然气飙升",
+      "context": "卡塔尔枢纽受袭后",
+      "trend": "up"
+    },
+    {
+      "number": "3年",
+      "label": "激光武器",
+      "context": "五角大楼拟规模部署",
+      "trend": "neutral"
+    },
+    {
+      "number": "490万",
+      "label": "儿童死亡",
+      "context": "2024年五岁前死亡数",
+      "trend": "neutral"
     }
   ],
   "quality": {
     "sections": 13,
-    "total_items": 70,
-    "url_rate": 0,
-    "thumb_rate": 0,
-    "avg_body_len": 130,
-    "score": 40
+    "total_items": 95
   },
-  "generated_at": "2026-03-19T15:11:37.894818+08:00",
+  "generated_at": "2026-03-19T17:35:27.498459+08:00",
   "version": 2
 }
