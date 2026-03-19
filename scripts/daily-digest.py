@@ -443,73 +443,52 @@ def build_raw_text(raw_results):
     return "\n".join(lines)
 
 def generate_sections(raw_results, override_prompt=None, attempt=0):
-    # 统计哪些板块有搜索数据
-    has_data = {sid: bool(items) for sid, items in raw_results.items()}
-    empty_sections = [s["title"] for s in SECTIONS if not has_data.get(s["id"])]
-
+    """
+    新架构：原始新闻条目直接保留（title/url/thumbnail/desc），
+    LLM 只负责：全局 summary、热词、每板块 overview（2句话），
+    以及 history_today/almanac/daily_question/quote/key_numbers。
+    """
     raw_text = build_raw_text(raw_results)
 
-    note = ""
-    if empty_sections:
-        note = f"""
-**注意：以下板块没有搜索数据，请完全依靠你自己的知识（截止训练日期）生成内容，标注 tag 为"知识库"：**
-{', '.join(empty_sections)}
-即使没有实时数据，这些板块也必须出现在输出中，不能省略，至少生成 2-3 条有价值的内容。
-"""
+    prompt = f"""你是专业新闻编辑。今天是 {today} {weekday}。
+以下是今日各板块的原始新闻标题和摘要，请据此生成辅助内容。
 
-    prompt = f"""你是一个专业、有深度的新闻编辑。今天是 {today} {weekday}。
-
-以下搜索数据来自权威信源（新华社、人民日报、澎湃新闻、财新、Reuters、BBC、Bloomberg、FT、TechCrunch、arXiv 等）以及社交平台（微博、知乎、B站、抖音、X/Twitter、YouTube、LinkedIn 等）的公开内容。
-社交平台数据可反映公众情绪和热点讨论，请酌情引用，但优先以权威媒体为主，社交平台作为补充视角。
-{note}
-**输出格式：严格 JSON，结构如下：**
+**输出格式：严格 JSON，不要包含 markdown 代码块：**
 {{
-  "summary": "2-3句话的全局总结，点出今日最值得关注的1-2件事，语言有力度",
-  "hot_words": ["热词1", "热词2", "热词3", ...],
-  "sections": [
-    {{
-      "id": "板块id",
-      "items": [
-        {{
-          "title": "标题（15字以内，有力度，不是新闻标题堆砌，避免套话）",
-          "body": "正文（150-280字，必须有自己的分析判断和背景解读，不只是转述；优先引用权威来源具体数据/数字；结尾给出一句前瞻或影响判断；没有搜索数据时用自身知识写）",
-          "tag": "从[突发,重磅,分析,趋势,观察,机会,提醒,知识库]选一个",
-          "url": "来源url（优先用权威媒体/官方平台链接），没有就空字符串"
-        }}
-      ]
-    }}
-  ]
+  "summary": "2-3句话全局总结，点出今日最值得关注的1-2件事，语言有力度",
+  "hot_words": ["热词1", "热词2", ...],
+  "overviews": {{
+    "highlight": "今日看点板块的2句话编辑导读",
+    "china": "国内板块的2句话编辑导读",
+    "world": "国际板块的2句话编辑导读",
+    "military": "军事板块的2句话编辑导读",
+    "economy": "财经板块的2句话编辑导读",
+    "tech": "科技板块的2句话编辑导读",
+    "entertainment": "娱乐板块的2句话编辑导读",
+    "sports": "体育板块的2句话编辑导读",
+    "auto": "汽车板块的2句话编辑导读",
+    "travel": "旅游板块的2句话编辑导读",
+    "jobs_hot": "招聘板块的2句话编辑导读",
+    "health": "健康板块的2句话编辑导读",
+    "science": "科学板块的2句话编辑导读"
+  }},
+  "history_today": [{{"year": "年份", "event": "30字内描述"}}],
+  "almanac": {{"lunar_date": "农历日期", "yi": ["宜1","宜2","宜3"], "ji": ["忌1","忌2"], "lucky_color": "幸运色", "fortune": "20字运势寄语"}},
+  "daily_question": {{"question": "有争议的问题20字内", "options": ["选项1","选项2","选项3"]}},
+  "quote": {{"text": "名言原文", "author": "作者", "zh": "英文名言的中译，原文是中文则留空"}},
+  "key_numbers": [{{"number": "数字", "label": "10字说明", "context": "15字背景", "trend": "up/down/neutral"}}]
 }}
 
-**板块要求（全部必须输出，一个都不能少）：**
-- highlight（今日看点）：选今天最重要的 5-8 件事，给一句话判断，语言精练有力
-- china（国内）：5-8 条，政策/社会/经济/民生，优先引用 gov.cn/新华社/人民日报，有背景分析，每条都要有具体数据或细节
-- world（国际）：5-8 条，重大事件/地区冲突/外交动态，优先引用 Reuters/AP/BBC，写清楚影响链和对中国的潜在影响
-- military（军事与安全）：5-8 条，必须有自己的战略判断，不只复述；可涵盖演习、装备、地缘博弈
-- economy（财经与市场）：5-8 条，宏观/股市/汇率/大宗商品，优先引用 Bloomberg/WSJ/财新/上交所/深交所数据，有操作层面的观察和风险提示
-- tech（科技前沿）：5-8 条，AI/半导体/新能源技术为重点，优先引用 arXiv/TechCrunch/MIT，写清楚技术突破意味着什么
-- entertainment（娱乐）：5-8 条，轻松但要有观点，涵盖影视/音乐/网红/综艺，不是流水账
-- sports（体育）：5-8 条，重要赛事/中国运动员/赛事赛程，有结果有分析有期待
-- auto（汽车）：5-8 条，新能源/传统车/行业竞争，有具体车型/销量/价格数据，优先引用 autohome/pcauto/reuters
-- travel（旅游）：5-8 条，热门目的地/签证政策/出行攻略，优先引用 mafengwo/ctrip/官方旅游局，有实用信息
-- jobs_hot（热门方向）：5-8 条，不限地区行业，列公司+岗位+薪资范围(如有)+核心亮点，选当下最热门/高薪/有代表性的岗位方向
-- health（健康生活）：5-8 条，医学研究/疾病防治/健康政策/生活方式建议，优先引用 WHO/国家卫健委/NEJM/丁香医生，有具体数据和实用建议
-- science（科学探索）：5-8 条，最新科研成果/天文发现/生物医学突破，优先引用 Nature/Science/NASA，解释清楚"发现了什么"和"为什么重要"
-- hot_words：从今日所有新闻标题中提取 15-20 个最能代表今日新闻热点的关键词（2-5字，真实词语，如"两会"、"美伊冲突"、"新能源"），按热度排序，不要动词短语
-
-另外，在 JSON 根节点额外输出：
-- "history_today": 历史上的今天（{today}）发生过的 3-5 件大事，每条包含 year(年份字符串) + event(一句话描述，30字内)
-- "almanac": 中国传统黄历，包含：lunar_date(农历日期如"正月初七")、yi(宜，3-4项，数组)、ji(忌，2-3项，数组)、lucky_color(今日幸运色)、fortune(一句简短运势寄语，20字内)
-- "daily_question": 今日一问，包含：question(一个有争议、值得思考的问题，20字内，不要是非题，不要答案显而易见的问题)、options(2-4个选项，每项15字内，数组)
-- "quote": 今日名言，包含：text(名言原文，中英文均可，50字内)、author(作者姓名)、zh(若原文是英文则提供中文译文，否则留空字符串)
-- "key_numbers": 今日关键数字，从新闻中提取 4-5 个最值得关注的具体数字/数据，每条包含：number(数字本身，如"7.3%""120亿""25bp")、label(简短说明，10字内)、context(所属新闻背景，15字内)、trend("up"/"down"/"neutral")
+hot_words：从新闻标题提取15-20个关键词（2-5字），按热度排序。
+history_today：历史上的今天（{today}）3-5件大事。
+key_numbers：从新闻中提取4-5个最值得关注的数字。
 
 原始数据：
 {raw_text}
 
-输出完整 JSON（所有板块都必须有）："""
+输出 JSON："""
 
-    raw = llm(override_prompt or prompt, max_tokens=8000 if attempt == 0 else 5000)
+    raw = llm(override_prompt or prompt, max_tokens=3000 if attempt == 0 else 2000)
     if not raw:
         return None
 
@@ -520,16 +499,28 @@ def generate_sections(raw_results, override_prompt=None, attempt=0):
         if raw.endswith("```"):
             raw = "\n".join(raw.split("\n")[:-1])
         result = json.loads(raw)
-        # 验证所有板块都在
-        section_ids = {s["id"] for s in result.get("sections", [])}
-        required = {s["id"] for s in SECTIONS}
-        missing = required - section_ids
-        if missing:
-            print(f"  ⚠ LLM 漏掉板块：{missing}，重试一次...", flush=True)
-            return None
-        # 强制按 SECTIONS 定义的顺序重排，不依赖 LLM 输出顺序
-        sec_map = {s["id"]: s for s in result.get("sections", [])}
-        result["sections"] = [sec_map[s["id"]] for s in SECTIONS if s["id"] in sec_map]
+
+        # 用原始新闻条目构建 sections，LLM 不再生成 items
+        overviews = result.get("overviews", {})
+        sections = []
+        for s in SECTIONS:
+            items_raw = raw_results.get(s["id"], [])
+            items = []
+            for r in items_raw[:8]:
+                items.append({
+                    "title": r.get("title", "")[:80],
+                    "body": r.get("desc", "")[:300],
+                    "tag": "",
+                    "url": r.get("url", ""),
+                    "thumbnail": r.get("thumbnail", ""),
+                })
+            sections.append({
+                "id": s["id"],
+                "overview": overviews.get(s["id"], ""),
+                "items": items,
+            })
+
+        result["sections"] = sections
         return result
     except json.JSONDecodeError as e:
         print(f"  JSON parse error: {e}", flush=True)
@@ -542,18 +533,18 @@ def fallback_sections(raw_results):
     sections = []
     for s in SECTIONS:
         items = raw_results.get(s["id"], [])
-        if not items:
-            continue
         sections.append({
             "id": s["id"],
+            "overview": "",
             "items": [
                 {
-                    "title": r["title"][:40],
-                    "body": r["desc"][:200],
+                    "title": r.get("title", "")[:80],
+                    "body": r.get("desc", "")[:300],
                     "tag": "",
-                    "url": r.get("url", "")
+                    "url": r.get("url", ""),
+                    "thumbnail": r.get("thumbnail", ""),
                 }
-                for r in items[:5]
+                for r in items[:8]
             ]
         })
     return {"summary": f"{today} {weekday} 每日简报", "sections": sections}
@@ -562,30 +553,8 @@ def fallback_sections(raw_results):
 def save(structured, raw_results):
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    # 构建双重映射：url→thumbnail 和 title关键词→thumbnail（兜底）
-    url_thumb: dict = {}
-    title_thumb: list = []  # [(title_lower, thumbnail)]
-    for items in raw_results.values():
-        for r in items:
-            if not r.get("thumbnail"):
-                continue
-            if r.get("url"):
-                url_thumb[r["url"]] = r["thumbnail"]
-            if r.get("title"):
-                title_thumb.append((r["title"].lower(), r["thumbnail"]))
-
-    def find_thumbnail(item_url: str, item_title: str) -> str:
-        # 1. 精确 url 匹配
-        if item_url and item_url in url_thumb:
-            return url_thumb[item_url]
-        # 2. 标题关键词模糊匹配（取前10字）
-        if item_title and title_thumb:
-            key = item_title[:10].lower()
-            for t_title, t_thumb in title_thumb:
-                if key and key in t_title:
-                    return t_thumb
-        return ""
-
+    # thumbnail 已在 items 里，无需额外映射
+    _ = raw_results  # 保留参数签名兼容性
     # 合并板块 meta（icon/color/title）
     section_meta = {s["id"]: s for s in SECTIONS}
     for sec in structured.get("sections", []):
@@ -593,11 +562,6 @@ def save(structured, raw_results):
         sec["title"] = meta.get("title", sec["id"])
         sec["icon"]  = meta.get("icon", "📌")
         sec["color"] = meta.get("color", "#888")
-        for item in sec.get("items", []):
-            if item.get("body"):
-                item["body"] = item["body"][:450]
-            if not item.get("thumbnail"):
-                item["thumbnail"] = find_thumbnail(item.get("url",""), item.get("title",""))
 
     sections = structured.get("sections", [])
     # hot_words 优先用 LLM 生成的（字符串列表），转成 [{word, count}] 格式；降级用正则提取
