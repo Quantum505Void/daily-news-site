@@ -49,7 +49,9 @@ jobs:
           git config user.name "xiaoxin-bot"
           git config user.email "bot@xiaoxin"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git stash --include-untracked || true
           git pull --rebase origin main
+          git stash pop || true
           git add public/data/ public/manifest.json public/search-index.json README.md || true
           git diff --cached --quiet && echo "nothing to commit" && exit 0
           git commit -m "daily: $(date +%Y-%m-%d)" || true
