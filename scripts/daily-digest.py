@@ -186,35 +186,70 @@ RSS_FEEDS = {
     "highlight": [
         "https://feeds.bbci.co.uk/news/rss.xml",
         "https://www.reutersagency.com/feed/?best-topics=top-news&post_type=best",
+        "https://www.thepaper.cn/rss_ori.jsp?id=25950",        # 澎湃新闻
+        "https://rsshub.app/zaobao/znews/china",               # 联合早报中国
     ],
     "china": [
         "http://www.xinhuanet.com/rss/news.xml",
         "https://www.thepaper.cn/rss_ori.jsp?id=25950",
+        "https://www.caixin.com/rss/home.xml",                 # 财新
+        "https://rsshub.app/gov/zhengce",                      # 国务院政策
     ],
     "world": [
         "https://feeds.bbci.co.uk/news/world/rss.xml",
         "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+        "https://feeds.bbci.co.uk/news/world/asia/rss.xml",   # BBC亚洲
+        "https://www.aljazeera.com/xml/rss/all.xml",           # 半岛电视台
+    ],
+    "military": [
+        "https://www.defensenews.com/arc/outboundfeeds/rss/",
+        "https://feeds.feedburner.com/janes/news",             # Jane's
+        "https://www.mil.cn/rss/index.xml",                    # 中国军网
     ],
     "tech": [
         "https://techcrunch.com/feed/",
         "https://www.theverge.com/rss/index.xml",
         "https://36kr.com/feed",
+        "https://sspai.com/feed",                              # 少数派
+        "https://rsshub.app/huxiu/article",                    # 虎嗅
+        "https://www.wired.com/feed/rss",
     ],
     "economy": [
         "https://www.ft.com/?format=rss",
+        "https://feeds.bloomberg.com/markets/news.rss",        # Bloomberg Markets
+        "https://caifuhao.eastmoney.com/rss.xml",              # 东方财富
+        "https://rsshub.app/cls/depth",                        # 财联社深度
     ],
     "science": [
         "https://www.nature.com/nature.rss",
         "https://phys.org/rss-feed/",
+        "https://www.sciencedaily.com/rss/top/science.xml",
+        "https://feeds.feedburner.com/nasa/breaking-news",     # NASA
     ],
     "health": [
         "https://www.who.int/rss-feeds/news-english.xml",
+        "https://rsshub.app/dxy/headline",                     # 丁香园
+        "https://www.sciencedaily.com/rss/top/health.xml",
     ],
     "entertainment": [
         "https://variety.com/feed/",
+        "https://deadline.com/feed/",
+        "https://rsshub.app/douban/movie/playing",             # 豆瓣正在热映
     ],
     "sports": [
         "https://www.espn.com/espn/rss/news",
+        "https://rsshub.app/zhibo8/news",                      # 直播吧
+    ],
+    "auto": [
+        "https://rsshub.app/autohome/news",                    # 汽车之家
+        "https://rsshub.app/cls/auto",                         # 财联社汽车
+        "https://electrek.co/feed/",                           # 电动车
+    ],
+    "travel": [
+        "https://rsshub.app/mafengwo/note/destination/10065", # 马蜂窝热门
+    ],
+    "jobs_hot": [
+        "https://rsshub.app/zhihu/hot",                        # 知乎热榜（就业话题）
     ],
 }
 
@@ -448,10 +483,27 @@ def generate_sections(raw_results, override_prompt=None, attempt=0):
     LLM 只负责：全局 summary、热词、每板块 overview（2句话），
     以及 history_today/almanac/daily_question/quote/key_numbers。
     """
-    raw_text = build_raw_text(raw_results)
+    # 构建带序号的原始条目供 LLM 引用
+    indexed_items: dict = {}  # sec_id -> [(idx, item)]
+    for s in SECTIONS:
+        indexed_items[s["id"]] = list(enumerate(raw_results.get(s["id"], [])[:8]))
+
+    def build_indexed_text():
+        lines = []
+        for s in SECTIONS:
+            items = indexed_items.get(s["id"], [])
+            if not items:
+                continue
+            lines.append(f"=== {s['title']} ===")
+            for idx, r in items:
+                lines.append(f"[{s['id']}:{idx}] {r.get('title','')} | {r.get('desc','')[:120]}")
+            lines.append("")
+        return "\n".join(lines)
+
+    raw_text = build_indexed_text()
 
     prompt = f"""你是专业新闻编辑。今天是 {today} {weekday}。
-以下是今日各板块的原始新闻标题和摘要，请据此生成辅助内容。
+以下原始新闻用 [板块id:序号] 标注，请据此生成辅助内容。
 
 **输出格式：严格 JSON，不要包含 markdown 代码块：**
 {{
@@ -472,6 +524,26 @@ def generate_sections(raw_results, override_prompt=None, attempt=0):
     "health": "健康板块的2句话编辑导读",
     "science": "科学板块的2句话编辑导读"
   }},
+  "ranked": {{
+    "highlight": ["highlight:0","highlight:2",...],
+    "china": ["china:1","china:0",...],
+    "world": [...],
+    "military": [...],
+    "economy": [...],
+    "tech": [...],
+    "entertainment": [...],
+    "sports": [...],
+    "auto": [...],
+    "travel": [...],
+    "jobs_hot": [...],
+    "health": [...],
+    "science": [...]
+  }},
+  "insights": {{
+    "highlight:0": "30-50字洞察：这条新闻为什么值得关注",
+    "china:1": "30-50字洞察",
+    ...
+  }},
   "history_today": [{{"year": "年份", "event": "30字内描述"}}],
   "almanac": {{"lunar_date": "农历日期", "yi": ["宜1","宜2","宜3"], "ji": ["忌1","忌2"], "lucky_color": "幸运色", "fortune": "20字运势寄语"}},
   "daily_question": {{"question": "有争议的问题20字内", "options": ["选项1","选项2","选项3"]}},
@@ -479,6 +551,8 @@ def generate_sections(raw_results, override_prompt=None, attempt=0):
   "key_numbers": [{{"number": "数字", "label": "10字说明", "context": "15字背景", "trend": "up/down/neutral"}}]
 }}
 
+ranked：每个板块按重要性对原始条目重新排序，用 [板块id:序号] 引用，最重要的放最前。
+insights：只需为每个板块前5条写洞察，key 格式为 "板块id:序号"，value 是30-50字中文洞察。
 hot_words：从新闻标题提取15-20个关键词（2-5字），按热度排序。
 history_today：历史上的今天（{today}）3-5件大事。
 key_numbers：从新闻中提取4-5个最值得关注的数字。
@@ -488,7 +562,7 @@ key_numbers：从新闻中提取4-5个最值得关注的数字。
 
 输出 JSON："""
 
-    raw = llm(override_prompt or prompt, max_tokens=3000 if attempt == 0 else 2000)
+    raw = llm(override_prompt or prompt, max_tokens=4000 if attempt == 0 else 2500)
     if not raw:
         return None
 
@@ -500,16 +574,36 @@ key_numbers：从新闻中提取4-5个最值得关注的数字。
             raw = "\n".join(raw.split("\n")[:-1])
         result = json.loads(raw)
 
-        # 用原始新闻条目构建 sections，LLM 不再生成 items
         overviews = result.get("overviews", {})
+        insights  = result.get("insights", {})
+        ranked    = result.get("ranked", {})
+
         sections = []
         for s in SECTIONS:
-            items_raw = raw_results.get(s["id"], [])
+            items_raw = raw_results.get(s["id"], [])[:8]
+            # 按 ranked 排序
+            ranked_keys = ranked.get(s["id"], [])
+            if ranked_keys:
+                idx_order = []
+                for k in ranked_keys:
+                    try: idx_order.append(int(k.split(":")[1]))
+                    except: pass
+                # 补上未排到的
+                all_idx = list(range(len(items_raw)))
+                idx_order += [i for i in all_idx if i not in idx_order]
+                items_raw_sorted = [items_raw[i] for i in idx_order if i < len(items_raw)]
+            else:
+                items_raw_sorted = items_raw
+
             items = []
-            for r in items_raw[:8]:
+            for orig_idx, r in enumerate(items_raw_sorted):
+                # 找原始序号（用于 insights key）
+                orig_key = f"{s['id']}:{items_raw.index(r) if r in items_raw else orig_idx}"
+                insight = insights.get(orig_key, "")
                 items.append({
                     "title": r.get("title", "")[:80],
                     "body": r.get("desc", "")[:300],
+                    "insight": insight,
                     "tag": "",
                     "url": r.get("url", ""),
                     "thumbnail": r.get("thumbnail", ""),
